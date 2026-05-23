@@ -1,0 +1,48 @@
+%% sections/01-introduction.tex
+%% Section 1: Introduction (~2 pages)
+%% Source notes: v5 LaTeX preamble, Gustavo Notes (April-May 2026),
+%% Yao-Zheng-Bai (2015) Chapter 1, Joseph Genzer (2025) Section 1.
+
+\section{Introduction}\label{sec:introduction}
+
+\todo{Open with a one-paragraph hook: random matrix theory began in the 1950s
+in nuclear physics and has since become central to high-dimensional statistics
+and data science. The fundamental object in multivariate statistics is the
+sample covariance matrix, whose eigenvalues describe how variance is
+distributed across principal directions. When the number of variables \(p\)
+is small compared to the number of samples \(n\), the sample covariance is
+well behaved. When \(p\) and \(n\) are comparable, classical intuitions break
+down and qualitatively new phenomena appear.}
+
+\todo{Second paragraph: scope. This thesis examines the spectral behavior of
+Gaussian sample covariance matrices in two regimes:
+(i) the low-dimensional regime where \(p\) is fixed and \(n \to \infty\);
+(ii) the high-dimensional regime where \(p/n \to y \in (0, \infty)\).
+In the high-dimensional regime, we focus on \emph{Johnstone's spiked model}
+\[
+  \Sigma = \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1),
+\]
+in which the population covariance has finitely many distinguished
+eigenvalues (``spikes'') above a flat baseline of ones.}
+
+\todo{Third paragraph: main story. The central phenomenon is the
+\emph{BBP phase transition}: a spike \(\alpha > 1 + \sqrt{y}\) creates an
+isolated outlier in the sample spectrum with informative limiting
+eigenvector, while a sub-threshold spike is absorbed into the bulk and its
+eigenvector becomes uninformative. This contrast underpins when methods like
+principal components analysis and spectral clustering succeed in high
+dimensions.}
+
+\todo{Fourth paragraph: roadmap. Section~\ref{sec:foundations} covers the
+probability foundations needed for the rest of the thesis. Section~\ref{sec:scm}
+develops sample covariance matrices, the Wishart distribution, the
+low-dimensional Gaussian and GOE fluctuation regimes, and the
+high-dimensional Marchenko-Pastur and Tracy-Widom laws.
+Section~\ref{sec:spiked} introduces the spiked covariance model and proves
+the BBP phase transition for eigenvalues, discusses fluctuations of spiked
+eigenvalues, derives the eigenvector alignment formula, and sketches the
+connection to spectral clustering. Section~\ref{sec:conclusion} concludes
+with a summary and open questions. Three appendices collect auxiliary
+results, simulation methodology, and selected code.}
+
+\clearpage

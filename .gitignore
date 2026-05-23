@@ -1,0 +1,29 @@
+# LaTeX intermediates
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.xdv
+
+# Editor / OS noise
+.DS_Store
+.vscode/
+.idea/
+
+# Python / Jupyter scratch
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Keep main.pdf committed so reviewers can read without compiling.
+# Add specific PDFs to ignore here if needed.

@@ -1,0 +1,65 @@
+%% sections/02-probability-foundations.tex
+%% Section 2: Probability Foundations (~5 pages)
+%% Source notes:
+%%   - v5 LaTeX notes: sections on MGFs, characteristic functions, modes of
+%%     convergence, CLT, random vectors, multivariate normal.
+%%   - Handwritten Note 1.pdf, Note 2.pdf.
+%%   - Casella and Berger (2002), Chapter 5; Joseph Genzer (2025), Section 2.
+
+\section{Probability Foundations}\label{sec:foundations}
+
+\todo{Opening paragraph: motivation. The high-dimensional phenomena we will
+study (Marchenko-Pastur, Tracy-Widom, BBP transition) build on a few
+foundational ideas from classical probability: random variables and
+distributions, modes of convergence, the law of large numbers and central
+limit theorem, and random vectors with multivariate normal distributions.
+This section reviews the minimum we need; full development is in
+\citet{Casella2002,Billingsley1995}.}
+
+\subsection{Random Variables and Distributions}\label{subsec:rvs}
+
+\todo{Content to fill in (from v5 + Joseph Section 2.1):
+- Definition: random variable \(X: \Omega \to \R\).
+- Definition: CDF \(F_X(x) = \Prob(X \le x)\) and its three characterizing
+  properties (limits, right-continuity, monotonicity).
+- Definition: discrete vs.\ absolutely continuous random variables.
+- Examples: Bernoulli, Poisson, Normal, Gamma (densities).
+Cite \citep[][\S 1.2 and \S 5.5]{Casella2002}.}
+
+\subsection{Modes of Convergence and the Law of Large Numbers}\label{subsec:convergence}
+
+\todo{Content to fill in (from v5 + Joseph Section 2.2):
+- Definitions: convergence almost surely, in probability, in distribution.
+- Implication chain: a.s. \(\Rightarrow\) probability \(\Rightarrow\)
+  distribution; counterexamples to the converses (1/n indicator).
+- Markov's inequality, Chebyshev's inequality (proofs).
+- Chebyshev's weak law of large numbers (proof via Chebyshev).
+- Kolmogorov's strong LLN (statement, cite Billingsley).
+- Include Figure: WLLN simulation (normal and exponential samples, sample
+  mean vs.\ \(n\)). This figure exists in Joseph's thesis; we will reproduce
+  in matplotlib with our color palette (notebook 01).}
+
+\subsection{Moments and the Moment Generating Function}\label{subsec:mgf}
+
+\todo{Content to fill in (from v5 MGF section, condensed):
+- Definition: \(M_X(t) = \E[e^{tX}]\), existence on \((-h, h)\).
+- Proposition: \(M_X^{(n)}(0) = \E[X^n]\) (one-line proof, differentiate under
+  the integral).
+- One worked example: \(\Normal{\mu, \sigma^2}\) MGF \(= e^{\mu t + \sigma^2 t^2/2}\).
+- Note that heavy-tailed laws (e.g., Cauchy) lack an MGF; defer
+  characteristic functions to Appendix~\ref{app:characteristic-functions}.}
+
+\subsection{Random Vectors, the Multivariate Normal, and the CLT}\label{subsec:rvecs}
+
+\todo{Content to fill in (from v5 + Joseph Section 2.4):
+- Definition: random vector \(\vect X = (X_1, \dots, X_p)\transpose\), mean
+  \(\vect \mu\), covariance \(\Sigma = \E[(\vect X - \vect \mu)(\vect X -
+  \vect \mu)\transpose]\).
+- Property: \(\Sigma\) is positive semidefinite (proof via \(v\transpose
+  \Sigma v = \Var(v\transpose \vect X)\)).
+- Definition: multivariate normal density.
+- Statement of the multivariate central limit theorem (one-line proof
+  sketch via characteristic functions; full proof in
+  Appendix~\ref{app:characteristic-functions}).}
+
+\clearpage

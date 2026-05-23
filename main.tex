@@ -1,0 +1,60 @@
+%% main.tex
+%% Root document for "A Study of Random Matrices"
+%% Arzaan Singh, under the supervision of Gustavo Didier, Tulane University.
+%%
+%% Build:
+%%   latexmk -pdf main
+%% Or:
+%%   pdflatex main && bibtex main && pdflatex main && pdflatex main
+
+\documentclass[12pt]{article}
+
+%% Geometry to match Joseph Genzer's thesis: roughly 1in margins, single column.
+\usepackage[margin=1in]{geometry}
+
+%% All visual identity, math packages, theorem environments live in style/thesis.sty.
+\usepackage{style/thesis}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Frontmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{frontmatter/titlepage}
+
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+\input{frontmatter/abstract}
+\input{frontmatter/acknowledgements}
+
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Mainmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{sections/01-introduction}
+\input{sections/02-probability-foundations}
+\input{sections/03-sample-covariance-wishart}
+\input{sections/04-spiked-covariance-bbp}
+\input{sections/05-conclusion}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Backmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+
+\input{appendix/A-auxiliary-results}
+\input{appendix/B-simulation-methodology}
+\input{appendix/C-code-listings}
+
+\bibliography{refs}
+
+\end{document}

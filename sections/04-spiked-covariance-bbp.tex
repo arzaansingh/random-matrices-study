@@ -1,0 +1,130 @@
+%% sections/04-spiked-covariance-bbp.tex
+%% Section 4: Spiked Covariance Matrices (~11 pages)
+%% Source notes:
+%%   - v5 LaTeX notes: spiked covariance, BBP, simulations, overlap, clustering.
+%%   - Handwritten Gustavo Notes (April 17, April 27, April 30, May 14).
+%%   - Yao, Zheng, Bai (2015) Chapter 11: spiked sample covariance matrices.
+%%   - F\'eral and P\'ech\'e (2009) Theorem 1.6 for fluctuations.
+%%   - Existing figures in LaTeX notes v5/figures/:
+%%       smoothed_m1_strong_vs_weak.png, m1_strong_spike.png, m1_weak_spike.png,
+%%       eigenvector_overlap_distribution_n1200.png,
+%%       m2_two_strong_spikes.png, m2_mixed_spikes.png.
+
+\section{Spiked Covariance Matrices and the BBP Transition}\label{sec:spiked}
+
+\todo{Opening paragraph: the Marchenko-Pastur law of
+Section~\ref{subsec:scm-highdim} described the null case \(\Sigma = I_p\),
+where all population eigenvalues are equal. In applications the population
+covariance carries structure: a small number of distinguished directions
+of high variance riding above a flat noise baseline. The
+\emph{spiked covariance model} of \citet{Johnstone2001} formalizes this,
+\[
+  \Sigma = \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1),
+\]
+with \(m\) fixed as \(p \to \infty\). The central question is when these
+population spikes are detectable from the sample spectrum, and when the
+sample eigenvectors carry meaningful information about the population
+spike directions. The answer is a clean phase transition.}
+
+\subsection{Johnstone's Spiked Model and the Spike-Location Map}\label{subsec:johnstone}
+
+\todo{Content to fill in (from v5 + Yao-Zheng-Bai Ch.\ 11 + Gustavo notes):
+- Definition: Johnstone's spiked model
+  \(\Sigma = \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1)\) with
+  \(H = \delta_1\) for the bulk limiting distribution.
+- Definition: spike-location map
+  \(\Psi(\alpha) = \alpha + \frac{y \alpha}{\alpha - 1}\).
+- Compute \(\Psi'(\alpha) = 1 - \frac{y}{(\alpha - 1)^2}\).
+- Lemma: \(\Psi'(\alpha) > 0 \iff |\alpha - 1| > \sqrt{y}\); for large spikes
+  \(\alpha > 1\) this becomes \(\alpha > 1 + \sqrt{y}\).
+- Verify boundary behavior: \(\Psi(1 \pm \sqrt{y}) = (1 \pm \sqrt{y})^2\),
+  so the spike map agrees with the MP edges at the threshold.}
+
+\subsection{The BBP Phase Transition for Eigenvalues}\label{subsec:bbp}
+
+\todo{Content to fill in:
+- Theorem (Yao-Zheng-Bai Corollary 11.4 specialized to Johnstone):
+  For a large spike \(\alpha_j > 1 + \sqrt{y}\),
+  \[
+    \lambda_i(\Sigmahat_n) \convas \Psi(\alpha_j), \quad i \in J_j.
+  \]
+  For \(1 < \alpha_j \le 1 + \sqrt{y}\),
+  \[
+    \lambda_i(\Sigmahat_n) \convas (1 + \sqrt{y})^2.
+  \]
+  Brief sketch (cite \citet{BaikSilverstein2006} for the proof).
+- Worked example: \(y = 1/2\), so \(1 + \sqrt{y} \approx 1.707\) and edge
+  \((1 + \sqrt{y})^2 \approx 2.914\). For \(\alpha = 2.5\),
+  \(\Psi(2.5) \approx 3.333\). For \(\alpha = 1.4\), \(\alpha < 1.707\) so
+  the spike is absorbed into the edge.
+- Simulations (existing figures from v5):
+  Figure: smoothed m=1 simulation, strong vs.\ weak spike
+  (\texttt{smoothed\_m1\_strong\_vs\_weak.png}).
+  Figure: raw top eigenvalue distributions
+  (\texttt{m1\_strong\_spike.png}, \texttt{m1\_weak\_spike.png}).
+  Figure (optional): \(m=2\) cases
+  (\texttt{m2\_two\_strong\_spikes.png}, \texttt{m2\_mixed\_spikes.png}).
+Cite \citet{BaikBenArousPeche2005, YaoZhengBai2015}.}
+
+\subsection{Fluctuations of Spiked Eigenvalues}\label{subsec:fluctuations}
+
+\todo{Content to fill in (from Gustavo's promised sketch + v5):
+- Statement (fundamental spike, qualitative): for
+  \(\alpha > 1 + \sqrt{y}\) in the Gaussian Johnstone model,
+  \[
+    \sqrt{n}(\lambda_{\max}(\Sigmahat_n) - \Psi(\alpha)) \convd
+    \Normal{0, \sigma_{\alpha, y}^2}.
+  \]
+  Cite \citet[Thm.~11.11]{YaoZhengBai2015} (fundamental spikes) and
+  \citet[Thm.~1.6]{FeralPeche2009} (cleanest diagonal case).
+- Heuristic: a separated eigenvalue is a smooth functional of \(\Sigmahat_n\),
+  so a delta-method argument gives \(\sqrt{n}\) Gaussian fluctuations
+  (compare with Section~\ref{subsec:scm-lowdim}(e)).
+- Non-fundamental spike: top eigenvalue attaches to the edge,
+  \(\lambda_{\max} - \lambda_+ = O_p(p^{-2/3})\), and the fluctuation is
+  expected to be Tracy-Widom type (cite \citet{Johnstone2001}).
+- Honest note: the critical case \(\alpha = 1 + \sqrt{y}\) is not resolved
+  in our current treatment; cite open literature.
+- Simulation: histogram and Gaussian Q-Q for strong-spike fluctuations
+  (notebook 06).}
+
+\subsection{Eigenvector Alignment Beyond the Threshold}\label{subsec:eigenvector}
+
+\todo{Content to fill in (from v5 + Yao-Zheng-Bai Thm 11.5/Cor 11.6):
+- Set-up: in the one-spike model, the population spike direction is
+  \(\vect e_1\). Let \(\widehat{\vect u}_1\) be the top sample eigenvector.
+  The squared overlap \(|\inner{\widehat{\vect u}_1}{\vect e_1}|^2 =
+  \cos^2 \theta\) removes the sign ambiguity.
+- Qualitative theorem (Yao-Zheng-Bai Thm.~11.5, Cor.~11.6):
+  strong spike \(\Rightarrow\) overlap converges to a positive constant;
+  weak spike \(\Rightarrow\) overlap converges to zero.
+- The one-spike Johnstone overlap formula:
+  \[
+    \rho(\alpha, y) = \frac{1 - \dfrac{y}{(\alpha - 1)^2}}
+                           {1 + \dfrac{y}{\alpha - 1}}.
+  \]
+  Positive precisely when \(\alpha > 1 + \sqrt{y}\).
+- Simulation (figure already in v5/figures/):
+  \texttt{eigenvector\_overlap\_distribution\_n1200.png} shows strong-spike
+  overlaps clustered around 0.55--0.65 and weak-spike overlaps near 0.
+  Include and discuss.}
+
+\subsection{Sketch of the Connection to Spectral Clustering}\label{subsec:clustering}
+
+\todo{Content to fill in (from Gustavo's email + v5 + von Luxburg 2007):
+- Setup: data points \(\vect x_1, \dots, \vect x_n \in \R^p\), kernel
+  similarity \(K_{ij} = f(\norm{\vect x_i - \vect x_j}^2 / p)\).
+- Definition: degree matrix \(D = \diag(K \vect 1)\) and normalized
+  Laplacian-style kernel \(L = n D^{-1/2} K D^{-1/2}\).
+- Heuristic decomposition:
+  \(L = \text{noise bulk} + \text{low-rank class signal}\),
+  in direct analogy with \(\Sigmahat_n = \text{noise} + \text{spike}\).
+- Conclusion: class structure is recoverable from \(L\) precisely when the
+  signal-to-noise ratio crosses an analogue of the BBP threshold; the
+  informative eigenvectors of \(L\) then provide the clustering. Cite
+  \citet{vonLuxburg2007} for the algorithmic side and
+  \citet{CouilletBenaych2016} for the high-dimensional analysis.
+- Toy simulation: notebook 08, a two-class Gaussian mixture and the
+  top non-trivial eigenvector of \(L\).}
+
+\clearpage

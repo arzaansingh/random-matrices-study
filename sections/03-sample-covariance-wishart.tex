@@ -1,0 +1,117 @@
+%% sections/03-sample-covariance-wishart.tex
+%% Section 3: Sample Covariance Matrices (~11 pages)
+%% Source notes:
+%%   - v5 LaTeX notes: sample covariance, Wishart, fixed-dim CLT, 2D Wishart,
+%%     GOE, delta-method, Marchenko-Pastur, Tracy-Widom heuristic.
+%%   - Handwritten Note 2.pdf, Note 3.pdf, Note 4.pdf.
+%%   - Gustavo Notes (April 17, April 27, April 30, May 14).
+%%   - Yao, Zheng, Bai (2015) Chapter 3 (Wishart) and Chapter 2 (MP).
+%%   - Joseph Genzer (2025) Section 3.
+
+\section{Sample Covariance Matrices}\label{sec:scm}
+
+\todo{Opening paragraph: the sample covariance matrix \(\Sigmahat_n\) is the
+central object of multivariate statistics. In low dimensions (\(p\) fixed,
+\(n \to \infty\)) it converges almost surely to the population covariance
+\(\Sigma\) and its eigenvalues converge by continuity. In high dimensions
+(\(p, n \to \infty\) with \(p/n \to y > 0\)) this convergence fails
+dramatically: the empirical spectrum spreads out into a non-trivial bulk
+density. This section develops both regimes, building from the foundations
+laid in Section~\ref{sec:foundations}.}
+
+\subsection{Population and Sample Covariance, Spectral Theorem, Positive Semidefiniteness}\label{subsec:scm-foundations}
+
+\todo{Content to fill in (from v5 + Joseph Section 3 intro):
+- Definition: sample covariance matrix \(\Sigmahat_n = \frac{1}{n}
+  \sum_{i=1}^n \vect{X}_i \vect{X}_i\transpose\) (mean-zero case) and the
+  unbiased \(\frac{1}{n-1}\) variant.
+- Matrix form: \(\Sigmahat_n = \frac{1}{n} \mat X \mat X\transpose\) for
+  \(\mat X \in \R^{p \times n}\).
+- Spectral theorem for symmetric matrices: \(A = Q \Lambda Q\transpose\).
+- PSD characterization: \(A\) is PSD iff all eigenvalues are nonneg (proof).
+- Use the diagonalization to compute quadratic forms; foreshadow why
+  eigenvalues of \(\Sigmahat_n\) are the meaningful quantities.}
+
+\subsection{Low Dimensions: Wishart, Eigenvalue Repulsion, and Fluctuations}\label{subsec:scm-lowdim}
+
+\todo{Content to fill in (from v5 + Joseph Section 3.1):
+
+(a) Almost sure convergence of the sample covariance.
+- Theorem: if \(\vect X_i\) iid with \(\E \vect X_1 = 0\) and \(\Cov(\vect X_1)
+  = \Sigma\), then \(\Sigmahat_n \convas \Sigma\) entrywise by SLLN.
+- Corollary: \(\lambda_i(\Sigmahat_n) \convas \lambda_i(\Sigma)\) by
+  continuity of eigenvalues (proof sketch via continuity of the
+  characteristic polynomial and continuity of its roots).
+Cite \citet[Prop.~3.1, 3.3]{Genzer2025}.
+
+(b) Wishart distribution.
+- Definition: \(\mat S = \sum_{i=1}^n \vect X_i \vect X_i\transpose \sim
+  \Wishart{p}{n, \Sigma}\) for iid Gaussian \(\vect X_i \sim \Normal{0,
+  \Sigma}\).
+- Wishart density formula.
+- Theorem: for \(p = 1\), \(\Wishart{1}{n, 1}\) collapses to \(\chi_n^2\)
+  (proof by plugging in).
+
+(c) 2D Wishart and eigenvalue repulsion.
+- Joint density of ordered eigenvalues of \(\Wishart{2}{n, I_2}\) contains
+  the factor \(\lambda_2 - \lambda_1\), producing eigenvalue repulsion.
+- Simulation: scatter of \((\lambda_1, \lambda_2)\) and histogram of
+  \(\lambda_2 - \lambda_1\) (notebook 02).
+Include figure: 2D Wishart eigenvalue scatter.
+
+(d) Joint CLT for entries of \(\Sigmahat_n\) when \(\Sigma = I_2\).
+- Statement and proof via multivariate CLT (variances 2, 2, 1 for diagonal
+  and off-diagonal entries).
+- Consequence: matrix-valued CLT \(\sqrt{n}(\Sigmahat_n - I_2) \convd G\)
+  where \(G\) has GOE structure.
+
+(e) Top eigenvalue fluctuation: repeated vs.\ distinct cases.
+- Repeated (\(\Sigma = I_2\)): \(\sqrt{n}(\lambda_2(\Sigmahat_n) - 1) \convd
+  \lambda_2(G)\), \emph{not} Gaussian.
+- Distinct (\(\Sigma = \diag(1, 2)\)): delta-method gives Gaussian
+  fluctuations with variances 2 and 8.
+- Simulation: Q-Q plots for both cases (notebook 03).
+Include figures: Q-Q repeated, Q-Q distinct.
+
+(f) Eigenvector convergence.
+- Distinct case: \(\widehat{\vect u}_\ell \convas \vect e_\ell\) with sign
+  convention.
+- Repeated case: eigenvectors fail to converge; explicit counterexample
+  with rotating \(O_n\). This previews why spectral separation is essential
+  for eigenvector recovery, a theme that returns in Section~\ref{sec:spiked}.}
+
+\subsection{High Dimensions: Marchenko-Pastur and the Tracy-Widom Edge}\label{subsec:scm-highdim}
+
+\todo{Content to fill in (from v5 high-dim section + Joseph Section 3.2):
+
+(a) The high-dimensional regime.
+- Setup: \(p, n \to \infty\) with \(p/n \to y \in (0, \infty)\).
+- Empirical spectral distribution \(F_{\Sigmahat_n}(\lambda) = \frac{1}{p}
+  \#\{i : \lambda_i(\Sigmahat_n) \le \lambda\}\).
+
+(b) Marchenko-Pastur law.
+- Theorem (Marchenko-Pastur 1967): for null \(\Sigma = I_p\) and \(0 < y < 1\),
+  \(F_{\Sigmahat_n} \convd \mathrm{MP}_y\) with support
+  \([(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]\) and density
+  \(f_{\mathrm{MP}}(\lambda) = \frac{1}{2\pi y \lambda}
+   \sqrt{(\lambda_+ - \lambda)(\lambda - \lambda_-)}\).
+- For \(y \ge 1\), an atom at zero of mass \(1 - 1/y\).
+- Convergence of \(\lambda_{\max}(\Sigmahat_n) \convas (1 + \sqrt{y})^2\).
+- Simulation: histogram against MP density at \(y = 1/2\) (notebook 04).
+Include figure: MP density vs.\ simulation.
+
+(c) Tracy-Widom edge heuristic.
+- Goal: explain why edge fluctuations live on scale \(p^{-2/3}\), not
+  \(n^{-1/2}\).
+- Heuristic: square-root density near the edge,
+  \(f_{\mathrm{MP}}(\lambda) \sim C(\lambda_+ - \lambda)^{1/2}\) as
+  \(\lambda \uparrow \lambda_+\), combined with the requirement that the
+  mass to the right of \(\lambda_{\max}\) be of order \(1/p\), yields
+  \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\).
+- Statement (informal): \(p^{2/3}(\lambda_{\max} - \lambda_+) \convd
+  \mathrm{TW}_1\) after model-dependent constants.
+- Remark on large-deviation heuristic confirming the same scaling from
+  left and right tails.
+Cite \citet{TracyWidom1996,Johnstone2001}.}
+
+\clearpage

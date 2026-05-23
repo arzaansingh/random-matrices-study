@@ -1,0 +1,38 @@
+%% appendix/A-auxiliary-results.tex
+%% Appendix A: Auxiliary Results
+%% Hosts results we cite in the main text but do not want to prove inline.
+%% Modeled on Joseph Genzer's Appendix A.
+
+\section{Auxiliary Results}\label{app:auxiliary}
+
+\todo{Content to fill in:
+
+A.1 Borel-Cantelli Lemmas.
+- First Borel-Cantelli: if \(\sum_n \Prob(A_n) < \infty\), then
+  \(\Prob(A_n \text{ i.o.}) = 0\).
+- Second Borel-Cantelli (independence version): if events are independent
+  and \(\sum_n \Prob(A_n) = \infty\), then \(\Prob(A_n \text{ i.o.}) = 1\).
+- Used in Section~\ref{subsec:convergence} for the convergence-in-probability
+  but not-almost-surely counterexample.
+
+A.2 Slutsky's theorem.
+- Statement and a one-paragraph proof or reference to
+  \citet[Thm.~5.5.17]{Casella2002}.
+
+A.3 Continuous mapping theorem.
+- Statement: if \(X_n \convd X\) and \(g\) is continuous on a set of
+  \(\Prob_X\)-probability one, then \(g(X_n) \convd g(X)\).
+
+A.4 Multivariate delta method.
+- Statement and reference; used in Sections~\ref{subsec:scm-lowdim}
+  and~\ref{subsec:fluctuations}.
+
+A.5 Characteristic functions and the L\'evy continuity theorem.
+\label{app:characteristic-functions}
+- Definition: \(\varphi_X(t) = \E[e^{itX}]\); always exists.
+- Examples: \(\Normal{0, 1}\) gives \(e^{-t^2/2}\), Cauchy gives \(e^{-|t|}\).
+- L\'evy: \(X_n \convd X \iff \varphi_{X_n}(t) \to \varphi_X(t)\) pointwise,
+  with continuity at 0 sufficient for the converse.
+- Proof of the classical CLT via \((1 + t/n)^n \to e^t\) expansion.}
+
+\clearpage

@@ -1,0 +1,140 @@
+%% style/thesis.sty
+%% Custom style package for the thesis "A Study of Random Matrices".
+%% Loaded by main.tex via \usepackage{style/thesis}. All visual identity
+%% (colors, theorem environments, hyperref) is centralized here.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/thesis}[2026/05/23 v0.1 Random Matrices thesis style]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Core math packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amsthm}
+\RequirePackage{mathtools}
+\RequirePackage{bm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Typography and layout
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{microtype}
+\RequirePackage{enumitem}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage[font=small,labelfont=bf,margin=0pt]{caption}
+\RequirePackage{graphicx}
+\RequirePackage{float}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Color palette and highlighting (soul + xcolor)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage[dvipsnames]{xcolor}
+\RequirePackage{soul}
+\input{style/colors}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Citations: natbib in author-year style, to match Joseph Genzer's thesis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage[round,authoryear]{natbib}
+\bibliographystyle{plainnat}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Hyperlinks (load late, before cleveref)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage[
+  colorlinks=true,
+  linkcolor=thesisLink,
+  citecolor=thesisLink,
+  urlcolor=thesisLink,
+  pdftitle={A Study of Random Matrices},
+  pdfauthor={Arzaan Singh}
+]{hyperref}
+\RequirePackage[noabbrev,capitalise]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Code listings (no shell-escape required)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{listings}
+\lstdefinestyle{thesisPython}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{thesisDef}\bfseries,
+  commentstyle=\color{thesisAccent}\itshape,
+  stringstyle=\color{thesisDef!70},
+  numberstyle=\tiny\color{thesisAccent},
+  numbers=left,
+  numbersep=8pt,
+  showstringspaces=false,
+  frame=single,
+  rulecolor=\color{thesisAccent!50},
+  framexleftmargin=4pt,
+  framexrightmargin=4pt,
+  framextopmargin=4pt,
+  framexbottommargin=4pt,
+  backgroundcolor=\color{thesisIntuitionBg!20},
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=fullflexible,
+  keepspaces=true,
+  captionpos=b
+}
+\lstset{style=thesisPython}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Theorem environments
+%
+% Three independent counters per top-level section, following Joseph Genzer's
+% convention:
+%   - Definitions  : Definition 2.1, 2.2, 2.3, ...
+%   - Examples     : Example 2.1, 2.2, ...
+%   - Theorems / Propositions / Lemmas / Corollaries : shared counter,
+%     Theorem 2.1, Proposition 2.2, Lemma 2.3, Corollary 2.4, ...
+% All counters reset at each \section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Custom theorem-head style: bold label, plain counter (no sage highlight, to
+% stay hyperref-safe). First-use vocabulary in the body is highlighted via
+% the \vocab{...} macro instead.
+\newtheoremstyle{thesisplain}
+  {1em}            % space above
+  {1em}            % space below
+  {\normalfont}    % body font
+  {0pt}            % first-line indent
+  {\bfseries}      % head font
+  {.}              % punctuation
+  {0.5em}          % space after head
+  {}               % default head rendering: "Name Number (Note)"
+
+% Custom theorem-head style for "intuition"-style remarks: italic head, no
+% number, distinct from the formal claims.
+\newtheoremstyle{thesisremark}
+  {1em}{1em}{\normalfont}{0pt}{\itshape}{.}{0.5em}{\thmname{#1}\thmnote{ (\textit{#3})}}
+
+\theoremstyle{thesisplain}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}[definition]{Example}
+
+% Single shared counter for theorems/propositions/lemmas/corollaries.
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{thesisremark}
+\newtheorem*{intuition}{Intuition}
+\newtheorem*{remark}{Remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section heading style
+%
+% Numbered \section, \subsection, \subsubsection inherit the article-class
+% defaults. We highlight the first vocabulary term on first appearance via
+% \vocab{...} (sage), not the section title itself; this keeps the document
+% calm and academic.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Math macros are loaded here so they exist before the document body.
+\input{style/macros}
+
+\endinput
