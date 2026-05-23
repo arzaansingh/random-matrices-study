@@ -40,6 +40,71 @@ rng = np.random.default_rng(SEED)
 
 
 # ============================================================================
+# 0. The five distributions used throughout the report
+# ============================================================================
+
+def make_distributions_figure() -> Path:
+    """One panel per shape: Bernoulli (PMF), Poisson (PMF), Normal (PDF),
+    Exponential (PDF), Cauchy (PDF). Anchors §2.1 visually."""
+    from scipy.stats import poisson, norm, expon, cauchy
+
+    fig, axes = plt.subplots(1, 5, figsize=(13.0, 2.8))
+
+    # 0a. Bernoulli(0.3)
+    p = 0.3
+    axes[0].bar([0, 1], [1 - p, p], color=PALETTE["def"], alpha=0.85, width=0.45,
+                edgecolor="white")
+    axes[0].set_xticks([0, 1])
+    axes[0].set_xlim(-0.6, 1.6)
+    axes[0].set_ylim(0, 1)
+    axes[0].set_title(rf"Bernoulli$(p = {p})$")
+    axes[0].set_xlabel(r"$x$")
+    axes[0].set_ylabel("Probability")
+
+    # 0b. Poisson(3)
+    lam = 3.0
+    k = np.arange(0, 12)
+    axes[1].bar(k, poisson.pmf(k, lam), color=PALETTE["def"], alpha=0.85, width=0.7,
+                edgecolor="white")
+    axes[1].set_xlim(-0.6, 12)
+    axes[1].set_title(rf"Poisson$(\lambda = {lam:g})$")
+    axes[1].set_xlabel(r"$k$")
+
+    # 0c. Normal(0, 1)
+    x = np.linspace(-5, 5, 500)
+    axes[2].plot(x, norm.pdf(x), color=PALETTE["def"], linewidth=1.6)
+    axes[2].fill_between(x, 0, norm.pdf(x), color=PALETTE["def"], alpha=0.25)
+    axes[2].set_xlim(-5, 5)
+    axes[2].set_ylim(0, 0.45)
+    axes[2].set_title(r"Normal $\mathcal{N}(0, 1)$")
+    axes[2].set_xlabel(r"$x$")
+
+    # 0d. Exponential(1)
+    x_pos = np.linspace(0, 5, 500)
+    axes[3].plot(x_pos, expon.pdf(x_pos, scale=1.0), color=PALETTE["def"], linewidth=1.6)
+    axes[3].fill_between(x_pos, 0, expon.pdf(x_pos, scale=1.0), color=PALETTE["def"], alpha=0.25)
+    axes[3].set_xlim(0, 5)
+    axes[3].set_ylim(0, 1.05)
+    axes[3].set_title(r"Exponential$(\lambda = 1)$")
+    axes[3].set_xlabel(r"$x$")
+
+    # 0e. Cauchy
+    x = np.linspace(-5, 5, 500)
+    axes[4].plot(x, cauchy.pdf(x), color=PALETTE["def"], linewidth=1.6)
+    axes[4].fill_between(x, 0, cauchy.pdf(x), color=PALETTE["def"], alpha=0.25)
+    axes[4].set_xlim(-5, 5)
+    axes[4].set_ylim(0, 0.45)
+    axes[4].set_title(r"Cauchy")
+    axes[4].set_xlabel(r"$x$")
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "distribution_shapes.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
 # 1. LLN convergence
 # ============================================================================
 
@@ -120,6 +185,56 @@ def make_clt_figure() -> Path:
 
 
 # ============================================================================
+# 2b. CF comparison: Normal vs Cauchy (PDFs and CFs side by side)
+# ============================================================================
+
+def make_cf_comparison_figure() -> Path:
+    """Two panels. Left: Normal and Cauchy PDFs on the same axes, showing the
+    heavy-tail contrast. Right: their characteristic functions e^{-t^2/2} and
+    e^{-|t|} on the same axes, showing both decay to zero, even though the
+    Cauchy's MGF is identically infinite."""
+    fig, (ax_pdf, ax_cf) = plt.subplots(1, 2, figsize=(10.0, 3.4))
+
+    # Left: PDFs
+    x = np.linspace(-5, 5, 500)
+    normal_pdf = (1.0 / np.sqrt(2 * np.pi)) * np.exp(-0.5 * x ** 2)
+    cauchy_pdf = 1.0 / (np.pi * (1.0 + x ** 2))
+
+    ax_pdf.plot(x, normal_pdf, color=PALETTE["def"], linewidth=1.6,
+                label=r"Normal $\mathcal{N}(0, 1)$: $f(x) = e^{-x^2/2}/\sqrt{2\pi}$")
+    ax_pdf.plot(x, cauchy_pdf, color=PALETTE["accent"], linewidth=1.6,
+                label=r"Cauchy: $f(x) = 1/(\pi(1+x^2))$")
+    ax_pdf.set_xlim(-5, 5)
+    ax_pdf.set_ylim(0, 0.45)
+    ax_pdf.set_xlabel(r"$x$")
+    ax_pdf.set_ylabel("Density")
+    ax_pdf.set_title("Densities: heavy tails of the Cauchy")
+    ax_pdf.legend(loc="upper right", frameon=False, fontsize=8)
+
+    # Right: CFs
+    t = np.linspace(-4, 4, 500)
+    normal_cf = np.exp(-0.5 * t ** 2)
+    cauchy_cf = np.exp(-np.abs(t))
+
+    ax_cf.plot(t, normal_cf, color=PALETTE["def"], linewidth=1.6,
+               label=r"Normal: $\varphi(t) = e^{-t^2/2}$")
+    ax_cf.plot(t, cauchy_cf, color=PALETTE["accent"], linewidth=1.6,
+               label=r"Cauchy: $\varphi(t) = e^{-|t|}$")
+    ax_cf.set_xlim(-4, 4)
+    ax_cf.set_ylim(0, 1.05)
+    ax_cf.set_xlabel(r"$t$")
+    ax_cf.set_ylabel(r"$\varphi_X(t)$")
+    ax_cf.set_title("Characteristic functions: both well defined")
+    ax_cf.legend(loc="upper right", frameon=False, fontsize=8)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "cf_comparison.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
 # 3. Bivariate normal density contours
 # ============================================================================
 
@@ -169,7 +284,8 @@ def make_bvn_figure() -> Path:
 
 if __name__ == "__main__":
     print("Generating Section 2 figures...")
-    for fn in (make_lln_figure, make_clt_figure, make_bvn_figure):
+    for fn in (make_distributions_figure, make_lln_figure, make_cf_comparison_figure,
+               make_clt_figure, make_bvn_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")

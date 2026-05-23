@@ -48,7 +48,15 @@ The following appear repeatedly in later sections:
   \item \emph{Exponential}\((\lambda)\): \(f_X(x) = \lambda e^{-\lambda x}\) for \(x \ge 0\).
   \item \emph{Cauchy}: \(f_X(x) = 1 / \bigl(\pi (1 + x^2)\bigr)\).
 \end{itemize}
+Their shapes are shown in Figure~\ref{fig:distribution-shapes}.
 \end{example}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/distribution_shapes.png}
+  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are absolutely continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but very different tails: the Cauchy density decays only like \(1/x^2\), so values far from zero remain plausible. This tail behavior is what breaks the moment generating function in Section~\ref{subsec:mgf} and motivates the characteristic function in Section~\ref{subsec:cf}.}
+  \label{fig:distribution-shapes}
+\end{figure}
 
 The Cauchy distribution will be a recurring foil: its heavy tails make some standard tools break, motivating sharper tools that do not.
 
@@ -172,6 +180,15 @@ For the standard Cauchy density \(f(x) = 1 / (\pi (1 + x^2))\), a contour-integr
 \end{equation}
 The Cauchy CF is well defined and continuous, even though its MGF is not.
 \end{example}
+
+Figure~\ref{fig:cf-comparison} contrasts the two cases. Although the Cauchy and Normal densities look superficially similar near the origin, their tails are very different, and that difference is exactly what the characteristic function transports into a well-behaved object.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/cf_comparison.png}
+  \caption{Left: the standard Normal and standard Cauchy densities on the same axes. The Cauchy has a slightly lower peak and noticeably heavier tails; the area in the tails beyond \(\abs{x} = 3\) is several times larger for the Cauchy than for the Normal. Right: their characteristic functions, \(e^{-t^2/2}\) for the Normal and \(e^{-\abs{t}}\) for the Cauchy. Both are well-defined real functions on all of \(\R\) and decay to zero, even though the Cauchy's MGF is identically infinite for every \(t \ne 0\). This is the practical sense in which the CF rescues the heavy-tailed case.}
+  \label{fig:cf-comparison}
+\end{figure}
 
 Two algebraic properties make CFs computationally convenient. By independence, \(\varphi_{X+Y}(t) = \varphi_X(t)\, \varphi_Y(t)\); by direct substitution, \(\varphi_{aX + b}(t) = e^{itb}\, \varphi_X(at)\). Like the MGF, the CF determines the distribution uniquely, and an inversion formula recovers the CDF from \(\varphi_X\) \citep[][\S 26]{Billingsley1995}.
 
