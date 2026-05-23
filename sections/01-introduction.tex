@@ -1,48 +1,39 @@
 %% sections/01-introduction.tex
-%% Section 1: Introduction (~2 pages)
-%% Source notes: v5 LaTeX preamble, Gustavo Notes (April-May 2026),
-%% Yao-Zheng-Bai (2015) Chapter 1, Joseph Genzer (2025) Section 1.
+%% Section 1: Introduction
+%% Modeled in proportion and arc on Joseph Genzer (2025), Section 1:
+%% open with the central object, contrast low-dim and high-dim regimes,
+%% introduce the spiked model and the BBP transition as the main story,
+%% then give a section-by-section roadmap.
 
 \section{Introduction}\label{sec:introduction}
 
-\todo{Open with a one-paragraph hook: random matrix theory began in the 1950s
-in nuclear physics and has since become central to high-dimensional statistics
-and data science. The fundamental object in multivariate statistics is the
-sample covariance matrix, whose eigenvalues describe how variance is
-distributed across principal directions. When the number of variables \(p\)
-is small compared to the number of samples \(n\), the sample covariance is
-well behaved. When \(p\) and \(n\) are comparable, classical intuitions break
-down and qualitatively new phenomena appear.}
+The eigenvalues of random matrices encode the geometric structure of multivariate data. Their limiting behavior has become a central theme in modern probability theory, with applications across physics, statistics, and data science \citep{YaoZhengBai2015, Vershynin2018}. A fundamental object in this area is the \vocab{sample covariance matrix}: given $n$ independent samples of a $p$-dimensional random vector $\vect{X}$ with mean zero and population covariance $\Sigma$, it is defined as
+\begin{equation}
+\Sigmahat_n \;=\; \frac{1}{n} \sum_{i=1}^n \vect{X}_i \vect{X}_i\transpose.
+\label{eq:scm-intro}
+\end{equation}
+The behavior of the eigenvalues of $\Sigmahat_n$ depends sharply on the relative growth of $p$ and $n$, and on the structure of $\Sigma$.
 
-\todo{Second paragraph: scope. This thesis examines the spectral behavior of
-Gaussian sample covariance matrices in two regimes:
-(i) the low-dimensional regime where \(p\) is fixed and \(n \to \infty\);
-(ii) the high-dimensional regime where \(p/n \to y \in (0, \infty)\).
-In the high-dimensional regime, we focus on \emph{Johnstone's spiked model}
-\[
-  \Sigma = \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1),
-\]
-in which the population covariance has finitely many distinguished
-eigenvalues (``spikes'') above a flat baseline of ones.}
+In the low-dimensional regime, where $p$ is fixed and $n \to \infty$, the strong law of large numbers gives $\Sigmahat_n \convas \Sigma$ entrywise, and continuity of the characteristic polynomial implies that the sample eigenvalues converge to the population eigenvalues \citep[][Prop.~3.1]{Genzer2025}. The fluctuations around these limits depend on whether the population eigenvalues are simple or repeated. For $\Sigma = I_p$, the matrix $\sqrt{n}(\Sigmahat_n - I_p)$ converges in distribution to a \vocab{Gaussian Orthogonal Ensemble} matrix, whose top eigenvalue has a non-Gaussian limit shaped by eigenvalue repulsion. For $\Sigma$ with distinct eigenvalues, the delta method produces ordinary Gaussian fluctuations of each sample eigenvalue around its population counterpart.
 
-\todo{Third paragraph: main story. The central phenomenon is the
-\emph{BBP phase transition}: a spike \(\alpha > 1 + \sqrt{y}\) creates an
-isolated outlier in the sample spectrum with informative limiting
-eigenvector, while a sub-threshold spike is absorbed into the bulk and its
-eigenvector becomes uninformative. This contrast underpins when methods like
-principal components analysis and spectral clustering succeed in high
-dimensions.}
+The picture changes qualitatively in the high-dimensional regime, where $p$ and $n$ both grow with $p/n \to y \in (0, \infty)$. Even for the null covariance $\Sigma = I_p$, the sample eigenvalues no longer concentrate at $1$. Instead, the empirical distribution of eigenvalues converges to the \vocab{Marchenko-Pastur law}, supported on $[(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]$ \citep{MarchenkoPastur1967}, and the top eigenvalue converges almost surely to the upper edge $(1 + \sqrt{y})^2$. Fluctuations of the top eigenvalue around this edge live on the $p^{-2/3}$ scale and follow the \vocab{Tracy-Widom law} \citep{TracyWidom1996, Johnstone2001}. These two limits already mark a sharp departure from low-dimensional intuition: in high dimensions, sample eigenvalues are biased estimators of population eigenvalues, and edge fluctuations are not Gaussian.
 
-\todo{Fourth paragraph: roadmap. Section~\ref{sec:foundations} covers the
-probability foundations needed for the rest of the thesis. Section~\ref{sec:scm}
-develops sample covariance matrices, the Wishart distribution, the
-low-dimensional Gaussian and GOE fluctuation regimes, and the
-high-dimensional Marchenko-Pastur and Tracy-Widom laws.
-Section~\ref{sec:spiked} introduces the spiked covariance model and proves
-the BBP phase transition for eigenvalues, discusses fluctuations of spiked
-eigenvalues, derives the eigenvector alignment formula, and sketches the
-connection to spectral clustering. Section~\ref{sec:conclusion} concludes
-with a summary and open questions. Three appendices collect auxiliary
-results, simulation methodology, and selected code.}
+When the population covariance carries low-rank structure, a still richer phenomenon emerges. In the \vocab{spiked covariance model} of \citet{Johnstone2001}, the population covariance has a small fixed number of distinguished eigenvalues riding above a flat baseline:
+\begin{equation}
+\Sigma \;=\; \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1),
+\label{eq:johnstone-intro}
+\end{equation}
+with $m$ fixed as $p \to \infty$. The central question is when the spikes $\alpha_1, \dots, \alpha_m$ are detectable from the sample spectrum, and when the corresponding sample eigenvectors carry information about the population spike directions. The answer is the \vocab{BBP phase transition} of \citet{BaikBenArousPeche2005, BaikSilverstein2006}. A spike of magnitude $\alpha > 1 + \sqrt{y}$ produces an isolated sample outlier at the location
+\begin{equation}
+\PsiSpike(\alpha) \;=\; \alpha + \frac{y \alpha}{\alpha - 1},
+\label{eq:psi-intro}
+\end{equation}
+and the corresponding sample eigenvector aligns nontrivially with the population spike direction. A weak spike with $1 < \alpha \le 1 + \sqrt{y}$, by contrast, is absorbed into the Marchenko-Pastur bulk, and its sample eigenvector becomes asymptotically orthogonal to the population direction. The fluctuations of an outlier eigenvalue around $\PsiSpike(\alpha)$ are Gaussian on the $\sqrt{n}$ scale; see \citet[Thm.~11.11]{YaoZhengBai2015} for the fundamental-spike case in Johnstone's model and \citet[Thm.~1.6]{FeralPeche2009} for a cleaner statement under broader assumptions. This is in marked contrast to the Tracy-Widom behavior at the bulk edge.
+
+This report develops the foregoing picture from first principles. We restrict attention throughout to Gaussian observations and to Johnstone's specialization of a flat unit baseline, which is the cleanest setting in which the phase transition can be stated, simulated, and understood.
+
+The roadmap is as follows. Section~\ref{sec:foundations} reviews the probability foundations: random variables and modes of convergence, the law of large numbers and central limit theorem, moment generating functions, and random vectors with multivariate normal distributions. Section~\ref{sec:scm} develops the sample covariance matrix in both regimes, including the spectral theorem and positive semidefiniteness, fixed-$p$ convergence and the Wishart distribution, low-dimensional GOE and delta-method fluctuations, and the high-dimensional Marchenko-Pastur and Tracy-Widom laws. Section~\ref{sec:spiked} introduces the spiked model, derives the spike-location map of equation~\eqref{eq:psi-intro}, proves the BBP phase transition for eigenvalues, discusses the fluctuation regime on each side of the threshold, derives the eigenvector overlap formula, and sketches the connection to \vocab{spectral clustering}. Section~\ref{sec:conclusion} concludes with a summary and open questions. Three appendices collect auxiliary probabilistic results, simulation methodology, and selected Python code listings.
+
+Throughout, every theoretical claim is illustrated by a Monte Carlo simulation in Python; the corresponding notebooks are organized in the \texttt{notebooks/} directory of the accompanying repository.
 
 \clearpage
