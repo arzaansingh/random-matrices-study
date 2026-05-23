@@ -1,110 +1,376 @@
 %% sections/02-probability-foundations.tex
-%% Section 2: Probability Foundations (~7-9 pages)
+%% Section 2: Probability Foundations (~10 pages)
 %%
-%% Build philosophy (from project owner): match the depth of v5 LaTeX notes,
-%% not Joseph Genzer's shortened treatment. Build from the random variable
-%% definition all the way to multivariate normal. Prove as much as possible.
-%% Include figures wherever they help.
-%%
-%% Source notes:
-%%   - v5 LaTeX notes: full MGF, full CF, modes of convergence, CLT via CFs,
-%%     random vectors and PSD sections.
-%%   - Handwritten Note 1.pdf, Note 2.pdf.
-%%   - Casella and Berger (2002), Chapter 5; Joseph Genzer (2025), Section 2.
+%% Build philosophy: match the depth of v5 LaTeX notes, build from absolute
+%% foundations, prove what can be proved cleanly, illustrate with figures.
 
 \section{Probability Foundations}\label{sec:foundations}
 
-\todo{Opening paragraph: motivation. The high-dimensional phenomena we will
-study in later sections (Marchenko-Pastur, Tracy-Widom, the spike phase
-transition) all rest on a small set of foundational ideas from classical
-probability. This section develops them in depth, starting from the
-definition of a random variable. The depth here is deliberate: most of the
-later analysis is, at its heart, a careful application of these basic tools
-(differentiating under the integral, characteristic function expansions,
-the multivariate central limit theorem, the spectral theorem). A reader who
-is fluent with this material can skim; everyone else benefits from the
-deliberate pace.}
+The high-dimensional phenomena studied in later sections all rest on a small set of foundational ideas from classical probability: distributions of random variables, ways to summarize and compare them, modes of convergence, the law of large numbers, and the central limit theorem. This section develops these tools in the depth needed to make later proofs go through cleanly. The exposition starts with the random variable, the basic object of probability theory, and builds toward the multivariate normal distribution that will drive every Gaussian sample-covariance computation in Section~\ref{sec:scm}.
 
+%====================================================================
 \subsection{Random Variables and Distributions}\label{subsec:rvs}
 
-\todo{Build absolute foundation (from v5 + Joseph Section 2.1):
-\begin{itemize}
-  \item Definition: probability space \((\Omega, \mathcal{F}, \Prob)\) at a light touch.
-  \item Definition: random variable \(X: \Omega \to \R\).
-  \item Definition: CDF \(F_X(x) = \Prob(X \le x)\) and its three characterizing properties (limits, right-continuity, monotonicity). State the converse (any function satisfying these is a CDF), cite \citep[][\S 1.2]{Casella2002}.
-  \item Definition: discrete vs.\ absolutely continuous random variables; PMF and PDF.
-  \item Examples: Bernoulli, binomial, Poisson, normal, gamma, Cauchy. Densities listed.
-  \item Definition: independence of random variables.
-\end{itemize}
-Cite Casella-Berger and Joseph throughout.}
+Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is a collection of events (a \(\sigma\)-algebra of subsets of \(\Omega\)), and \(\Prob\) is a probability measure assigning each event a number in \([0, 1]\). We work with this triple in the background; the foreground objects are real-valued functions of the outcome.
 
+\begin{definition}[Random variable]\label{def:rv}
+A \emph{random variable} is a function \(X: \Omega \to \R\). Its distribution is captured by the \vocab{cumulative distribution function} (CDF)
+\[
+  F_X(x) \;=\; \Prob(X \le x), \qquad x \in \R.
+\]
+\end{definition}
+
+A CDF is determined by three properties.
+
+\begin{proposition}[Characterization of CDFs]\label{prop:cdf-characterization}
+The CDF of any random variable satisfies:
+\begin{enumerate}[label=\textnormal{(F\arabic*)},leftmargin=*]
+  \item \(\displaystyle\lim_{x \to -\infty} F_X(x) = 0\) and \(\displaystyle\lim_{x \to +\infty} F_X(x) = 1\);
+  \item \(F_X\) is right-continuous: \(\lim_{x \to a^+} F_X(x) = F_X(a)\);
+  \item \(F_X\) is non-decreasing: \(a \le b \Rightarrow F_X(a) \le F_X(b)\).
+\end{enumerate}
+Conversely, any \(F: \R \to [0,1]\) satisfying (F1)--(F3) is the CDF of some random variable \citep[][\S 1.5]{Casella2002}.
+\end{proposition}
+
+Random variables come in two main flavors. \emph{Discrete} random variables take values in a countable set \(\{x_1, x_2, \ldots\}\), and their distribution is described by the \vocab{probability mass function} (PMF) \(p_X(x_i) = \Prob(X = x_i)\). \emph{Absolutely continuous} random variables admit a nonnegative \vocab{probability density function} (PDF) \(f_X\) with
+\[
+  F_X(x) \;=\; \int_{-\infty}^x f_X(t)\, dt.
+\]
+
+Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all Borel sets \(A, B \subseteq \R\).
+
+\begin{example}[Distributions used throughout]\label{ex:common-distributions}
+The following appear repeatedly in later sections:
+\begin{itemize}[leftmargin=1.5em,itemsep=0.25em]
+  \item \emph{Bernoulli}\((p)\): \(X \in \{0, 1\}\) with \(\Prob(X = 1) = p\).
+  \item \emph{Poisson}\((\lambda)\): \(\Prob(X = k) = e^{-\lambda} \lambda^k / k!\) for \(k = 0, 1, 2, \ldots\).
+  \item \emph{Normal} \(\Normal{\mu, \sigma^2}\): \(f_X(x) = (\sqrt{2\pi}\,\sigma)^{-1} \exp\!\bigl(-(x - \mu)^2/(2\sigma^2)\bigr)\).
+  \item \emph{Exponential}\((\lambda)\): \(f_X(x) = \lambda e^{-\lambda x}\) for \(x \ge 0\).
+  \item \emph{Cauchy}: \(f_X(x) = 1 / \bigl(\pi (1 + x^2)\bigr)\).
+\end{itemize}
+\end{example}
+
+The Cauchy distribution will be a recurring foil: its heavy tails make some standard tools break, motivating sharper tools that do not.
+
+%====================================================================
 \subsection{Moments and Moment Generating Functions}\label{subsec:mgf}
 
-\todo{Full depth from v5. Sub-structure:
-\begin{itemize}
-  \item Definition: \(j\)th moment, \(j\)th central moment, variance.
-  \item Definition: MGF \(M_X(t) = \E[e^{tX}]\) with existence requirement on an open neighborhood of zero.
-  \item Heuristic: MGF as the two-sided Laplace transform of the density (use this to motivate uniqueness).
-  \item Theorem: if \(M_X\) exists in a neighborhood of \(0\), then \(M_X^{(n)}(0) = \E[X^n]\). Full proof by differentiation under the integral (continuous case) and term-by-term differentiation (discrete case).
-  \item Theorem: MGF uniqueness. If \(M_X(t) = M_Y(t)\) on a neighborhood of \(0\), then \(X \eqd Y\). State precisely; sketch the easy direction; cite \citep[Thm.~2.3.11]{Casella2002} for the converse.
-  \item Worked examples: MGFs of binomial, Poisson, normal, gamma. Derive each. Tabulate the resulting means and variances.
-  \item Cautionary example: Cauchy has no MGF (the integral diverges for all \(t \ne 0\)). Use this to motivate characteristic functions in \S\ref{subsec:cf}.
-\end{itemize}}
+Moments quantify the shape of a distribution.
 
+\begin{definition}[Moments and central moments]\label{def:moments}
+For a random variable \(X\) with finite \(\E\abs{X}^j\), the \(j\)\textsuperscript{th} \emph{moment} is \(\E[X^j]\) and the \(j\)\textsuperscript{th} \emph{central moment} is \(\E[(X - \mu)^j]\) where \(\mu = \E[X]\). The second central moment is the \emph{variance}, \(\Var(X) = \E[(X - \mu)^2]\).
+\end{definition}
+
+A generating function for the moments compresses all of this information into a single function.
+
+\begin{definition}[Moment generating function]\label{def:mgf}
+The \vocab{moment generating function} (MGF) of \(X\) is
+\[
+  M_X(t) \;=\; \E[e^{tX}], \qquad t \in \R,
+\]
+provided the expectation is finite on an open neighborhood \((-h, h)\) of zero.
+\end{definition}
+
+The name is justified by the following.
+
+\begin{theorem}[MGFs generate moments]\label{thm:mgf-generates-moments}
+If \(M_X(t)\) is finite for \(t \in (-h, h)\), then \(M_X\) is infinitely differentiable at \(0\) and
+\[
+  M_X^{(n)}(0) \;=\; \E[X^n], \qquad n = 1, 2, \ldots
+\]
+\end{theorem}
+
+\begin{proof}
+Consider the continuous case; the discrete case is analogous, with sums replacing integrals. Finiteness of \(M_X\) on \((-h, h)\) justifies differentiation under the integral sign \citep[][Thm.~2.4.1]{Casella2002}, so
+\[
+  \frac{d}{dt} M_X(t) \;=\; \int_{-\infty}^\infty \frac{d}{dt}\!\bigl(e^{tx}\bigr) f_X(x)\, dx \;=\; \int_{-\infty}^\infty x e^{tx} f_X(x)\, dx \;=\; \E[X e^{tX}].
+\]
+Evaluating at \(t = 0\) gives \(M_X'(0) = \E[X]\). Iterating the same argument \(n\) times yields \(M_X^{(n)}(t) = \E[X^n e^{tX}]\), and hence \(M_X^{(n)}(0) = \E[X^n]\).
+\end{proof}
+
+A second property is the source of most computational power: the MGF of a sum of independent random variables is the product of their MGFs. Indeed, if \(X\) and \(Y\) are independent,
+\[
+  M_{X+Y}(t) \;=\; \E[e^{t(X+Y)}] \;=\; \E[e^{tX}]\, \E[e^{tY}] \;=\; M_X(t)\, M_Y(t).
+\]
+We compute MGFs of the canonical distributions to make this concrete.
+
+\begin{example}[MGFs of standard distributions]\label{ex:mgfs}
+\noindent\emph{Bernoulli}\((p)\):
+\[
+  M_X(t) \;=\; (1 - p) e^{0} + p e^{t} \;=\; 1 - p + p e^t.
+\]
+
+\noindent\emph{Poisson}\((\lambda)\): substituting the PMF and recognizing the Taylor series of \(\exp\),
+\[
+  M_X(t) \;=\; \sum_{k = 0}^\infty e^{tk}\, e^{-\lambda}\, \frac{\lambda^k}{k!} \;=\; e^{-\lambda}\, \sum_{k = 0}^\infty \frac{(\lambda e^{t})^k}{k!} \;=\; \exp\!\bigl(\lambda (e^t - 1)\bigr).
+\]
+
+\noindent\emph{Normal} \(\Normal{\mu, \sigma^2}\): substituting the PDF and completing the square in the exponent \(tx - (x - \mu)^2 / (2 \sigma^2)\) yields a Gaussian kernel that integrates to \(\sqrt{2 \pi}\, \sigma\), giving
+\[
+  M_X(t) \;=\; \exp\!\Bigl(\mu t + \tfrac{1}{2} \sigma^2 t^2\Bigr), \qquad t \in \R.
+\]
+\end{example}
+
+These three examples illustrate the technique. The multiplicative property turns difficult convolutions into easy multiplications: if \(X_1, \ldots, X_n\) are iid Bernoulli\((p)\), their sum has MGF \((1 - p + p e^t)^n\), which is the MGF of Binomial\((n, p)\); independent Poissons of rates \(\lambda_1, \lambda_2\) sum to a Poisson of rate \(\lambda_1 + \lambda_2\); independent normals sum to a normal with summed mean and summed variance.
+
+Beyond computing moments, the MGF determines the distribution uniquely.
+
+\begin{theorem}[MGF uniqueness]\label{thm:mgf-uniqueness}
+If \(M_X(t) = M_Y(t)\) for all \(t\) in some neighborhood \((-h, h)\) of zero, then \(X\) and \(Y\) have the same distribution.
+\end{theorem}
+
+The proof rests on the uniqueness of two-sided Laplace transforms; see \citet[][Thm.~2.3.11]{Casella2002}. The converse direction, that equal distributions have equal MGFs, is immediate from \(\E[g(X)] = \E[g(Y)]\) applied with \(g(x) = e^{tx}\).
+
+There is a catch. The MGF requires \(e^{tX}\) to have a finite expectation for \(t\) near zero, which can fail if \(X\) has heavy tails.
+
+\begin{example}[Cauchy: no MGF]\label{ex:cauchy-no-mgf}
+For the standard Cauchy, \(\int_{-\infty}^\infty e^{tx}\, / (\pi (1 + x^2))\, dx\) diverges for every \(t \ne 0\). The MGF therefore does not exist on any open neighborhood of zero. This is not a pathology; the Cauchy is a perfectly well-defined distribution, central in probability and physics.
+\end{example}
+
+The remedy is the characteristic function.
+
+%====================================================================
 \subsection{Characteristic Functions}\label{subsec:cf}
 
-\todo{Full depth from v5. Sub-structure:
-\begin{itemize}
-  \item Definition: \(\varphi_X(t) = \E[e^{i t X}]\). Always exists since \(\abs{e^{itX}} = 1\); deduce \(\abs{\varphi_X(t)} \le 1\) and \(\varphi_X(0) = 1\).
-  \item Identification as a Fourier transform of the density (when one exists), and as a Fourier-Stieltjes transform of the distribution in general.
-  \item Relation to the MGF when both exist: \(\varphi_X(t) = M_X(i t)\).
-  \item Worked examples: derive \(\varphi_X\) for the standard normal (completing the square gives \(e^{-t^2/2}\)) and the Cauchy (gives \(e^{-|t|}\)). The Cauchy case is the punchline: characteristic functions handle heavy tails that defeat MGFs.
-  \item Properties: independence implies \(\varphi_{X+Y}(t) = \varphi_X(t) \varphi_Y(t)\); linear transformations \(\varphi_{aX+b}(t) = e^{itb} \varphi_X(at)\).
-  \item Statement of the uniqueness theorem for CFs (the Fourier inversion content).
-  \item Statement of L\'evy's continuity theorem: pointwise convergence of CFs to a function continuous at \(0\) is equivalent to convergence in distribution. Defer the full proof to Appendix~\ref{app:auxiliary}; cite \citep[Thm.~5.5.15]{Casella2002}.
-\end{itemize}
-Suggested figure: side-by-side plot of \(\varphi_{\mathcal{N}(0,1)}(t) = e^{-t^2/2}\) and \(\varphi_{\mathrm{Cauchy}}(t) = e^{-|t|}\), to make tangible the contrast between light-tailed and heavy-tailed behavior at the CF level.}
+Replacing the real argument \(t\) of the MGF by the imaginary argument \(it\) yields an object that always exists.
 
+\begin{definition}[Characteristic function]\label{def:cf}
+The \vocab{characteristic function} (CF) of a random variable \(X\) is
+\[
+  \varphi_X(t) \;=\; \E[e^{itX}] \;=\; \E[\cos(tX)] + i\, \E[\sin(tX)], \qquad t \in \R.
+\]
+\end{definition}
+
+Because \(\abs{e^{itx}} = 1\) for every real \(x\), the integrand is bounded, and so
+\[
+  \abs{\varphi_X(t)} \;\le\; \E[\abs{e^{itX}}] \;=\; 1, \qquad \varphi_X(0) = 1.
+\]
+The CF is therefore well defined for every distribution. When \(X\) has a density, \(\varphi_X\) is exactly the Fourier transform of the density:
+\[
+  \varphi_X(t) \;=\; \int_{-\infty}^\infty e^{itx}\, f_X(x)\, dx.
+\]
+When the MGF exists, formal substitution gives \(\varphi_X(t) = M_X(it)\).
+
+\begin{example}[Standard normal CF]\label{ex:cf-normal}
+For \(X \sim \Normal{0, 1}\),
+\[
+  \varphi_X(t) \;=\; \int_{-\infty}^\infty e^{itx}\, \frac{1}{\sqrt{2\pi}}\, e^{-x^2/2}\, dx.
+\]
+Completing the square in the exponent gives \(-\tfrac{1}{2}(x - it)^2 - \tfrac{t^2}{2}\), so the integrand factors as a Gaussian kernel in \(x - it\) times \(e^{-t^2/2}\). The kernel integrates to one, leaving
+\begin{equation}
+  \varphi_X(t) \;=\; e^{-t^2/2}, \qquad t \in \R.
+  \label{eq:cf-normal}
+\end{equation}
+This agrees with \(M_X(it) = e^{(it)^2/2} = e^{-t^2/2}\), as expected.
+\end{example}
+
+\begin{example}[Standard Cauchy CF]\label{ex:cf-cauchy}
+For the standard Cauchy density \(f(x) = 1 / (\pi (1 + x^2))\), a contour-integral computation (or Fourier-transform table; see \citet[][\S XV.4]{Feller1971}) gives
+\begin{equation}
+  \varphi_X(t) \;=\; e^{-\abs{t}}, \qquad t \in \R.
+  \label{eq:cf-cauchy}
+\end{equation}
+The Cauchy CF is well defined and continuous, even though its MGF is not.
+\end{example}
+
+Two algebraic properties make CFs computationally convenient. By independence, \(\varphi_{X+Y}(t) = \varphi_X(t)\, \varphi_Y(t)\); by direct substitution, \(\varphi_{aX + b}(t) = e^{itb}\, \varphi_X(at)\). Like the MGF, the CF determines the distribution uniquely, and an inversion formula recovers the CDF from \(\varphi_X\) \citep[][\S 26]{Billingsley1995}.
+
+The deepest property of characteristic functions is the bridge they provide between pointwise convergence of \(\varphi_{X_n}\) and convergence in distribution of \(X_n\).
+
+\begin{theorem}[L\'evy continuity theorem]\label{thm:levy-continuity}
+Let \(X_n\) and \(X\) be random variables with characteristic functions \(\varphi_{X_n}\) and \(\varphi_X\).
+\begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
+  \item If \(X_n \convd X\), then \(\varphi_{X_n}(t) \to \varphi_X(t)\) for every \(t \in \R\).
+  \item Conversely, if \(\varphi_{X_n}(t) \to \varphi(t)\) for every \(t \in \R\) and \(\varphi\) is continuous at \(0\), then \(\varphi\) is the CF of some random variable \(X\), and \(X_n \convd X\).
+\end{enumerate}
+\end{theorem}
+
+A full proof is in \citet[][Thm.~26.3]{Billingsley1995}. The theorem is the key to the central limit theorem proof in Section~\ref{subsec:limit-theorems}: it reduces a question about distributions to a calculus exercise on a single complex-valued function.
+
+%====================================================================
 \subsection{Modes of Convergence}\label{subsec:convergence}
 
-\todo{Content (from v5 + Joseph Section 2.2):
-\begin{itemize}
-  \item Definitions:
-    \(X_n \convas X\) (almost-sure convergence),
-    \(X_n \convp X\) (convergence in probability),
-    \(X_n \convd X\) (convergence in distribution).
-  \item Theorem: implication chain a.s. \(\Rightarrow\) probability \(\Rightarrow\) distribution. Prove the first implication via the Borel-Cantelli lemma; sketch the second.
-  \item Counterexamples to the converses:
-    \begin{itemize}
-      \item \(X_n \in \{0, 1\}\) with \(\Prob(X_n = 1) = 1/n\) converges in probability to \(0\) but not almost surely (the second Borel-Cantelli lemma forces \(X_n = 1\) infinitely often).
-      \item For convergence in distribution but not in probability, use \(X \sim \mathcal{N}(0,1)\) and \(X_n = -X\) (the distribution is symmetric).
-    \end{itemize}
-  \item Continuous mapping theorem: if \(X_n \convas X\) and \(g\) is continuous, then \(g(X_n) \convas g(X)\); same for convergence in probability. Defer Slutsky's theorem to Appendix~\ref{app:auxiliary}.
-\end{itemize}}
+A sequence of random variables can converge to a limit in several inequivalent ways. The three modes used in this report, from strongest to weakest, are the following.
 
+\begin{definition}[Three modes of convergence]\label{def:modes}
+Let \(X_n, X\) be random variables on a common probability space.
+\begin{itemize}[leftmargin=1.5em,itemsep=0.25em]
+  \item \(X_n \convas X\) (\emph{almost surely}): \(\Prob\!\bigl(\lim_n X_n = X\bigr) = 1\).
+  \item \(X_n \convp X\) (\emph{in probability}): for every \(\varepsilon > 0\), \(\Prob(\abs{X_n - X} > \varepsilon) \to 0\).
+  \item \(X_n \convd X\) (\emph{in distribution}): \(F_{X_n}(x) \to F_X(x)\) at every continuity point of \(F_X\).
+\end{itemize}
+\end{definition}
+
+\begin{proposition}[Implication chain]\label{prop:convergence-implications}
+\(X_n \convas X \;\Longrightarrow\; X_n \convp X \;\Longrightarrow\; X_n \convd X\). The converses are false in general.
+\end{proposition}
+
+\begin{proof}[Sketch]
+For a.s. \(\Rightarrow\) probability: pointwise convergence on a set of probability one implies that for every \(\varepsilon > 0\) the events \(\{\abs{X_n - X} > \varepsilon\}\) shrink to a null set. For probability \(\Rightarrow\) distribution: the distributional version follows from a standard argument with continuity points; see \citet[][Thm.~5.5.12]{Casella2002}.
+\end{proof}
+
+A canonical counterexample showing that probability does not imply almost-sure convergence:
+
+\begin{example}[\(\convp\) but not \(\convas\)]\label{ex:p-not-as}
+Let \(X_n \in \{0, 1\}\) with \(\Prob(X_n = 1) = 1/n\). Then \(\Prob(\abs{X_n} > \varepsilon) = 1/n \to 0\), so \(X_n \convp 0\). But \(\sum_n \Prob(X_n = 1) = \sum_n 1/n = \infty\), so by the second Borel-Cantelli lemma (Appendix~\ref{app:auxiliary}) the event \(\{X_n = 1\}\) occurs infinitely often almost surely, and hence \(X_n \not\convas 0\).
+\end{example}
+
+A second standard fact will be useful in later sections: continuous functions preserve convergence.
+
+\begin{proposition}[Continuous mapping theorem]\label{prop:cmt}
+If \(X_n \convas X\) (respectively \(\convp\), \(\convd\)) and \(g: \R \to \R\) is continuous on a set of \(\Prob_X\)-probability one, then \(g(X_n) \convas g(X)\) (respectively \(\convp\), \(\convd\)).
+\end{proposition}
+
+Slutsky's theorem (also useful later) is recorded in Appendix~\ref{app:auxiliary}.
+
+%====================================================================
 \subsection{Limit Theorems: LLN and CLT}\label{subsec:limit-theorems}
 
-\todo{Content (from v5 + Joseph Section 2.2):
-\begin{itemize}
-  \item Inequalities first: Markov, then Chebyshev (the latter as a Markov application to \((X-\mu)^2\)). Full proofs.
-  \item Chebyshev's weak law of large numbers: iid with finite variance \(\Rightarrow\) \(\bar X_n \convp \mu\). Full proof via Chebyshev.
-  \item Statement of Kolmogorov's strong law of large numbers; cite \citep{Billingsley1995} for the proof.
-  \item Central limit theorem: for iid with finite variance,
-    \(\sqrt{n}(\bar X_n - \mu)/\sigma \convd \mathcal{N}(0, 1)\). Prove via characteristic function expansion using the L\'evy continuity theorem from \S\ref{subsec:cf}. Carry out the \((1 - t^2/(2n) + o(1/n))^n \to e^{-t^2/2}\) step explicitly.
-\end{itemize}
-Suggested figure (notebook 01): the WLLN convergence for normal and exponential samples, plotting \(\bar X_n\) versus \(n\). Reproduce Joseph's Figure~1 in our color palette. Also a second figure showing the CLT convergence: standardized sample means at \(n = 10, 100, 1000\) versus the standard normal density.}
+Two universality results anchor classical probability: averages of iid samples converge to their mean (law of large numbers), and properly normalized averages have a universal Gaussian fluctuation (central limit theorem). We prove both, building on the tools of Sections~\ref{subsec:cf}--\ref{subsec:convergence}.
 
+We first need two classical inequalities.
+
+\begin{theorem}[Markov's inequality]\label{thm:markov}
+If \(Y \ge 0\) and \(a > 0\), then \(\Prob(Y \ge a) \le \E[Y]/a\).
+\end{theorem}
+
+\begin{proof}
+On the event \(\{Y \ge a\}\) we have \(Y \ge a\), so \(Y \indic_{\{Y \ge a\}} \ge a \indic_{\{Y \ge a\}}\). Taking expectations, \(\E[Y] \ge \E[Y \indic_{\{Y \ge a\}}] \ge a\, \Prob(Y \ge a)\), and the claim follows.
+\end{proof}
+
+\begin{theorem}[Chebyshev's inequality]\label{thm:chebyshev}
+If \(\E[X] = \mu\) and \(\Var(X) = \sigma^2 < \infty\), then for any \(\varepsilon > 0\),
+\[
+  \Prob(\abs{X - \mu} \ge \varepsilon) \;\le\; \frac{\sigma^2}{\varepsilon^2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Apply Markov's inequality to the nonnegative variable \(Y = (X - \mu)^2\) with \(a = \varepsilon^2\): \(\Prob(\abs{X - \mu} \ge \varepsilon) = \Prob((X - \mu)^2 \ge \varepsilon^2) \le \E[(X - \mu)^2] / \varepsilon^2 = \sigma^2 / \varepsilon^2\).
+\end{proof}
+
+These suffice to prove the weak law.
+
+\begin{theorem}[Chebyshev's weak law of large numbers]\label{thm:wlln}
+Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(\Var(X_1) = \sigma^2 < \infty\). Let \(\bar X_n = n^{-1} \sum_{i=1}^n X_i\). Then \(\bar X_n \convp \mu\).
+\end{theorem}
+
+\begin{proof}
+By linearity, \(\E[\bar X_n] = \mu\); by independence, \(\Var(\bar X_n) = \sigma^2 / n\). Chebyshev gives
+\[
+  \Prob(\abs{\bar X_n - \mu} \ge \varepsilon) \;\le\; \frac{\Var(\bar X_n)}{\varepsilon^2} \;=\; \frac{\sigma^2}{n \varepsilon^2} \;\longrightarrow\; 0.
+\]
+\end{proof}
+
+A stronger statement holds without the finite-variance assumption.
+
+\begin{theorem}[Kolmogorov's strong law of large numbers]\label{thm:slln}
+If \(X_1, X_2, \ldots\) are iid with \(\E[\abs{X_1}] < \infty\) and \(\E[X_1] = \mu\), then \(\bar X_n \convas \mu\).
+\end{theorem}
+
+A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} shows the convergence concretely.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figures/lln_convergence.png}
+  \caption{The sample mean \(\bar X_n\) converges to the population mean \(\mu = 5\) for two distributions with very different shapes but the same mean and variance: a normal \(\Normal{5, 4}\) and an exponential rescaled and shifted to also have mean \(5\) and variance \(4\). The exponential samples fluctuate more in the early stages because their distribution is heavily skewed, but both averages settle near \(5\) by \(n = 10000\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \label{fig:lln}
+\end{figure}
+
+The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens, and \emph{what the fluctuations look like}.
+
+\begin{theorem}[Central limit theorem]\label{thm:clt}
+Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(0 < \Var(X_1) = \sigma^2 < \infty\). Then
+\[
+  Z_n \;:=\; \frac{\sqrt{n}\,(\bar X_n - \mu)}{\sigma} \;\convd\; \Normal{0, 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let \(Y_i = (X_i - \mu) / \sigma\). Then \(\E[Y_i] = 0\), \(\Var(Y_i) = 1\), and \(Z_n = n^{-1/2} \sum_{i = 1}^n Y_i\). Let \(\varphi(t) = \E[e^{it Y_1}]\). A second-order Taylor expansion of \(e^{iu}\) at \(u = 0\) gives \(e^{iu} = 1 + iu - u^2/2 + o(u^2)\); substituting \(u = t Y_1\) and taking expectations using \(\E[Y_1] = 0\), \(\E[Y_1^2] = 1\),
+\[
+  \varphi(t) \;=\; 1 \;-\; \tfrac{1}{2} t^2 \;+\; o(t^2) \qquad (t \to 0).
+\]
+By independence, the CF of \(Z_n\) factors:
+\[
+  \varphi_{Z_n}(t) \;=\; \Bigl(\varphi\!\bigl(t/\sqrt{n}\bigr)\Bigr)^n \;=\; \Bigl(1 - \tfrac{t^2}{2n} + o(1/n)\Bigr)^n.
+\]
+The right side converges to \(e^{-t^2/2}\) as \(n \to \infty\) by the standard limit \((1 + a_n/n)^n \to e^a\) when \(a_n \to a\). The function \(e^{-t^2/2}\) is the CF of \(\Normal{0, 1}\) by Example~\ref{ex:cf-normal}, so the L\'evy continuity theorem (Theorem~\ref{thm:levy-continuity}) yields \(Z_n \convd \Normal{0, 1}\).
+\end{proof}
+
+Figure~\ref{fig:clt} illustrates the CLT for exponential samples: even though the underlying distribution is sharply skewed, the histogram of the standardized sample mean \(Z_n\) approaches the standard normal density as \(n\) grows.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/clt_exponential.png}
+  \caption{Central limit theorem for iid Exponential\((1)\) samples. Each panel shows a histogram of \(R = 5000\) standardized sample means \(Z_n = \sqrt{n}(\bar X_n - 1)\) at increasing \(n\). The histogram is sharply skewed at \(n = 5\), visibly less so at \(n = 30\), and indistinguishable from the standard normal density (solid line) by \(n = 200\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \label{fig:clt}
+\end{figure}
+
+%====================================================================
 \subsection{Random Vectors and the Multivariate Normal Distribution}\label{subsec:rvecs}
 
-\todo{Content (from v5 + Joseph Section 2.4):
-\begin{itemize}
-  \item Definition: random vector \(\vect X = (X_1, \dots, X_p)\transpose\), joint CDF, joint PMF / PDF.
-  \item Mean vector \(\vect \mu = \E[\vect X]\) and covariance matrix \(\Sigma = \E[(\vect X - \vect \mu)(\vect X - \vect \mu)\transpose]\).
-  \item Theorem: \(\Sigma\) is positive semidefinite. Full proof via \(v\transpose \Sigma v = \Var(v\transpose \vect X) \ge 0\).
-  \item When is \(\Sigma\) positive definite vs.\ semidefinite? Connect to the dimension of the support.
-  \item Definition: multivariate normal distribution via density. State the equivalent characterization via characteristic function \(\varphi_{\vect X}(\vect t) = \exp(i \vect t\transpose \vect \mu - \tfrac12 \vect t\transpose \Sigma \vect t)\); this is the cleanest definition because it handles singular \(\Sigma\) without modification.
-  \item Properties: linear transformations of multivariate normals are multivariate normal; uncorrelated jointly Gaussian variables are independent (special fact for the Gaussian).
-  \item Statement of the multivariate central limit theorem; the proof is the same Cram\'er-Wold device applied to the univariate CLT, defer to Appendix~\ref{app:auxiliary}.
-\end{itemize}}
+The objects of this report are sample covariance matrices, which act on random vectors rather than random scalars. We collect the multivariate analogues of the previous subsections here.
+
+\begin{definition}[Random vector]\label{def:random-vector}
+A \emph{random vector} is a function \(\vect{X} = (X_1, \ldots, X_p)\transpose: \Omega \to \R^p\) whose components are random variables on a common probability space. Its \emph{joint CDF} is \(F_{\vect{X}}(\vect{x}) = \Prob(X_1 \le x_1, \ldots, X_p \le x_p)\).
+\end{definition}
+
+The mean and covariance of \(\vect{X}\) collect the first two moments of all coordinates.
+
+\begin{definition}[Mean vector and covariance matrix]\label{def:mean-cov}
+The \emph{mean vector} is \(\vect{\mu} = \E[\vect{X}] = (\E[X_1], \ldots, \E[X_p])\transpose\). The \emph{covariance matrix} is
+\[
+  \Sigma \;=\; \Cov(\vect{X}) \;=\; \E\!\bigl[(\vect{X} - \vect{\mu})(\vect{X} - \vect{\mu})\transpose\bigr],
+\]
+a \(p \times p\) matrix with entries \(\Sigma_{ij} = \Cov(X_i, X_j)\).
+\end{definition}
+
+Two structural facts:
+
+\begin{proposition}[\(\Sigma\) is symmetric and PSD]\label{prop:cov-psd}
+For any random vector with finite second moments, the covariance matrix \(\Sigma\) is symmetric and positive semidefinite. It is positive definite if and only if no nontrivial linear combination \(\vect{v}\transpose \vect{X}\) (\(\vect v \ne 0\)) is almost surely constant.
+\end{proposition}
+
+\begin{proof}
+Symmetry is immediate from \(\Sigma_{ij} = \Cov(X_i, X_j) = \Cov(X_j, X_i) = \Sigma_{ji}\). For PSD, fix any \(\vect{v} \in \R^p\) and let \(Y = \vect{v}\transpose \vect{X}\). Then \(Y - \E[Y] = \vect{v}\transpose (\vect{X} - \vect{\mu})\), so
+\[
+  \Var(Y) \;=\; \E\!\bigl[(\vect{v}\transpose (\vect{X} - \vect{\mu}))^2\bigr] \;=\; \vect{v}\transpose\, \E\!\bigl[(\vect{X} - \vect{\mu})(\vect{X} - \vect{\mu})\transpose\bigr]\, \vect{v} \;=\; \vect{v}\transpose \Sigma \vect{v}.
+\]
+Since \(\Var(Y) \ge 0\), we have \(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every \(\vect{v}\), which is PSD. Equality holds for some \(\vect{v} \ne 0\) precisely when \(\vect{v}\transpose \vect{X}\) is almost surely constant, which is the failure of positive definiteness.
+\end{proof}
+
+The PSD identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) is the structural fact that organizes the analysis of sample covariance matrices: every quadratic form on a covariance matrix is a variance, and every spectral statement about \(\Sigma\) translates to a statement about variances of linear combinations of \(\vect{X}\).
+
+\begin{definition}[Multivariate normal]\label{def:mvn}
+A random vector \(\vect{X} \in \R^p\) is \emph{multivariate normal} with mean \(\vect{\mu}\) and covariance \(\Sigma\), written \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\), if its characteristic function is
+\begin{equation}
+  \varphi_{\vect{X}}(\vect{t}) \;=\; \exp\!\Bigl(i\, \vect{t}\transpose \vect{\mu} \;-\; \tfrac{1}{2}\, \vect{t}\transpose \Sigma \vect{t}\Bigr), \qquad \vect{t} \in \R^p.
+  \label{eq:mvn-cf}
+\end{equation}
+When \(\Sigma\) is positive definite, \(\vect{X}\) admits the density
+\[
+  f_{\vect{X}}(\vect{x}) \;=\; \frac{1}{(2 \pi)^{p/2}\, \abs{\Sigma}^{1/2}}\, \exp\!\Bigl(-\tfrac{1}{2}\, (\vect{x} - \vect{\mu})\transpose \Sigma\inv (\vect{x} - \vect{\mu})\Bigr).
+\]
+\end{definition}
+
+Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises when components are linearly dependent), whereas the density form requires \(\Sigma\) to be invertible.
+
+The multivariate normal is closed under affine transformations. If \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\) and \(\mat{A} \in \R^{q \times p}\), \(\vect{b} \in \R^q\), then \(\mat{A} \vect{X} + \vect{b} \sim \Normal{\mat{A} \vect{\mu} + \vect{b},\, \mat{A} \Sigma \mat{A}\transpose}\). Verification is a one-line CF computation using \eqref{eq:mvn-cf}.
+
+A second special property of Gaussians is that uncorrelated components are independent. For general distributions, \(\Cov(X_1, X_2) = 0\) does not imply independence; for the multivariate normal it does, because the density factors as soon as \(\Sigma\) is diagonal. Figure~\ref{fig:bvn} shows the density contours for three correlation values.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/bivariate_normal.png}
+  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the components are independent; as \(\rho\) increases, the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \label{fig:bvn}
+\end{figure}
+
+The multivariate analogue of the central limit theorem follows from the univariate version by the \emph{Cram\'er-Wold device}: a sequence of random vectors converges in distribution if and only if every linear combination converges in distribution. Applied to iid centered random vectors with covariance \(\Sigma\),
+\[
+  \sqrt{n}\, (\bar{\vect{X}}_n - \vect{\mu}) \;\convd\; \Normal{\vect{0},\, \Sigma}.
+\]
+This is the fundamental result that powers every fixed-\(p\) sample covariance computation in Section~\ref{sec:scm}, and it sets up the contrast with the high-dimensional regime, where \(\sqrt{n}\)-Gaussian fluctuations no longer suffice to describe the spectral behavior of \(\Sigmahat_n\).
 
 \clearpage
