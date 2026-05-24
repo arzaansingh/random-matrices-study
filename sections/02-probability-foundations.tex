@@ -89,11 +89,29 @@ If \(M_X(t)\) is finite for \(t \in (-h, h)\), then \(M_X\) is infinitely differ
 \end{theorem}
 
 \begin{proof}
-Consider the continuous case; the discrete case is analogous, with sums replacing integrals. Finiteness of \(M_X\) on \((-h, h)\) justifies differentiation under the integral sign \citep[][Thm.~2.4.1]{Casella2002}, so
+We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. Since \(M_X(t)\) is finite on the open interval \((-h, h)\), the integrand \(e^{tx} f_X(x)\) is dominated uniformly in \(t\) on every compact subinterval of \((-h, h)\), so differentiation under the integral sign is justified \citep[][Thm.~2.4.1]{Casella2002}. Therefore,
 \[
-  \frac{d}{dt} M_X(t) \;=\; \int_{-\infty}^\infty \frac{d}{dt}\!\bigl(e^{tx}\bigr) f_X(x)\, dx \;=\; \int_{-\infty}^\infty x e^{tx} f_X(x)\, dx \;=\; \E[X e^{tX}].
+  \frac{d}{dt} M_X(t)
+  \;=\; \frac{d}{dt} \int_{-\infty}^\infty e^{tx} f_X(x)\, dx
+  \;=\; \int_{-\infty}^\infty \frac{d}{dt}\!\bigl(e^{tx}\bigr) f_X(x)\, dx.
 \]
-Evaluating at \(t = 0\) gives \(M_X'(0) = \E[X]\). Iterating the same argument \(n\) times yields \(M_X^{(n)}(t) = \E[X^n e^{tX}]\), and hence \(M_X^{(n)}(0) = \E[X^n]\).
+The inner derivative is \(\frac{d}{dt} e^{tx} = x\, e^{tx}\), so
+\[
+  \frac{d}{dt} M_X(t)
+  \;=\; \int_{-\infty}^\infty x\, e^{tx} f_X(x)\, dx
+  \;=\; \E\!\bigl[X\, e^{tX}\bigr].
+\]
+Setting \(t = 0\) inside the expectation gives \(e^{0 \cdot X} = 1\), and hence
+\[
+  M_X'(0) \;=\; \E\!\bigl[X\, e^{0 \cdot X}\bigr] \;=\; \E[X].
+\]
+Iterating the same step \(n\) times produces
+\[
+  M_X^{(n)}(t) \;=\; \E\!\bigl[X^n\, e^{tX}\bigr],
+\]
+and evaluating at \(t = 0\) yields \(M_X^{(n)}(0) = \E[X^n]\), as claimed.
+
+In the discrete case, the same calculation applies to the series \(M_X(t) = \sum_x e^{tx} p_X(x)\); convergence of \(M_X\) on \((-h, h)\) justifies term-by-term differentiation, and the rest of the argument is unchanged.
 \end{proof}
 
 A second property is the source of most computational power: the MGF of a sum of independent random variables is the product of their MGFs. Indeed, if \(X\) and \(Y\) are independent,
@@ -103,19 +121,41 @@ A second property is the source of most computational power: the MGF of a sum of
 We compute MGFs of the canonical distributions to make this concrete.
 
 \begin{example}[MGFs of standard distributions]\label{ex:mgfs}
-\noindent\emph{Bernoulli}\((p)\):
+We compute MGFs from the definition for three of the distributions in Example~\ref{ex:common-distributions}.
+
+\smallskip
+\noindent\emph{Bernoulli}\((p)\). The variable \(X\) takes only the values \(0\) and \(1\), so the expectation is a two-term sum:
 \[
-  M_X(t) \;=\; (1 - p) e^{0} + p e^{t} \;=\; 1 - p + p e^t.
+  M_X(t) \;=\; \E[e^{tX}]
+  \;=\; e^{t \cdot 0}\, \Prob(X = 0) \;+\; e^{t \cdot 1}\, \Prob(X = 1)
+  \;=\; (1 - p) \;+\; p\, e^t.
 \]
 
-\noindent\emph{Poisson}\((\lambda)\): substituting the PMF and recognizing the Taylor series of \(\exp\),
+\smallskip
+\noindent\emph{Poisson}\((\lambda)\). Substitute the PMF \(\Prob(X = k) = e^{-\lambda} \lambda^k / k!\) into the expectation:
 \[
-  M_X(t) \;=\; \sum_{k = 0}^\infty e^{tk}\, e^{-\lambda}\, \frac{\lambda^k}{k!} \;=\; e^{-\lambda}\, \sum_{k = 0}^\infty \frac{(\lambda e^{t})^k}{k!} \;=\; \exp\!\bigl(\lambda (e^t - 1)\bigr).
+  M_X(t) \;=\; \sum_{k = 0}^\infty e^{tk}\, e^{-\lambda}\, \frac{\lambda^k}{k!}
+  \;=\; e^{-\lambda}\, \sum_{k = 0}^\infty \frac{(\lambda\, e^{t})^k}{k!}.
+\]
+The inner sum is the Taylor expansion of \(\exp\) evaluated at \(\lambda e^t\), namely \(\exp(\lambda e^t)\). Combining,
+\[
+  M_X(t) \;=\; e^{-\lambda}\, e^{\lambda e^t}
+  \;=\; \exp\!\bigl(\lambda (e^t - 1)\bigr).
 \]
 
-\noindent\emph{Normal} \(\Normal{\mu, \sigma^2}\): substituting the PDF and completing the square in the exponent \(tx - (x - \mu)^2 / (2 \sigma^2)\) yields a Gaussian kernel that integrates to \(\sqrt{2 \pi}\, \sigma\), giving
+\smallskip
+\noindent\emph{Normal} \(\Normal{\mu, \sigma^2}\). Starting from the density,
 \[
-  M_X(t) \;=\; \exp\!\Bigl(\mu t + \tfrac{1}{2} \sigma^2 t^2\Bigr), \qquad t \in \R.
+  M_X(t) \;=\; \frac{1}{\sqrt{2 \pi}\, \sigma} \int_{-\infty}^\infty \exp\!\Bigl(t x \;-\; \frac{(x - \mu)^2}{2 \sigma^2}\Bigr) dx.
+\]
+The trick is to complete the square in the exponent so the integrand becomes a Gaussian kernel. Expanding the quadratic and collecting terms,
+\[
+  t x \;-\; \frac{(x - \mu)^2}{2 \sigma^2}
+  \;=\; -\frac{1}{2 \sigma^2}\Bigl(x - (\mu + \sigma^2 t)\Bigr)^2 \;+\; \Bigl(\mu t \;+\; \tfrac{1}{2}\sigma^2 t^2\Bigr).
+\]
+The first piece is the kernel of a normal density with mean \(\mu + \sigma^2 t\) and variance \(\sigma^2\); divided by \(\sqrt{2 \pi}\, \sigma\) it integrates to \(1\). The second piece does not depend on \(x\) and comes outside the integral. Therefore,
+\[
+  M_X(t) \;=\; \exp\!\Bigl(\mu t \;+\; \tfrac{1}{2} \sigma^2 t^2\Bigr), \qquad t \in \R.
 \]
 \end{example}
 
@@ -124,10 +164,30 @@ These three examples illustrate the technique. The multiplicative property turns
 Beyond computing moments, the MGF determines the distribution uniquely.
 
 \begin{theorem}[MGF uniqueness]\label{thm:mgf-uniqueness}
-If \(M_X(t) = M_Y(t)\) for all \(t\) in some neighborhood \((-h, h)\) of zero, then \(X\) and \(Y\) have the same distribution.
+Let \(X\) and \(Y\) be real-valued random variables.
+\begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
+  \item If \(X\) and \(Y\) have the same distribution and \(M_X(t)\) is finite at \(t\), then \(M_X(t) = M_Y(t)\).
+  \item Conversely, if \(M_X(t) = M_Y(t)\) for all \(t\) in some open neighborhood \((-h, h)\) of zero, then \(X\) and \(Y\) have the same distribution.
+\end{enumerate}
 \end{theorem}
 
-The proof rests on the uniqueness of two-sided Laplace transforms; see \citet[][Thm.~2.3.11]{Casella2002}. The converse direction, that equal distributions have equal MGFs, is immediate from \(\E[g(X)] = \E[g(Y)]\) applied with \(g(x) = e^{tx}\).
+\begin{proof}[Proof of (1)]
+By definition, \(X\) and \(Y\) have the same distribution when
+\[
+  \Prob(X \in A) \;=\; \Prob(Y \in A) \qquad \text{for every Borel set } A \subseteq \R.
+\]
+A standard consequence is that for any measurable function \(g: \R \to \R\) for which the expectations are well defined,
+\[
+  \E[g(X)] \;=\; \E[g(Y)].
+\]
+(Both sides are integrals of \(g\) against the common distribution; equal measures give equal integrals.) Choosing \(g(x) = e^{tx}\), assumed to have finite expectation under \(X\) by hypothesis, yields
+\[
+  M_X(t) \;=\; \E[e^{tX}] \;=\; \E[e^{tY}] \;=\; M_Y(t),
+\]
+which is the claim.
+\end{proof}
+
+The converse direction (2) is more delicate. Its content is that the entire distribution of \(X\) is encoded in the values of \(M_X\) on any open neighborhood of the origin, however small. The mechanism is the following. When \(M_X\) exists on \((-h, h)\), the formal substitution \(s = -t\) shows that \(M_X(t)\) is the two-sided Laplace transform of the density (or distribution) of \(X\), evaluated at \(s = -t\). The two-sided Laplace transform is known to extend to an analytic function of the complex argument \(s\) on the vertical strip \(\{s \in \C : \abs{\operatorname{Re} s} < h\}\), and analytic functions on a connected open set are determined by their values on any open subset. Hence agreement of \(M_X\) and \(M_Y\) on \((-h, h)\) forces agreement of the two Laplace transforms on the whole strip, which in turn determines the distributions through the inverse Laplace (or Fourier) transform. A full proof, including the analytic-continuation step, is in \citet[][Thm.~2.3.11]{Casella2002}.
 
 There is a catch. The MGF requires \(e^{tX}\) to have a finite expectation for \(t\) near zero, which can fail if \(X\) has heavy tails.
 
@@ -173,12 +233,21 @@ This agrees with \(M_X(it) = e^{(it)^2/2} = e^{-t^2/2}\), as expected.
 \end{example}
 
 \begin{example}[Standard Cauchy CF]\label{ex:cf-cauchy}
-For the standard Cauchy density \(f(x) = 1 / (\pi (1 + x^2))\), a contour-integral computation (or Fourier-transform table; see \citet[][\S XV.4]{Feller1971}) gives
+Let \(X\) be standard Cauchy with density \(f(x) = 1 / (\pi (1 + x^2))\). By definition,
+\[
+  \varphi_X(t) \;=\; \int_{-\infty}^\infty e^{itx}\, \frac{1}{\pi (1 + x^2)}\, dx
+  \;=\; \frac{1}{\pi}\, \int_{-\infty}^\infty \frac{e^{itx}}{1 + x^2}\, dx.
+\]
+The remaining integral is a standard Fourier-transform identity (\citet[][\S XV.4]{Feller1971}; or any Fourier-transform table):
+\[
+  \int_{-\infty}^\infty \frac{e^{itx}}{1 + x^2}\, dx \;=\; \pi\, e^{-\abs{t}}, \qquad t \in \R.
+\]
+Dividing by \(\pi\),
 \begin{equation}
   \varphi_X(t) \;=\; e^{-\abs{t}}, \qquad t \in \R.
   \label{eq:cf-cauchy}
 \end{equation}
-The Cauchy CF is well defined and continuous, even though its MGF is not.
+The Cauchy CF is well defined and continuous, even though the Cauchy MGF is identically infinite for every \(t \ne 0\).
 \end{example}
 
 Figure~\ref{fig:cf-comparison} contrasts the two cases. Although the Cauchy and Normal densities look superficially similar near the origin, their tails are very different, and that difference is exactly what the characteristic function transports into a well-behaved object.
