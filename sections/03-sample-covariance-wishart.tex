@@ -19,18 +19,24 @@ dramatically: the empirical spectrum spreads out into a non-trivial bulk
 density. This section develops both regimes, building from the foundations
 laid in Section~\ref{sec:foundations}.}
 
-\subsection{Population and Sample Covariance, Spectral Theorem, Positive Semidefiniteness}\label{subsec:scm-foundations}
+\subsection{The Sample Covariance Matrix}\label{subsec:scm-foundations}
 
-\todo{Content to fill in (from v5 + Joseph Section 3 intro):
+\todo{Content to fill in (from v5 + Joseph Section 3 intro). The spectral
+theorem and the eigenvalue characterization of PD/PSD are now in
+Section~\ref{subsec:linalg}, so this subsection focuses purely on the
+sample object.
 - Definition: sample covariance matrix \(\Sigmahat_n = \frac{1}{n}
   \sum_{i=1}^n \vect{X}_i \vect{X}_i\transpose\) (mean-zero case) and the
   unbiased \(\frac{1}{n-1}\) variant.
 - Matrix form: \(\Sigmahat_n = \frac{1}{n} \mat X \mat X\transpose\) for
-  \(\mat X \in \R^{p \times n}\).
-- Spectral theorem for symmetric matrices: \(A = Q \Lambda Q\transpose\).
-- PSD characterization: \(A\) is PSD iff all eigenvalues are nonneg (proof).
-- Use the diagonalization to compute quadratic forms; foreshadow why
-  eigenvalues of \(\Sigmahat_n\) are the meaningful quantities.}
+  the data matrix \(\mat X \in \R^{p \times n}\).
+- Numerical examples (from v5 \S5.3): exam scores p=2 case, algebraic
+  perfectly correlated case, mean-zero case.
+- Show that \(\Sigmahat_n\) is symmetric and PSD (one-line application of
+  the same \(\Var(\vect{v}\transpose \vect{X})\) identity), so all its
+  eigenvalues are nonnegative by Theorem~\ref{thm:pd-psd-eigen}.
+- Remark: \(\Sigmahat_n\) is the empirical analogue of \(\Sigma\); the
+  whole point of the rest of the section is to compare them.}
 
 \subsection{Low Dimensions: Wishart, Eigenvalue Repulsion, and Fluctuations}\label{subsec:scm-lowdim}
 

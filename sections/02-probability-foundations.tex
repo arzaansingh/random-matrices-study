@@ -472,37 +472,129 @@ Figure~\ref{fig:clt} illustrates the CLT for exponential samples: even though th
 %====================================================================
 \subsection{Random Vectors and the Multivariate Normal Distribution}\label{subsec:rvecs}
 
-The objects of this report are sample covariance matrices, which act on random vectors rather than random scalars. We collect the multivariate analogues of the previous subsections here.
+The objects of this report are sample covariance matrices, which act on random vectors rather than random scalars. This subsection collects the multivariate analogues of Sections~\ref{subsec:rvs}--\ref{subsec:limit-theorems}: random vectors and joint distributions, the covariance matrix and its first structural property, the multivariate normal distribution, and the multivariate central limit theorem. The linear-algebra side of the story (spectral theorem, eigenvalue characterization of positive semidefiniteness, norms, and the convergence of eigenvalues under matrix convergence) is collected in Section~\ref{subsec:linalg}.
 
-\begin{definition}[Random vector]\label{def:random-vector}
-A \emph{random vector} is a function \(\vect{X} = (X_1, \ldots, X_p)\transpose: \Omega \to \R^p\) whose components are random variables on a common probability space. Its \emph{joint CDF} is \(F_{\vect{X}}(\vect{x}) = \Prob(X_1 \le x_1, \ldots, X_p \le x_p)\).
+\paragraph{Random vectors and joint distributions.}
+
+\begin{definition}[Random vector and joint CDF]\label{def:random-vector}
+A \emph{random vector} is a function \(\vect{X} = (X_1, \ldots, X_p)\transpose: \Omega \to \R^p\) whose components are random variables on a common probability space. The \emph{joint CDF} of \(\vect{X}\) is
+\[
+  F_{\vect{X}}(\vect{x}) \;=\; \Prob(X_1 \le x_1,\, \ldots,\, X_p \le x_p), \qquad \vect{x} \in \R^p.
+\]
 \end{definition}
 
-The mean and covariance of \(\vect{X}\) collect the first two moments of all coordinates.
+The joint CDF obeys the multivariate analogues of properties (F1)--(F3) of Proposition~\ref{prop:cdf-characterization}.
+
+\begin{proposition}[Properties of the joint CDF]\label{prop:joint-cdf}
+The joint CDF \(F_{\vect{X}}: \R^p \to [0, 1]\) satisfies:
+\begin{enumerate}[label=\textnormal{(F\arabic*)},leftmargin=*]
+  \item As \(x_i \to -\infty\) for any single coordinate \(i\), \(F_{\vect{X}}(\vect{x}) \to 0\); as all coordinates tend to \(+\infty\), \(F_{\vect{X}}(\vect{x}) \to 1\).
+  \item \(F_{\vect{X}}\) is right-continuous in each coordinate.
+  \item \(F_{\vect{X}}\) is non-decreasing in each coordinate.
+  \item Marginal CDFs are recovered by limits: \(F_{X_1}(x_1) = \lim_{x_2, \ldots, x_p \to +\infty} F_{\vect{X}}(x_1, \ldots, x_p)\), and similarly for other coordinates.
+\end{enumerate}
+Moreover, \(X_1, \ldots, X_p\) are independent if and only if \(F_{\vect{X}}(\vect{x}) = \prod_{i=1}^p F_{X_i}(x_i)\) for every \(\vect{x} \in \R^p\).
+\end{proposition}
+
+The discrete and absolutely continuous cases admit joint PMFs and joint densities, defined exactly as in the scalar case.
+
+\paragraph{Three examples of joint distributions.}
+The next three examples illustrate the spectrum from full independence to maximal dependence to a smooth Gaussian dependence. They also show the difference between the \emph{support} of a random vector (where it lives) and its \emph{distribution} (how its mass is spread on its support).
+
+\begin{example}[Independent exponentials]\label{ex:indep-expon}
+Let \(X_1, X_2\) be iid with \(X_i \sim \mathrm{Exponential}(\lambda)\). Each scalar CDF is \(F_X(x) = 1 - e^{-\lambda x}\) for \(x \ge 0\) (and \(0\) for \(x < 0\)). By independence,
+\[
+  F_{X_1, X_2}(x_1, x_2) \;=\; F_X(x_1)\, F_X(x_2) \;=\; (1 - e^{-\lambda x_1})(1 - e^{-\lambda x_2}), \qquad x_1, x_2 \ge 0,
+\]
+and \(F_{X_1, X_2}(x_1, x_2) = 0\) if either coordinate is negative. The mass lives on the positive quadrant \(\{x_1 \ge 0,\, x_2 \ge 0\}\), and the joint density factors as \(f_{X_1, X_2} = f_{X_1} f_{X_2}\).
+\end{example}
+
+\begin{example}[Maximally dependent: \(X_1 = X_2\) a.s.]\label{ex:max-dependent}
+Let \(X_1 \sim \mathrm{Exponential}(\lambda)\) and set \(X_2 = X_1\) almost surely. Then \(\Prob(X_1 = X_2) = 1\), so the random point \((X_1, X_2)\) lies on the diagonal \(\{x_1 = x_2 \ge 0\}\) with probability one. The joint CDF is
+\begin{align*}
+  F_{X_1, X_2}(x_1, x_2)
+  &\;=\; \Prob(X_1 \le x_1,\, X_2 \le x_2) \\
+  &\;=\; \Prob(X_1 \le \min\{x_1, x_2\})
+  \;=\; F_X(\min\{x_1, x_2\}).
+\end{align*}
+The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all its mass is concentrated on a set of Lebesgue area zero. We will see shortly that it is the prototypical case of a covariance matrix that is positive semidefinite but \emph{not} positive definite.
+\end{example}
+
+\begin{example}[Bivariate normal density]\label{ex:bvn-density}
+Let \(\vect{X} = (X_1, X_2)\transpose \sim \Normal{\vect{0}, \Sigma}\) with
+\[
+  \Sigma \;=\; \begin{pmatrix} \sigma_1^2 & \rho \sigma_1 \sigma_2 \\ \rho \sigma_1 \sigma_2 & \sigma_2^2 \end{pmatrix}, \qquad \sigma_1, \sigma_2 > 0,\quad -1 < \rho < 1.
+\]
+A short computation gives \(\det \Sigma = \sigma_1^2 \sigma_2^2 (1 - \rho^2)\) and
+\[
+  \Sigma\inv \;=\; \frac{1}{\sigma_1^2 \sigma_2^2 (1 - \rho^2)}\, \begin{pmatrix} \sigma_2^2 & -\rho \sigma_1 \sigma_2 \\ -\rho \sigma_1 \sigma_2 & \sigma_1^2 \end{pmatrix}.
+\]
+Substituting into the multivariate normal density (Definition~\ref{def:mvn} below) and simplifying yields the familiar scalar formula
+\[
+  f_{X_1, X_2}(x_1, x_2) \;=\; \frac{1}{2 \pi \sigma_1 \sigma_2 \sqrt{1 - \rho^2}}\, \exp\!\left(\!-\frac{1}{2 (1 - \rho^2)}\!\left[\frac{x_1^2}{\sigma_1^2} \;-\; \frac{2 \rho x_1 x_2}{\sigma_1 \sigma_2} \;+\; \frac{x_2^2}{\sigma_2^2}\right]\right).
+\]
+When \(\rho = 0\) the cross term vanishes and the density factors as \(f_{X_1} f_{X_2}\), so \(X_1 \perp X_2\). When \(\rho \ne 0\) the cross term cannot be removed and the components are dependent.
+\end{example}
+
+Figure~\ref{fig:supports} contrasts the three cases at a glance.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/joint_distribution_supports.png}
+  \caption{Three joint distributions on \(\R^2\) with the same one-dimensional marginals. \emph{Left:} two independent exponentials; the cloud fills the positive quadrant. \emph{Middle:} \(X_1 = X_2\) almost surely; the cloud collapses onto the diagonal line. \emph{Right:} a bivariate normal with correlation \(\rho = 0.7\); the cloud is an oblique elliptical scatter. Each panel shows \(2{,}000\) Monte Carlo samples. The middle case has no joint density on \(\R^2\); it will be the prototype for a covariance matrix that is PSD but not PD.}
+  \label{fig:supports}
+\end{figure}
+
+\paragraph{Mean vector and covariance matrix.}
 
 \begin{definition}[Mean vector and covariance matrix]\label{def:mean-cov}
-The \emph{mean vector} is \(\vect{\mu} = \E[\vect{X}] = (\E[X_1], \ldots, \E[X_p])\transpose\). The \emph{covariance matrix} is
+The \emph{mean vector} of \(\vect{X}\) is \(\vect{\mu} = \E[\vect{X}] = (\E[X_1], \ldots, \E[X_p])\transpose\). The \emph{covariance matrix} is
 \[
   \Sigma \;=\; \Cov(\vect{X}) \;=\; \E\!\bigl[(\vect{X} - \vect{\mu})(\vect{X} - \vect{\mu})\transpose\bigr],
 \]
-a \(p \times p\) matrix with entries \(\Sigma_{ij} = \Cov(X_i, X_j)\).
+a \(p \times p\) matrix with entries
+\[
+  \Sigma_{ij} \;=\; \Cov(X_i, X_j) \;=\; \E[X_i X_j] \;-\; \E[X_i]\, \E[X_j].
+\]
+The diagonal entries are variances, \(\Sigma_{ii} = \Var(X_i)\), and the off-diagonals are pairwise covariances.
 \end{definition}
 
-Two structural facts:
+The covariance matrix carries the first two moments of every linear combination of the coordinates of \(\vect{X}\).
 
 \begin{proposition}[\(\Sigma\) is symmetric and PSD]\label{prop:cov-psd}
-For any random vector with finite second moments, the covariance matrix \(\Sigma\) is symmetric and positive semidefinite. It is positive definite if and only if no nontrivial linear combination \(\vect{v}\transpose \vect{X}\) (\(\vect v \ne 0\)) is almost surely constant.
+For any random vector with finite second moments:
+\begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
+  \item \(\Sigma\) is symmetric, \(\Sigma_{ij} = \Sigma_{ji}\).
+  \item \(\Sigma\) is positive semidefinite: \(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every \(\vect{v} \in \R^p\). The identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) shows that every quadratic form on \(\Sigma\) is a variance.
+  \item \(\Sigma\) is positive definite if and only if no nontrivial linear combination \(\vect{v}\transpose \vect{X}\) (\(\vect{v} \ne \vect{0}\)) is almost surely constant.
+\end{enumerate}
 \end{proposition}
 
 \begin{proof}
-Symmetry is immediate from \(\Sigma_{ij} = \Cov(X_i, X_j) = \Cov(X_j, X_i) = \Sigma_{ji}\). For PSD, fix any \(\vect{v} \in \R^p\) and let \(Y = \vect{v}\transpose \vect{X}\). Then \(Y - \E[Y] = \vect{v}\transpose (\vect{X} - \vect{\mu})\), so
+Symmetry: \(\Sigma_{ij} = \Cov(X_i, X_j) = \Cov(X_j, X_i) = \Sigma_{ji}\).
+
+For (2), fix any \(\vect{v} \in \R^p\) and define the scalar \(Y = \vect{v}\transpose \vect{X}\). Then
 \[
-  \Var(Y) \;=\; \E\!\bigl[(\vect{v}\transpose (\vect{X} - \vect{\mu}))^2\bigr] \;=\; \vect{v}\transpose\, \E\!\bigl[(\vect{X} - \vect{\mu})(\vect{X} - \vect{\mu})\transpose\bigr]\, \vect{v} \;=\; \vect{v}\transpose \Sigma \vect{v}.
+  Y \;-\; \E[Y] \;=\; \vect{v}\transpose \vect{X} \;-\; \vect{v}\transpose \vect{\mu} \;=\; \vect{v}\transpose (\vect{X} - \vect{\mu}),
 \]
-Since \(\Var(Y) \ge 0\), we have \(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every \(\vect{v}\), which is PSD. Equality holds for some \(\vect{v} \ne 0\) precisely when \(\vect{v}\transpose \vect{X}\) is almost surely constant, which is the failure of positive definiteness.
+and computing the variance gives
+\[
+  \Var(Y) \;=\; \E\!\bigl[(Y - \E[Y])^2\bigr] \;=\; \E\!\bigl[(\vect{v}\transpose (\vect{X} - \vect{\mu}))^2\bigr].
+\]
+Since \(\vect{v}\transpose (\vect{X} - \vect{\mu})\) is a scalar, its square equals \((\vect{v}\transpose (\vect{X} - \vect{\mu}))(\vect{v}\transpose (\vect{X} - \vect{\mu}))\transpose = \vect{v}\transpose (\vect{X} - \vect{\mu})(\vect{X} - \vect{\mu})\transpose \vect{v}\). Pulling the constants \(\vect{v}\transpose\) and \(\vect{v}\) outside the expectation,
+\[
+  \Var(Y) \;=\; \vect{v}\transpose\, \E\!\bigl[(\vect{X} - \vect{\mu})(\vect{X} - \vect{\mu})\transpose\bigr]\, \vect{v} \;=\; \vect{v}\transpose \Sigma \vect{v}.
+\]
+Since \(\Var(Y) \ge 0\) for every random variable \(Y\), we conclude \(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every \(\vect{v}\), which is PSD.
+
+For (3), \(\Sigma\) fails to be positive definite precisely when \(\vect{v}\transpose \Sigma \vect{v} = 0\) for some \(\vect{v} \ne \vect{0}\). By the identity above, this is \(\Var(\vect{v}\transpose \vect{X}) = 0\), which is the statement that \(\vect{v}\transpose \vect{X}\) is almost surely a constant.
 \end{proof}
 
-The PSD identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) is the structural fact that organizes the analysis of sample covariance matrices: every quadratic form on a covariance matrix is a variance, and every spectral statement about \(\Sigma\) translates to a statement about variances of linear combinations of \(\vect{X}\).
+Example~\ref{ex:max-dependent} is the prototypical failure of positive definiteness: with \(X_2 = X_1\) a.s., the vector \(\vect{v} = (1, -1)\transpose\) gives \(\vect{v}\transpose \vect{X} = X_1 - X_2 = 0\) a.s., so \(\vect{v}\transpose \Sigma \vect{v} = 0\). The covariance matrix is PSD but not PD.
+
+The identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) is the structural fact that will organize the analysis of sample covariance matrices in Section~\ref{sec:scm}: every spectral statement about \(\Sigma\) translates to a statement about variances of linear combinations of \(\vect{X}\), and vice versa.
+
+\paragraph{The multivariate normal distribution.}
 
 \begin{definition}[Multivariate normal]\label{def:mvn}
 A random vector \(\vect{X} \in \R^p\) is \emph{multivariate normal} with mean \(\vect{\mu}\) and covariance \(\Sigma\), written \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\), if its characteristic function is
@@ -516,23 +608,236 @@ When \(\Sigma\) is positive definite, \(\vect{X}\) admits the density
 \]
 \end{definition}
 
-Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises when components are linearly dependent), whereas the density form requires \(\Sigma\) to be invertible.
+Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible.
 
-The multivariate normal is closed under affine transformations. If \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\) and \(\mat{A} \in \R^{q \times p}\), \(\vect{b} \in \R^q\), then \(\mat{A} \vect{X} + \vect{b} \sim \Normal{\mat{A} \vect{\mu} + \vect{b},\, \mat{A} \Sigma \mat{A}\transpose}\). Verification is a one-line CF computation using \eqref{eq:mvn-cf}.
+The multivariate normal is closed under affine transformations.
 
-A second special property of Gaussians is that uncorrelated components are independent. For general distributions, \(\Cov(X_1, X_2) = 0\) does not imply independence; for the multivariate normal it does, because the density factors as soon as \(\Sigma\) is diagonal. Figure~\ref{fig:bvn} shows the density contours for three correlation values.
+\begin{proposition}[Affine closure of \(\Normal{\vect{\mu}, \Sigma}\)]\label{prop:mvn-affine}
+If \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\), \(\mat{A} \in \R^{q \times p}\), and \(\vect{b} \in \R^q\), then
+\[
+  \mat{A} \vect{X} + \vect{b} \;\sim\; \Normal{\mat{A} \vect{\mu} + \vect{b},\; \mat{A} \Sigma \mat{A}\transpose}.
+\]
+\end{proposition}
+
+\begin{proof}
+We compute the characteristic function of \(\mat{A} \vect{X} + \vect{b}\). For \(\vect{s} \in \R^q\),
+\begin{align*}
+  \varphi_{\mat{A} \vect{X} + \vect{b}}(\vect{s})
+  &\;=\; \E\!\bigl[e^{i \vect{s}\transpose (\mat{A} \vect{X} + \vect{b})}\bigr]
+  \;=\; e^{i \vect{s}\transpose \vect{b}}\, \E\!\bigl[e^{i (\mat{A}\transpose \vect{s})\transpose \vect{X}}\bigr] \\
+  &\;=\; e^{i \vect{s}\transpose \vect{b}}\, \varphi_{\vect{X}}(\mat{A}\transpose \vect{s}) \\
+  &\;=\; \exp\!\Bigl(i\, \vect{s}\transpose(\mat{A} \vect{\mu} + \vect{b}) \;-\; \tfrac{1}{2}\, \vect{s}\transpose \mat{A} \Sigma \mat{A}\transpose \vect{s}\Bigr).
+\end{align*}
+This is the CF of \(\Normal{\mat{A} \vect{\mu} + \vect{b},\, \mat{A} \Sigma \mat{A}\transpose}\), so the distribution of \(\mat{A} \vect{X} + \vect{b}\) is identified by the uniqueness of characteristic functions.
+\end{proof}
+
+A second algebraic property is special to Gaussians: uncorrelated jointly Gaussian variables are independent. For general distributions, \(\Cov(X_1, X_2) = 0\) does not imply \(X_1 \perp X_2\); for the multivariate normal it does, because the density factors as soon as \(\Sigma\) is diagonal (and the CF factors for the same reason in the singular case). Figure~\ref{fig:bvn} shows the bivariate density contours at three correlation values.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/bivariate_normal.png}
-  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the components are independent; as \(\rho\) increases, the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the components are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:bvn}
 \end{figure}
 
-The multivariate analogue of the central limit theorem follows from the univariate version by the \emph{Cram\'er-Wold device}: a sequence of random vectors converges in distribution if and only if every linear combination converges in distribution. Applied to iid centered random vectors with covariance \(\Sigma\),
+\paragraph{The multivariate central limit theorem.}
+The multivariate CLT follows from the univariate version through the \emph{Cram\'er-Wold device}: a sequence of random vectors converges in distribution if and only if every fixed linear combination of the coordinates converges in distribution. Applied to iid centered random vectors \(\vect{X}_i\) with finite second moments and covariance \(\Sigma\),
 \[
   \sqrt{n}\, (\bar{\vect{X}}_n - \vect{\mu}) \;\convd\; \Normal{\vect{0},\, \Sigma}.
 \]
-This is the fundamental result that powers every fixed-\(p\) sample covariance computation in Section~\ref{sec:scm}, and it sets up the contrast with the high-dimensional regime, where \(\sqrt{n}\)-Gaussian fluctuations no longer suffice to describe the spectral behavior of \(\Sigmahat_n\).
+The vector CLT powers every fixed-\(p\) sample covariance calculation in Section~\ref{sec:scm} and sets up the contrast with the high-dimensional regime, where \(\sqrt{n}\)-Gaussian fluctuations no longer suffice to describe the spectral behavior of \(\Sigmahat_n\).
+
+%====================================================================
+\subsection{Linear Algebra Preliminaries}\label{subsec:linalg}
+
+The remainder of this section collects the linear-algebra results that the analysis of sample covariance matrices in Section~\ref{sec:scm} will rely on but that are not themselves probabilistic: the spectral theorem, the eigenvalue characterization of positive semidefiniteness, matrix norms, and the continuity of eigenvalues as functions of matrix entries. The probability content of Sections~\ref{subsec:rvs}--\ref{subsec:rvecs} gave us \emph{what} sample covariance matrices are; the content here gives us the \emph{tools} for analyzing them.
+
+\paragraph{The spectral theorem.}
+A real \(n \times n\) matrix \(A\) is \emph{symmetric} if \(A = A\transpose\). Throughout this paragraph, \(A\) denotes a real symmetric matrix. Symmetry has two crucial consequences: all eigenvalues of \(A\) are real, and there exists an orthonormal basis of \(\R^n\) consisting of eigenvectors of \(A\).
+
+\begin{theorem}[Spectral theorem for real symmetric matrices]\label{thm:spectral}
+If \(A \in \R^{n \times n}\) is symmetric, there exist an orthogonal matrix \(Q\) (meaning \(Q\transpose Q = I\)) and a diagonal matrix \(\Lambda = \diag(\lambda_1, \ldots, \lambda_n)\) such that
+\begin{equation}
+  A \;=\; Q\, \Lambda\, Q\transpose.
+  \label{eq:spectral}
+\end{equation}
+The diagonal entries of \(\Lambda\) are the eigenvalues of \(A\), and the columns \(\vect{q}_1, \ldots, \vect{q}_n\) of \(Q\) form an orthonormal basis of eigenvectors: \(A \vect{q}_i = \lambda_i \vect{q}_i\) and \(\vect{q}_i\transpose \vect{q}_j = \delta_{ij}\).
+\end{theorem}
+
+A complete proof requires careful linear algebra; see \citet[][\S 6.4]{Strang2016}. We will use the conclusion freely. The decomposition \(A = Q \Lambda Q\transpose\) has a clean geometric meaning: the action of \(A\) on a vector \(\vect{x} \in \R^n\) is (i) rotate \(\vect{x}\) into the eigenvector basis via \(Q\transpose\), (ii) scale the \(i\)\textsuperscript{th} coordinate by \(\lambda_i\) via \(\Lambda\), (iii) rotate back via \(Q\). Symmetric matrices stretch space along perpendicular directions, with stretch factors given by the eigenvalues.
+
+\paragraph{Quadratic forms diagonalize.}
+
+\begin{corollary}[Diagonalization of quadratic forms]\label{cor:quad-form}
+For any \(\vect{x} \in \R^n\), setting \(\vect{y} = Q\transpose \vect{x}\) gives
+\[
+  \vect{x}\transpose A\, \vect{x} \;=\; \sum_{i=1}^n \lambda_i\, y_i^2.
+\]
+\end{corollary}
+
+\begin{proof}
+Using \(A = Q \Lambda Q\transpose\),
+\[
+  \vect{x}\transpose A\, \vect{x}
+  \;=\; \vect{x}\transpose Q \Lambda Q\transpose \vect{x}
+  \;=\; (Q\transpose \vect{x})\transpose\, \Lambda\, (Q\transpose \vect{x})
+  \;=\; \vect{y}\transpose \Lambda\, \vect{y}.
+\]
+Since \(\Lambda = \diag(\lambda_1, \ldots, \lambda_n)\), the last expression is \(\sum_{i=1}^n \lambda_i y_i^2\).
+\end{proof}
+
+Because \(Q\) is orthogonal, the map \(\vect{x} \mapsto \vect{y} = Q\transpose \vect{x}\) is a bijection of \(\R^n\) that sends \(\vect{0}\) to \(\vect{0}\), so \(\vect{x} \ne \vect{0}\) if and only if \(\vect{y} \ne \vect{0}\). The sign of \(\vect{x}\transpose A \vect{x}\) is therefore controlled entirely by the signs of the eigenvalues.
+
+\paragraph{Eigenvalues characterize positive definiteness.}
+
+\begin{theorem}[Eigenvalue characterization of PD/PSD]\label{thm:pd-psd-eigen}
+Let \(A\) be a real symmetric matrix with eigenvalues \(\lambda_1, \ldots, \lambda_n\).
+\begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
+  \item \(A\) is positive semidefinite if and only if \(\lambda_i \ge 0\) for all \(i\).
+  \item \(A\) is positive definite if and only if \(\lambda_i > 0\) for all \(i\).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We prove (1); (2) is identical with strict inequalities throughout.
+
+\emph{PSD \(\Rightarrow\) \(\lambda_i \ge 0\).} Suppose \(A\) is PSD, and let \(\vect{q}_k\) be a unit eigenvector with eigenvalue \(\lambda_k\). Computing the quadratic form at \(\vect{q}_k\),
+\[
+  \vect{q}_k\transpose A\, \vect{q}_k \;=\; \vect{q}_k\transpose (\lambda_k \vect{q}_k) \;=\; \lambda_k\, \vect{q}_k\transpose \vect{q}_k \;=\; \lambda_k.
+\]
+By PSD the left side is \(\ge 0\), so \(\lambda_k \ge 0\).
+
+\emph{\(\lambda_i \ge 0\) \(\Rightarrow\) PSD.} Suppose every eigenvalue of \(A\) is nonnegative. For any \(\vect{x} \in \R^n\), Corollary~\ref{cor:quad-form} gives
+\[
+  \vect{x}\transpose A\, \vect{x} \;=\; \sum_{i=1}^n \lambda_i\, y_i^2 \;\ge\; 0,
+\]
+where \(\vect{y} = Q\transpose \vect{x}\) and each \(\lambda_i y_i^2 \ge 0\) by hypothesis. Hence \(A\) is PSD.
+\end{proof}
+
+Combining Theorem~\ref{thm:pd-psd-eigen} with Proposition~\ref{prop:cov-psd}, every eigenvalue of a covariance matrix is nonnegative, and the eigenvalues are strictly positive if and only if no nontrivial linear combination of the coordinates is almost surely constant. The remaining sample-covariance analysis in Section~\ref{sec:scm} will use this fact silently every time it manipulates an eigenvalue.
+
+\paragraph{Worked examples in the \(2 \times 2\) case.}
+For a symmetric matrix \(A = \begin{pmatrix} a & b \\ b & d \end{pmatrix}\), the characteristic polynomial \(\det(A - \lambda I) = (a - \lambda)(d - \lambda) - b^2\) factors with eigenvalues
+\begin{equation}
+  \lambda_{\pm} \;=\; \frac{a + d}{2} \;\pm\; \sqrt{\Bigl(\frac{a - d}{2}\Bigr)^2 + b^2}.
+  \label{eq:2x2-eigenvalues}
+\end{equation}
+A convenient \(2 \times 2\) test (a small case of Sylvester's criterion):
+\[
+  A \text{ is PD } \;\iff\; a > 0 \;\text{ and }\; \det A = ad - b^2 > 0.
+\]
+
+\begin{example}[A positive-definite and an indefinite \(2 \times 2\)]\label{ex:2x2-pd-indef}
+
+\noindent\emph{Positive-definite case.} Let \(A_1 = \begin{pmatrix} 1 & -\tfrac12 \\ -\tfrac12 & 1 \end{pmatrix}\). Equation~\eqref{eq:2x2-eigenvalues} gives \(\lambda_{\pm} = 1 \pm \tfrac{1}{2}\), so
+\[
+  \lambda_+ \;=\; \tfrac{3}{2}, \qquad \lambda_- \;=\; \tfrac{1}{2},
+\]
+both strictly positive. Sylvester's criterion agrees: \(a = 1 > 0\) and \(\det A_1 = 1 - \tfrac{1}{4} = \tfrac{3}{4} > 0\). One can also exhibit the positivity directly by completing the square in the quadratic form:
+\[
+  \vect{x}\transpose A_1 \vect{x} \;=\; x_1^2 - x_1 x_2 + x_2^2 \;=\; \Bigl(x_1 - \tfrac{x_2}{2}\Bigr)^2 + \tfrac{3}{4}\, x_2^2,
+\]
+which is a sum of squares, manifestly \(> 0\) for \(\vect{x} \ne \vect{0}\).
+
+\smallskip
+\noindent\emph{Indefinite case.} Let \(A_2 = \begin{pmatrix} 1 & -2 \\ -2 & 1 \end{pmatrix}\). Equation~\eqref{eq:2x2-eigenvalues} gives \(\lambda_{\pm} = 1 \pm 2\), so \(\lambda_+ = 3\) and \(\lambda_- = -1\). The opposite signs make \(A_2\) indefinite. Two directional certificates confirm this: \(\vect{v} = (1, 1)\transpose\) gives \(\vect{v}\transpose A_2 \vect{v} = -2 < 0\), and \(\vect{v} = (1, -1)\transpose\) gives \(\vect{v}\transpose A_2 \vect{v} = 6 > 0\).
+\end{example}
+
+Figure~\ref{fig:quad-forms} visualizes the geometry of the three regimes.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/quadratic_form_level_sets.png}
+  \caption{Level sets of \(\vect{x}\transpose A\, \vect{x}\) for three real symmetric \(2 \times 2\) matrices, illustrating Theorem~\ref{thm:pd-psd-eigen}. \emph{Left:} a positive-definite \(A\) with both eigenvalues positive; level sets are nested ellipses with axes aligned with the eigenvectors. \emph{Middle:} a positive-semidefinite \(A\) with one zero eigenvalue; level sets degenerate into parallel strips along the null eigenvector. \emph{Right:} an indefinite \(A\) with eigenvalues of opposite sign; level sets are hyperbolas and the quadratic form is positive in some directions and negative in others.}
+  \label{fig:quad-forms}
+\end{figure}
+
+\paragraph{Vector and matrix norms.}
+A \emph{norm} on a real vector space \(V\) is a function \(\norm{\,\cdot\,}: V \to [0, \infty)\) satisfying, for all \(\vect{v}, \vect{w} \in V\) and scalars \(\alpha\):
+\begin{enumerate}[label=\textnormal{(N\arabic*)},leftmargin=*]
+  \item \(\norm{\vect{v}} = 0\) if and only if \(\vect{v} = \vect{0}\) (definiteness);
+  \item \(\norm{\alpha \vect{v}} = \abs{\alpha}\, \norm{\vect{v}}\) (homogeneity);
+  \item \(\norm{\vect{v} + \vect{w}} \le \norm{\vect{v}} + \norm{\vect{w}}\) (triangle inequality).
+\end{enumerate}
+On \(\R^p\) the standard examples are
+\[
+  \norm{\vect{v}}_2 \;=\; \Bigl(\sum_{i=1}^p v_i^2\Bigr)^{1/2}, \qquad \norm{\vect{v}}_1 \;=\; \sum_{i=1}^p \abs{v_i}, \qquad \norm{\vect{v}}_\infty \;=\; \max_i \abs{v_i};
+\]
+each satisfies (N1)--(N3) by direct verification (the triangle inequality for \(\norm{\,\cdot\,}_2\) is the Cauchy-Schwarz inequality applied to \(\norm{\vect{v} + \vect{w}}_2^2\)).
+
+On \(\R^{p \times p}\) we use two matrix norms.
+
+\begin{definition}[Frobenius and operator norms]\label{def:frob-op}
+For \(A \in \R^{p \times p}\),
+\[
+  \norm{A}_F \;=\; \sqrt{\sum_{i=1}^p \sum_{j=1}^p a_{ij}^2}, \qquad \norm{A}_{\mathrm{op}} \;=\; \sup_{\substack{\vect{x} \in \R^p \\ \norm{\vect{x}}_2 = 1}} \norm{A \vect{x}}_2.
+\]
+\end{definition}
+
+The Frobenius norm is the Euclidean norm of \(A\) viewed as a vector in \(\R^{p^2}\); it satisfies (N1)--(N3) for this reason, and
+\[
+  A_n \to A \text{ entrywise} \quad \Longleftrightarrow \quad \norm{A_n - A}_F \to 0.
+\]
+The operator norm measures the largest factor by which \(A\) stretches a unit vector; for symmetric \(A\) it equals the largest absolute eigenvalue, \(\norm{A}_{\mathrm{op}} = \max_i \abs{\lambda_i}\).
+
+\begin{theorem}[Equivalence of norms in finite dimensions]\label{thm:norm-equiv}
+For any two norms \(\norm{\,\cdot\,}_a, \norm{\,\cdot\,}_b\) on a finite-dimensional real vector space, there exist constants \(c, C > 0\) such that
+\[
+  c\, \norm{\vect{v}}_a \;\le\; \norm{\vect{v}}_b \;\le\; C\, \norm{\vect{v}}_a \qquad \text{for every } \vect{v}.
+\]
+\end{theorem}
+
+The proof is a compactness argument: the function \(\vect{v} \mapsto \norm{\vect{v}}_b / \norm{\vect{v}}_a\) is continuous and positive on the unit sphere \(\{\norm{\vect{v}}_a = 1\}\), which is compact in finite dimensions; its minimum \(c\) and maximum \(C\) are strictly positive, and the inequality extends to all \(\vect{v}\) by homogeneity. The practical consequence for our purposes is that for matrices in finite dimensions, every sense of convergence to zero (entrywise, Frobenius, operator) implies all of the others.
+
+\paragraph{Determinant and the characteristic polynomial.}
+The Leibniz formula expresses the determinant as a polynomial in the matrix entries:
+\begin{equation}
+  \det A \;=\; \sum_{\pi \in S_p} \sgn(\pi)\, \prod_{i=1}^p a_{i, \pi(i)},
+  \label{eq:leibniz}
+\end{equation}
+where \(S_p\) is the group of permutations of \(\{1, \ldots, p\}\). Since polynomials in the entries are continuous functions of the entries, so is the determinant:
+\[
+  A_n \to A \text{ entrywise} \quad \Longrightarrow \quad \det A_n \to \det A.
+\]
+
+The \emph{characteristic polynomial} of \(A\) is
+\[
+  p_A(\lambda) \;=\; \det(A - \lambda I), \qquad \lambda \in \R,
+\]
+whose roots are exactly the eigenvalues of \(A\), counted with algebraic multiplicity. The coefficients of \(p_A\) are themselves polynomials in the entries of \(A\) (apply Leibniz to \(A - \lambda I\)), so they too are continuous functions of \(A\).
+
+\paragraph{Eigenvalue convergence.}
+We can now state the key linear-algebra ingredient powering Section~\ref{sec:scm}: when a sequence of matrices converges, their eigenvalues converge. The deterministic statement is a standard fact about polynomial roots; we then push it through the modes of convergence developed in Section~\ref{subsec:convergence}, following \citet[][Prop.~3.1]{Genzer2025}.
+
+\begin{proposition}[Eigenvalue convergence via characteristic polynomials]\label{prop:eigen-convergence}
+Let \(\{\Sigma_n\}_{n \ge 1}\) and \(\Sigma_0\) be \(p \times p\) symmetric matrices, and write \(\lambda_i(\Sigma)\) for the \(i\)\textsuperscript{th} eigenvalue of \(\Sigma\) (with some fixed ordering convention).
+\begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
+  \item \emph{Deterministic.} If \(\Sigma_n \to \Sigma_0\) entrywise, then \(\lambda_i(\Sigma_n) \to \lambda_i(\Sigma_0)\) for every \(i\).
+  \item \emph{Almost sure.} If \(\Sigma_n \convas \Sigma_0\) in any matrix norm, then \(\lambda_i(\Sigma_n) \convas \lambda_i(\Sigma_0)\).
+  \item \emph{In probability.} If \(\Sigma_n \convp \Sigma_0\) in any matrix norm, then \(\lambda_i(\Sigma_n) \convp \lambda_i(\Sigma_0)\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+\emph{Step 1 (deterministic).} Suppose \(\Sigma_n \to \Sigma_0\) entrywise. By the Leibniz formula~\eqref{eq:leibniz}, the coefficients of the characteristic polynomial \(p_{\Sigma_n}(\lambda) = \det(\Sigma_n - \lambda I)\) are polynomial functions of the entries of \(\Sigma_n\), so they converge to the coefficients of \(p_{\Sigma_0}\). A standard result from analysis states that the roots of a monic polynomial depend continuously on its coefficients (after a consistent ordering); applied to the characteristic polynomials this gives \(\lambda_i(\Sigma_n) \to \lambda_i(\Sigma_0)\) for every \(i\).
+
+\emph{Step 2 (almost sure).} Suppose \(\Sigma_n \convas \Sigma_0\) in some matrix norm \(\norm{\,\cdot\,}\). By Theorem~\ref{thm:norm-equiv}, this is equivalent to convergence in Frobenius norm, which in turn is entrywise convergence (with probability one). Concretely, there is an event \(\Omega_0\) with \(\Prob(\Omega_0) = 1\) such that for every \(\omega \in \Omega_0\), \(\Sigma_n(\omega) \to \Sigma_0(\omega)\) entrywise. Step 1 applies to this deterministic sequence and yields \(\lambda_i(\Sigma_n(\omega)) \to \lambda_i(\Sigma_0(\omega))\) for every \(\omega \in \Omega_0\), which is the statement \(\lambda_i(\Sigma_n) \convas \lambda_i(\Sigma_0)\).
+
+\emph{Step 3 (in probability).} Suppose \(\Sigma_n \convp \Sigma_0\) in some matrix norm. The map \(\Sigma \mapsto (\lambda_1(\Sigma), \ldots, \lambda_p(\Sigma))\) is continuous (entries to coefficients to roots), so for every \(\eta > 0\) there exists \(\varepsilon > 0\) such that
+\[
+  \norm{\Sigma - \Sigma_0} \;<\; \varepsilon \quad \Longrightarrow \quad \max_i \abs{\lambda_i(\Sigma) - \lambda_i(\Sigma_0)} \;<\; \eta.
+\]
+Translating to events,
+\[
+  \Bigl\{\max_i \abs{\lambda_i(\Sigma_n) - \lambda_i(\Sigma_0)} \ge \eta\Bigr\} \;\subseteq\; \bigl\{\norm{\Sigma_n - \Sigma_0} \ge \varepsilon\bigr\},
+\]
+and taking probabilities,
+\[
+  \Prob\!\Bigl(\max_i \abs{\lambda_i(\Sigma_n) - \lambda_i(\Sigma_0)} \ge \eta\Bigr) \;\le\; \Prob(\norm{\Sigma_n - \Sigma_0} \ge \varepsilon) \;\longrightarrow\; 0.
+\]
+This is \(\lambda_i(\Sigma_n) \convp \lambda_i(\Sigma_0)\) for every \(i\).
+\end{proof}
+
+The deterministic chain \emph{entries \(\to\) characteristic-polynomial coefficients \(\to\) roots} is the entire logical content. The almost-sure and in-probability versions follow by pushing continuity through the respective modes of convergence. In Section~\ref{sec:scm} this proposition will deliver, with no further work, that the eigenvalues of the sample covariance matrix \(\Sigmahat_n\) converge to those of the population covariance \(\Sigma\) whenever \(\Sigmahat_n\) converges to \(\Sigma\) in any of the standard senses.
 
 \clearpage
