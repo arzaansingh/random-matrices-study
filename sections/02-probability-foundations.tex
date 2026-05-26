@@ -11,7 +11,7 @@ The high-dimensional phenomena studied in later sections all rest on a small set
 %====================================================================
 \subsection{Random Variables and Distributions}\label{subsec:rvs}
 
-Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is a collection of events (a \(\sigma\)-algebra of subsets of \(\Omega\)), and \(\Prob\) is a probability measure assigning each event a number in \([0, 1]\). We work with this triple in the background; the foreground objects are real-valued functions of the outcome.
+Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is a collection of events, and \(\Prob\) assigns each event a number in \([0, 1]\). The full development imposes some technical regularity on \(\mathcal{F}\) and \(\Prob\) (the language of \(\sigma\)-algebras and measures, developed in measure-theoretic probability); we will not need to engage with it directly. We work with this triple in the background; the foreground objects are real-valued functions of the outcome.
 
 \begin{definition}[Random variable]\label{def:rv}
 A \emph{random variable} is a function \(X: \Omega \to \R\). Its distribution is captured by the \vocab{cumulative distribution function} (CDF)
@@ -37,7 +37,7 @@ Random variables come in two main flavors. \emph{Discrete} random variables take
   F_X(x) \;=\; \int_{-\infty}^x f_X(t)\, dt.
 \]
 
-Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all Borel sets \(A, B \subseteq \R\).
+Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all intervals \(A, B \subseteq \R\). (More generally one asks the identity to hold on all events; the version on intervals suffices for real-valued random variables.)
 
 \begin{example}[Distributions used throughout]\label{ex:common-distributions}
 The following appear repeatedly in later sections:
@@ -172,22 +172,18 @@ Let \(X\) and \(Y\) be real-valued random variables.
 \end{theorem}
 
 \begin{proof}[Proof of (1)]
-By definition, \(X\) and \(Y\) have the same distribution when
-\[
-  \Prob(X \in A) \;=\; \Prob(Y \in A) \qquad \text{for every Borel set } A \subseteq \R.
-\]
-A standard consequence is that for any measurable function \(g: \R \to \R\) for which the expectations are well defined,
+If \(X\) and \(Y\) have the same distribution, then for any function \(g\) for which both expectations are well defined,
 \[
   \E[g(X)] \;=\; \E[g(Y)].
 \]
-(Both sides are integrals of \(g\) against the common distribution; equal measures give equal integrals.) Choosing \(g(x) = e^{tx}\), assumed to have finite expectation under \(X\) by hypothesis, yields
+(Both sides are computed by the same integral or sum against the common distribution function, so they agree.) Choosing \(g(x) = e^{tx}\), which by hypothesis has a finite expectation under \(X\) at \(t\), yields
 \[
   M_X(t) \;=\; \E[e^{tX}] \;=\; \E[e^{tY}] \;=\; M_Y(t),
 \]
 which is the claim.
 \end{proof}
 
-The converse direction (2) is more delicate. Its content is that the entire distribution of \(X\) is encoded in the values of \(M_X\) on any open neighborhood of the origin, however small. The mechanism is the following. When \(M_X\) exists on \((-h, h)\), the formal substitution \(s = -t\) shows that \(M_X(t)\) is the two-sided Laplace transform of the density (or distribution) of \(X\), evaluated at \(s = -t\). The two-sided Laplace transform is known to extend to an analytic function of the complex argument \(s\) on the vertical strip \(\{s \in \C : \abs{\operatorname{Re} s} < h\}\), and analytic functions on a connected open set are determined by their values on any open subset. Hence agreement of \(M_X\) and \(M_Y\) on \((-h, h)\) forces agreement of the two Laplace transforms on the whole strip, which in turn determines the distributions through the inverse Laplace (or Fourier) transform. A full proof, including the analytic-continuation step, is in \citet[][Thm.~2.3.11]{Casella2002}.
+The converse direction (2) is the harder one: it says that the entire distribution of \(X\) is encoded in the MGF on any open interval around zero. The proof reduces to the uniqueness of the two-sided Laplace transform, since \(M_X(t)\) is exactly that transform of the distribution evaluated at \(s = -t\); see \citet[][Thm.~2.3.11]{Casella2002} for the details.
 
 There is a catch. The MGF requires \(e^{tX}\) to have a finite expectation for \(t\) near zero, which can fail if \(X\) has heavy tails.
 
@@ -292,19 +288,39 @@ Let \(X_n, X\) be random variables on a common probability space.
 \end{proposition}
 
 \begin{proof}[Sketch]
-For a.s. \(\Rightarrow\) probability: pointwise convergence on a set of probability one implies that for every \(\varepsilon > 0\) the events \(\{\abs{X_n - X} > \varepsilon\}\) shrink to a null set. For probability \(\Rightarrow\) distribution: the distributional version follows from a standard argument with continuity points; see \citet[][Thm.~5.5.12]{Casella2002}.
+For a.s.\ \(\Rightarrow\) in probability: pointwise convergence holds with probability one, so for every \(\varepsilon > 0\) the probability that \(\abs{X_n - X} > \varepsilon\) tends to zero. For in probability \(\Rightarrow\) in distribution: the conclusion is on CDFs at continuity points and follows by a standard \(\varepsilon\)-argument; see \citet[][Thm.~5.5.12]{Casella2002}.
 \end{proof}
 
 A canonical counterexample showing that probability does not imply almost-sure convergence:
 
 \begin{example}[\(\convp\) but not \(\convas\)]\label{ex:p-not-as}
-Let \(X_n \in \{0, 1\}\) with \(\Prob(X_n = 1) = 1/n\). Then \(\Prob(\abs{X_n} > \varepsilon) = 1/n \to 0\), so \(X_n \convp 0\). But \(\sum_n \Prob(X_n = 1) = \sum_n 1/n = \infty\), so by the second Borel-Cantelli lemma (Appendix~\ref{app:auxiliary}) the event \(\{X_n = 1\}\) occurs infinitely often almost surely, and hence \(X_n \not\convas 0\).
+Define a sequence \(X_n \in \{0, 1\}\) by
+\[
+  \Prob(X_n = 1) \;=\; \frac{1}{n}, \qquad \Prob(X_n = 0) \;=\; 1 - \frac{1}{n},
+\]
+and assume the \(X_n\) are independent.
+
+\emph{Convergence in probability to \(0\).} Fix any \(\varepsilon \in (0, 1)\). Since \(X_n\) only takes the values \(0\) and \(1\), the event \(\{\abs{X_n - 0} > \varepsilon\}\) is exactly \(\{X_n = 1\}\). Therefore,
+\[
+  \Prob(\abs{X_n - 0} > \varepsilon) \;=\; \Prob(X_n = 1) \;=\; \frac{1}{n} \;\longrightarrow\; 0,
+\]
+which is the definition of \(X_n \convp 0\).
+
+\emph{Failure of almost-sure convergence.} Let \(A_n = \{X_n = 1\}\). The events \(A_n\) are independent and their probabilities satisfy
+\[
+  \sum_{n = 1}^\infty \Prob(A_n) \;=\; \sum_{n = 1}^\infty \frac{1}{n} \;=\; \infty.
+\]
+The second Borel-Cantelli lemma (Appendix~\ref{app:auxiliary}) says that for independent events whose probabilities sum to infinity, infinitely many occur with probability one. Concretely,
+\[
+  \Prob\bigl(X_n = 1 \text{ for infinitely many } n\bigr) \;=\; 1.
+\]
+So almost every realization of the sequence keeps producing the value \(1\) at arbitrarily late indices, which prevents it from settling at \(0\). Hence \(X_n \not\convas 0\).
 \end{example}
 
 A second standard fact will be useful in later sections: continuous functions preserve convergence.
 
 \begin{proposition}[Continuous mapping theorem]\label{prop:cmt}
-If \(X_n \convas X\) (respectively \(\convp\), \(\convd\)) and \(g: \R \to \R\) is continuous on a set of \(\Prob_X\)-probability one, then \(g(X_n) \convas g(X)\) (respectively \(\convp\), \(\convd\)).
+If \(X_n \convas X\) (respectively \(\convp\), \(\convd\)) and \(g: \R \to \R\) is continuous, then \(g(X_n) \convas g(X)\) (respectively \(\convp\), \(\convd\)).
 \end{proposition}
 
 Slutsky's theorem (also useful later) is recorded in Appendix~\ref{app:auxiliary}.
@@ -321,7 +337,19 @@ If \(Y \ge 0\) and \(a > 0\), then \(\Prob(Y \ge a) \le \E[Y]/a\).
 \end{theorem}
 
 \begin{proof}
-On the event \(\{Y \ge a\}\) we have \(Y \ge a\), so \(Y \indic_{\{Y \ge a\}} \ge a \indic_{\{Y \ge a\}}\). Taking expectations, \(\E[Y] \ge \E[Y \indic_{\{Y \ge a\}}] \ge a\, \Prob(Y \ge a)\), and the claim follows.
+On the event \(\{Y \ge a\}\), the variable \(Y\) itself satisfies \(Y \ge a\). Multiplying both sides by the indicator \(\indic_{\{Y \ge a\}}\),
+\[
+  Y\, \indic_{\{Y \ge a\}} \;\ge\; a\, \indic_{\{Y \ge a\}}.
+\]
+Outside the event both sides equal zero, so the inequality holds everywhere on \(\Omega\). Take expectations and use that \(\indic_{\{Y \ge a\}}\) integrates to \(\Prob(Y \ge a)\):
+\[
+  \E\!\bigl[Y\, \indic_{\{Y \ge a\}}\bigr] \;\ge\; a\, \Prob(Y \ge a).
+\]
+Finally, \(Y\, \indic_{\{Y \ge a\}} \le Y\) (because \(Y \ge 0\) and the indicator is at most \(1\)), so
+\[
+  \E[Y] \;\ge\; \E\!\bigl[Y\, \indic_{\{Y \ge a\}}\bigr] \;\ge\; a\, \Prob(Y \ge a).
+\]
+Dividing by \(a > 0\) gives the claim.
 \end{proof}
 
 \begin{theorem}[Chebyshev's inequality]\label{thm:chebyshev}
@@ -332,7 +360,15 @@ If \(\E[X] = \mu\) and \(\Var(X) = \sigma^2 < \infty\), then for any \(\varepsil
 \end{theorem}
 
 \begin{proof}
-Apply Markov's inequality to the nonnegative variable \(Y = (X - \mu)^2\) with \(a = \varepsilon^2\): \(\Prob(\abs{X - \mu} \ge \varepsilon) = \Prob((X - \mu)^2 \ge \varepsilon^2) \le \E[(X - \mu)^2] / \varepsilon^2 = \sigma^2 / \varepsilon^2\).
+Squaring is strictly increasing on \([0, \infty)\), so the event \(\{\abs{X - \mu} \ge \varepsilon\}\) coincides with \(\{(X - \mu)^2 \ge \varepsilon^2\}\):
+\[
+  \Prob(\abs{X - \mu} \ge \varepsilon) \;=\; \Prob\bigl((X - \mu)^2 \ge \varepsilon^2\bigr).
+\]
+The variable \(Y = (X - \mu)^2\) is nonnegative with \(\E[Y] = \Var(X) = \sigma^2\). Applying Markov's inequality (Theorem~\ref{thm:markov}) to \(Y\) with threshold \(a = \varepsilon^2\),
+\[
+  \Prob\bigl((X - \mu)^2 \ge \varepsilon^2\bigr) \;\le\; \frac{\E[(X - \mu)^2]}{\varepsilon^2} \;=\; \frac{\sigma^2}{\varepsilon^2}.
+\]
+Combining the two displays gives the claim.
 \end{proof}
 
 These suffice to prove the weak law.
@@ -342,10 +378,19 @@ Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(\Var(X_1) = \sigma^
 \end{theorem}
 
 \begin{proof}
-By linearity, \(\E[\bar X_n] = \mu\); by independence, \(\Var(\bar X_n) = \sigma^2 / n\). Chebyshev gives
+Compute the mean and variance of \(\bar X_n\). By linearity of expectation,
 \[
-  \Prob(\abs{\bar X_n - \mu} \ge \varepsilon) \;\le\; \frac{\Var(\bar X_n)}{\varepsilon^2} \;=\; \frac{\sigma^2}{n \varepsilon^2} \;\longrightarrow\; 0.
+  \E[\bar X_n] \;=\; \frac{1}{n} \sum_{i=1}^n \E[X_i] \;=\; \mu.
 \]
+By independence of the \(X_i\),
+\[
+  \Var(\bar X_n) \;=\; \frac{1}{n^2} \sum_{i=1}^n \Var(X_i) \;=\; \frac{\sigma^2}{n}.
+\]
+Apply Chebyshev's inequality (Theorem~\ref{thm:chebyshev}) to \(\bar X_n\) with threshold \(\varepsilon\):
+\[
+  \Prob(\abs{\bar X_n - \mu} \ge \varepsilon) \;\le\; \frac{\Var(\bar X_n)}{\varepsilon^2} \;=\; \frac{\sigma^2}{n \varepsilon^2} \;\longrightarrow\; 0 \qquad (n \to \infty).
+\]
+This is the definition of \(\bar X_n \convp \mu\).
 \end{proof}
 
 A stronger statement holds without the finite-variance assumption.
@@ -359,7 +404,7 @@ A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} s
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.92\textwidth]{figures/lln_convergence.png}
-  \caption{The sample mean \(\bar X_n\) converges to the population mean \(\mu = 5\) for two distributions with very different shapes but the same mean and variance: a normal \(\Normal{5, 4}\) and an exponential rescaled and shifted to also have mean \(5\) and variance \(4\). The exponential samples fluctuate more in the early stages because their distribution is heavily skewed, but both averages settle near \(5\) by \(n = 10000\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \caption{The sample mean \(\bar X_n\) converges to the population mean \(\mu = 5\) for two distributions with very different shapes but the same mean and variance: a normal \(\Normal{5, 4}\) and an exponential rescaled and shifted to also have mean \(5\) and variance \(4\). The exponential samples fluctuate more in the early stages because their distribution is heavily skewed, but both averages settle near \(5\) by \(n = 10000\). The choice of normal vs.\ shifted-exponential comparison with matched mean and variance follows Figure~1 of \citet{Genzer2025}; the figure here is generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:lln}
 \end{figure}
 
@@ -373,15 +418,42 @@ Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(0 < \Var(X_1) = \si
 \end{theorem}
 
 \begin{proof}
-Let \(Y_i = (X_i - \mu) / \sigma\). Then \(\E[Y_i] = 0\), \(\Var(Y_i) = 1\), and \(Z_n = n^{-1/2} \sum_{i = 1}^n Y_i\). Let \(\varphi(t) = \E[e^{it Y_1}]\). A second-order Taylor expansion of \(e^{iu}\) at \(u = 0\) gives \(e^{iu} = 1 + iu - u^2/2 + o(u^2)\); substituting \(u = t Y_1\) and taking expectations using \(\E[Y_1] = 0\), \(\E[Y_1^2] = 1\),
+The proof has four steps: standardize, expand the characteristic function near zero, factor across the iid sum, and pass to the limit through L\'evy's continuity theorem.
+
+\smallskip
+\noindent\emph{Step 1 (standardize).} Set \(Y_i = (X_i - \mu)/\sigma\). Then \(\E[Y_i] = 0\), \(\Var(Y_i) = 1\), and
+\[
+  Z_n \;=\; \frac{1}{\sqrt{n}} \sum_{i=1}^n Y_i.
+\]
+
+\smallskip
+\noindent\emph{Step 2 (expand the CF near zero).} Let \(\varphi(t) = \E[e^{it Y_1}]\). The Taylor expansion \(e^{iu} = 1 + iu - u^2/2 + o(u^2)\) as \(u \to 0\), applied with \(u = t Y_1\), gives
+\[
+  e^{i t Y_1} \;=\; 1 \;+\; i t Y_1 \;-\; \tfrac{1}{2} t^2 Y_1^2 \;+\; o(t^2 Y_1^2).
+\]
+Taking expectations and using \(\E[Y_1] = 0\) and \(\E[Y_1^2] = 1\),
 \[
   \varphi(t) \;=\; 1 \;-\; \tfrac{1}{2} t^2 \;+\; o(t^2) \qquad (t \to 0).
 \]
-By independence, the CF of \(Z_n\) factors:
+
+\smallskip
+\noindent\emph{Step 3 (factor by independence).} The \(Y_i\) are independent, so the characteristic function of \(Z_n\) factors into a product of \(n\) copies of \(\varphi(t/\sqrt{n})\):
 \[
-  \varphi_{Z_n}(t) \;=\; \Bigl(\varphi\!\bigl(t/\sqrt{n}\bigr)\Bigr)^n \;=\; \Bigl(1 - \tfrac{t^2}{2n} + o(1/n)\Bigr)^n.
+  \varphi_{Z_n}(t) \;=\; \E\!\Biggl[\exp\!\Bigl(\frac{i t}{\sqrt{n}} \sum_{i=1}^n Y_i\Bigr)\Biggr]
+  \;=\; \prod_{i=1}^n \E\!\bigl[e^{i (t/\sqrt{n}) Y_i}\bigr]
+  \;=\; \Bigl(\varphi\!\bigl(t/\sqrt{n}\bigr)\Bigr)^n.
 \]
-The right side converges to \(e^{-t^2/2}\) as \(n \to \infty\) by the standard limit \((1 + a_n/n)^n \to e^a\) when \(a_n \to a\). The function \(e^{-t^2/2}\) is the CF of \(\Normal{0, 1}\) by Example~\ref{ex:cf-normal}, so the L\'evy continuity theorem (Theorem~\ref{thm:levy-continuity}) yields \(Z_n \convd \Normal{0, 1}\).
+Substituting the expansion from Step 2 with \(t/\sqrt{n}\) in place of \(t\),
+\[
+  \varphi_{Z_n}(t) \;=\; \Bigl(1 \;-\; \tfrac{t^2}{2 n} \;+\; o(1/n)\Bigr)^n.
+\]
+
+\smallskip
+\noindent\emph{Step 4 (take the limit and conclude).} The standard calculus identity \((1 + a_n/n)^n \to e^a\) when \(a_n \to a\), applied with \(a_n \to -t^2/2\), gives
+\[
+  \varphi_{Z_n}(t) \;\longrightarrow\; e^{-t^2/2} \qquad (n \to \infty).
+\]
+By Example~\ref{ex:cf-normal}, \(e^{-t^2/2}\) is the characteristic function of \(\Normal{0, 1}\). The L\'evy continuity theorem (Theorem~\ref{thm:levy-continuity}) then yields \(Z_n \convd \Normal{0, 1}\).
 \end{proof}
 
 Figure~\ref{fig:clt} illustrates the CLT for exponential samples: even though the underlying distribution is sharply skewed, the histogram of the standardized sample mean \(Z_n\) approaches the standard normal density as \(n\) grows.
