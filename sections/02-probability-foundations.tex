@@ -14,7 +14,7 @@ The high-dimensional phenomena studied in later sections all rest on a small set
 Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is a collection of events, and \(\Prob\) assigns each event a number in \([0, 1]\). The full development imposes some technical regularity on \(\mathcal{F}\) and \(\Prob\) (the language of \(\sigma\)-algebras and measures, developed in measure-theoretic probability); we will not need to engage with it directly. We work with this triple in the background; the foreground objects are real-valued functions of the outcome.
 
 \begin{definition}[Random variable]\label{def:rv}
-A \emph{random variable} is a function \(X: \Omega \to \R\). Its distribution is captured by the \vocab{cumulative distribution function} (CDF)
+A \emph{random variable} is a function \(X: \Omega \to \R\). Strictly, \(X\) is required to satisfy the technical condition \(\{\omega : X(\omega) \le x\} \in \mathcal{F}\) for every \(x \in \R\), so that \(\Prob(X \le x)\) is well defined; this is called \emph{measurability}, holds for every random variable we will encounter, and we will not verify it explicitly. The distribution of \(X\) is captured by the \vocab{cumulative distribution function} (CDF)
 \[
   F_X(x) \;=\; \Prob(X \le x), \qquad x \in \R.
 \]
@@ -66,7 +66,7 @@ The Cauchy distribution will be a recurring foil: its heavy tails make some stan
 Moments quantify the shape of a distribution.
 
 \begin{definition}[Moments and central moments]\label{def:moments}
-For a random variable \(X\) with finite \(\E\abs{X}^j\), the \(j\)\textsuperscript{th} \emph{moment} is \(\E[X^j]\) and the \(j\)\textsuperscript{th} \emph{central moment} is \(\E[(X - \mu)^j]\) where \(\mu = \E[X]\). The second central moment is the \emph{variance}, \(\Var(X) = \E[(X - \mu)^2]\).
+For an integer \(j \ge 1\) such that \(\E\abs{X}^j < \infty\), the \(j\)\textsuperscript{th} \emph{moment} of \(X\) is \(\E[X^j]\) and the \(j\)\textsuperscript{th} \emph{central moment} is \(\E[(X - \mu)^j]\), where \(\mu = \E[X]\). The second central moment is the \emph{variance}, \(\Var(X) = \E[(X - \mu)^2]\). The absolute-moment hypothesis ensures that \(X^j\) is integrable, so the bare expectation \(\E[X^j]\) is well defined.
 \end{definition}
 
 A generating function for the moments compresses all of this information into a single function.
@@ -89,7 +89,7 @@ If \(M_X(t)\) is finite for \(t \in (-h, h)\), then \(M_X\) is infinitely differ
 \end{theorem}
 
 \begin{proof}
-We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. Since \(M_X(t)\) is finite on the open interval \((-h, h)\), the integrand \(e^{tx} f_X(x)\) is dominated uniformly in \(t\) on every compact subinterval of \((-h, h)\), so differentiation under the integral sign is justified \citep[][Thm.~2.4.1]{Casella2002}. Therefore,
+We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. The hypothesis that \(M_X\) is finite on an open interval around zero is the standard regularity condition that justifies differentiating under the integral sign in the calculation that follows; see \citet[][Thm.~2.3.7]{Casella2002}. Therefore,
 \[
   \frac{d}{dt} M_X(t)
   \;=\; \frac{d}{dt} \int_{-\infty}^\infty e^{tx} f_X(x)\, dx
@@ -188,7 +188,11 @@ The converse direction (2) is the harder one: it says that the entire distributi
 There is a catch. The MGF requires \(e^{tX}\) to have a finite expectation for \(t\) near zero, which can fail if \(X\) has heavy tails.
 
 \begin{example}[Cauchy: no MGF]\label{ex:cauchy-no-mgf}
-For the standard Cauchy, \(\int_{-\infty}^\infty e^{tx}\, / (\pi (1 + x^2))\, dx\) diverges for every \(t \ne 0\). The MGF therefore does not exist on any open neighborhood of zero. This is not a pathology; the Cauchy is a perfectly well-defined distribution, central in probability and physics.
+For the standard Cauchy density \(f(x) = 1 / (\pi (1 + x^2))\), the MGF integral
+\[
+  \int_{-\infty}^\infty \frac{e^{tx}}{\pi (1 + x^2)}\, dx
+\]
+diverges for every \(t \ne 0\), since the integrand grows like \(e^{tx}/x^2\) at the right tail (for \(t > 0\)) or at the left tail (for \(t < 0\)). The MGF therefore does not exist on any open neighborhood of zero. This is not a pathology; the Cauchy is a perfectly well-defined distribution, central in probability and physics.
 \end{example}
 
 The remedy is the characteristic function.
@@ -216,16 +220,16 @@ The CF is therefore well defined for every distribution. When \(X\) has a densit
 When the MGF exists, formal substitution gives \(\varphi_X(t) = M_X(it)\).
 
 \begin{example}[Standard normal CF]\label{ex:cf-normal}
-For \(X \sim \Normal{0, 1}\),
+For \(X \sim \Normal{0, 1}\), the MGF computed in Example~\ref{ex:mgfs} is
 \[
-  \varphi_X(t) \;=\; \int_{-\infty}^\infty e^{itx}\, \frac{1}{\sqrt{2\pi}}\, e^{-x^2/2}\, dx.
+  M_X(s) \;=\; e^{s^2/2},
 \]
-Completing the square in the exponent gives \(-\tfrac{1}{2}(x - it)^2 - \tfrac{t^2}{2}\), so the integrand factors as a Gaussian kernel in \(x - it\) times \(e^{-t^2/2}\). The kernel integrates to one, leaving
+and this expression is well defined for every complex \(s\). Substituting \(s = it\) using the identity \(\varphi_X(t) = M_X(it)\) yields
 \begin{equation}
-  \varphi_X(t) \;=\; e^{-t^2/2}, \qquad t \in \R.
+  \varphi_X(t) \;=\; M_X(it) \;=\; e^{(it)^2 / 2} \;=\; e^{-t^2/2}, \qquad t \in \R.
   \label{eq:cf-normal}
 \end{equation}
-This agrees with \(M_X(it) = e^{(it)^2/2} = e^{-t^2/2}\), as expected.
+A direct computation from the definition of \(\varphi_X\), completing the square in the exponent of the integrand, gives the same answer.
 \end{example}
 
 \begin{example}[Standard Cauchy CF]\label{ex:cf-cauchy}
