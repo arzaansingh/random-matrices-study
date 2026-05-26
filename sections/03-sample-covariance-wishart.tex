@@ -1,123 +1,380 @@
 %% sections/03-sample-covariance-wishart.tex
-%% Section 3: Sample Covariance Matrices (~11 pages)
+%% Section 3: Sample Covariance Matrices (~13 pages)
+%%
+%% Build philosophy: this is the meat of the report. Use the foundations
+%% built in Section 2 (Sigma PSD via Var(v^T X); eigenvalue convergence;
+%% spectral theorem) and develop both regimes. Stay at the depth of the
+%% v5 notes, prove what is clean, cite the rest. Figures wherever they
+%% help.
+%%
 %% Source notes:
-%%   - v5 LaTeX notes: sample covariance, Wishart, fixed-dim CLT, 2D Wishart,
-%%     GOE, delta-method, Marchenko-Pastur, Tracy-Widom heuristic.
-%%   - Handwritten Note 2.pdf, Note 3.pdf, Note 4.pdf.
-%%   - Gustavo Notes (April 17, April 27, April 30, May 14).
-%%   - Yao, Zheng, Bai (2015) Chapter 3 (Wishart) and Chapter 2 (MP).
-%%   - Joseph Genzer (2025) Section 3.
+%%   - v5 LaTeX §5.3 (sample covariance, numerical examples).
+%%   - Previous ChatGPT session dump (Wishart density, 2D joint
+%%     eigenvalue density with repulsion, matrix CLT, GOE limit,
+%%     distinct-eigenvalue delta method, eigenvector counterexample,
+%%     MP law, Tracy-Widom heuristic).
+%%   - Gustavo's emails (Wishart, repulsion via Vandermonde, TW edge,
+%%     do not overclaim exact TW constants -- but he later asked for
+%%     them via Johnstone 2001, so we include them).
+%%   - Yao-Zheng-Bai (2015) Ch. 2 (MP), Ch. 3 (Wishart).
+%%   - Johnstone (2001) for TW1 with explicit constants.
 
 \section{Sample Covariance Matrices}\label{sec:scm}
 
-\todo{Opening paragraph: the sample covariance matrix \(\Sigmahat_n\) is the
-central object of multivariate statistics. In low dimensions (\(p\) fixed,
-\(n \to \infty\)) it converges almost surely to the population covariance
-\(\Sigma\) and its eigenvalues converge by continuity. In high dimensions
-(\(p, n \to \infty\) with \(p/n \to y > 0\)) this convergence fails
-dramatically: the empirical spectrum spreads out into a non-trivial bulk
-density. This section develops both regimes, building from the foundations
-laid in Section~\ref{sec:foundations}.}
+In Section~\ref{subsec:rvecs} the covariance matrix \(\Sigma\) of a random vector was introduced as a theoretical object with entries \(\Sigma_{ij} = \Cov(X_i, X_j)\). In practice this matrix is unknown; statisticians have access only to \(n\) independent samples of \(\vect{X}\) and must estimate \(\Sigma\) from them. The natural estimator is the \emph{sample covariance matrix}, the central object of this report.
 
+This section develops two contrasting pictures of how the sample covariance matrix behaves. In Section~\ref{subsec:scm-lowdim} the dimension \(p\) is fixed and the sample size \(n\) grows: the classical low-dimensional regime, in which \(\Sigmahat_n\) is an accurate estimator of \(\Sigma\) and the limit theorems of Section~\ref{sec:foundations} describe its fluctuations. In Section~\ref{subsec:scm-highdim} the dimension and sample size grow together with \(p / n \to y > 0\): the high-dimensional regime, in which \(\Sigmahat_n\) becomes a biased estimator of \(\Sigma\) and its eigenvalues acquire a non-trivial limiting density. The contrast between these two pictures is the central scientific question this report addresses.
+
+%====================================================================
 \subsection{The Sample Covariance Matrix}\label{subsec:scm-foundations}
 
-\todo{Content to fill in (from v5 + Joseph Section 3 intro). The spectral
-theorem and the eigenvalue characterization of PD/PSD are now in
-Section~\ref{subsec:linalg}, so this subsection focuses purely on the
-sample object.
-- Definition: sample covariance matrix \(\Sigmahat_n = \frac{1}{n}
-  \sum_{i=1}^n \vect{X}_i \vect{X}_i\transpose\) (mean-zero case) and the
-  unbiased \(\frac{1}{n-1}\) variant.
-- Matrix form: \(\Sigmahat_n = \frac{1}{n} \mat X \mat X\transpose\) for
-  the data matrix \(\mat X \in \R^{p \times n}\).
-- Numerical examples (from v5 \S5.3): exam scores p=2 case, algebraic
-  perfectly correlated case, mean-zero case.
-- Show that \(\Sigmahat_n\) is symmetric and PSD (one-line application of
-  the same \(\Var(\vect{v}\transpose \vect{X})\) identity), so all its
-  eigenvalues are nonnegative by Theorem~\ref{thm:pd-psd-eigen}.
-- Remark: \(\Sigmahat_n\) is the empirical analogue of \(\Sigma\); the
-  whole point of the rest of the section is to compare them.}
+\begin{definition}[Sample mean and sample covariance matrix]\label{def:sample-cov}
+Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid copies of a random vector \(\vect{X} \in \R^p\) with mean \(\vect{\mu}\). The \emph{sample mean} is
+\[
+  \bar{\vect{X}}_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i.
+\]
+The \vocab{sample covariance matrix} in the \emph{mean-unknown} case is
+\[
+  \Sigmahat_n \;=\; \frac{1}{n - 1} \sum_{i = 1}^n (\vect{X}_i - \bar{\vect{X}}_n)(\vect{X}_i - \bar{\vect{X}}_n)\transpose,
+\]
+and in the \emph{mean-zero} case (when \(\vect{\mu} = \vect{0}\) is known) is
+\[
+  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose.
+\]
+\end{definition}
 
+The factor \(1/(n-1)\) makes the mean-unknown estimator unbiased: \(\E[\Sigmahat_n] = \Sigma\). The factor \(1/n\) in the mean-zero variant has the same effect for that simpler setting. Throughout this report we work in the mean-zero case by default. The reasons are practical: the matrix algebra is cleaner, and the Gaussian models that drive Sections~\ref{sec:scm}--\ref{sec:spiked} all have \(\vect{\mu} = \vect{0}\) by convention. The asymptotic results below carry over to the mean-unknown version with no substantive change.
+
+\paragraph{Matrix form.}
+Stack the observations into the \emph{data matrix}
+\[
+  \mat{X} \;=\; (\vect{X}_1 \mid \cdots \mid \vect{X}_n) \;\in\; \R^{p \times n},
+\]
+with each observation as a column. In the mean-zero case the sample covariance matrix has the compact form
+\begin{equation}
+  \Sigmahat_n \;=\; \frac{1}{n}\, \mat{X} \mat{X}\transpose.
+  \label{eq:scm-matrix-form}
+\end{equation}
+This expression is the working form of \(\Sigmahat_n\) for the rest of the report; up to the factor of \(n\), it is the Gram matrix of the data.
+
+\paragraph{Symmetric and positive semidefinite.}
+The sample covariance matrix inherits the structural properties of \(\Sigma\) from Section~\ref{subsec:rvecs}.
+
+\begin{proposition}[Properties of \(\Sigmahat_n\)]\label{prop:scm-psd}
+The sample covariance matrix \(\Sigmahat_n\) is symmetric and positive semidefinite. In particular all its eigenvalues are nonnegative.
+\end{proposition}
+
+\begin{proof}
+For the mean-zero version \(\Sigmahat_n = \frac{1}{n} \mat{X} \mat{X}\transpose\), symmetry is immediate from \((\mat{X} \mat{X}\transpose)\transpose = \mat{X} \mat{X}\transpose\). For positive semidefiniteness, fix any \(\vect{v} \in \R^p\). Then
+\[
+  \vect{v}\transpose \Sigmahat_n \vect{v}
+  \;=\; \frac{1}{n}\, \vect{v}\transpose \mat{X} \mat{X}\transpose \vect{v}
+  \;=\; \frac{1}{n}\, (\mat{X}\transpose \vect{v})\transpose (\mat{X}\transpose \vect{v})
+  \;=\; \frac{1}{n}\, \norm{\mat{X}\transpose \vect{v}}_2^2
+  \;\ge\; 0.
+\]
+The eigenvalue conclusion follows from Theorem~\ref{thm:pd-psd-eigen}. The mean-unknown version replaces \(\mat{X}\) with the centered data matrix \(\mat{X}_c\) whose columns are \(\vect{X}_i - \bar{\vect{X}}_n\), and the same identity gives \(\vect{v}\transpose \Sigmahat_n \vect{v} = \norm{\mat{X}_c\transpose \vect{v}}_2^2 / (n - 1) \ge 0\).
+\end{proof}
+
+\paragraph{A small worked example.}
+The following two-dimensional example illustrates how the definitions translate into a concrete computation. It is drawn from a typical exam-scores motivation.
+
+\begin{example}[Sample covariance of three two-dimensional observations]\label{ex:scm-numerical}
+Three observations on two variables are
+\[
+  \vect{x}_1 = (70, 75)\transpose, \quad \vect{x}_2 = (80, 85)\transpose, \quad \vect{x}_3 = (90, 80)\transpose.
+\]
+The sample means are \(\bar{x}_1 = 80\) and \(\bar{x}_2 = 80\), so the centered observations are \((-10, -5)\transpose\), \((0, 5)\transpose\), \((10, 0)\transpose\). The outer products sum to
+\[
+  \begin{pmatrix} 100 & 50 \\ 50 & 25 \end{pmatrix} \;+\; \begin{pmatrix} 0 & 0 \\ 0 & 25 \end{pmatrix} \;+\; \begin{pmatrix} 100 & 0 \\ 0 & 0 \end{pmatrix} \;=\; \begin{pmatrix} 200 & 50 \\ 50 & 50 \end{pmatrix},
+\]
+and dividing by \(n - 1 = 2\) gives
+\[
+  \Sigmahat_3 \;=\; \begin{pmatrix} 100 & 25 \\ 25 & 25 \end{pmatrix}.
+\]
+The diagonal entries are sample variances (100 and 25); the off-diagonal entry is the sample covariance (25), indicating positive linear association between the two variables.
+\end{example}
+
+\paragraph{The two regimes.}
+By construction \(\Sigmahat_n\) is an estimator of \(\Sigma\), so a strong law applied entrywise should give \(\Sigmahat_n \to \Sigma\) in some sense. The remainder of this section asks two refinements of that statement. First, in what sense does \(\Sigmahat_n \to \Sigma\) when \(p\) is fixed and \(n \to \infty\), and how do the eigenvalues and eigenvectors of \(\Sigmahat_n\) compare to those of \(\Sigma\)? Second, what happens when \(p\) and \(n\) grow together at a fixed aspect ratio \(p/n \to y > 0\)? The answers, given in Sections~\ref{subsec:scm-lowdim} and~\ref{subsec:scm-highdim}, are qualitatively different.
+
+%====================================================================
 \subsection{Low Dimensions: Wishart, Eigenvalue Repulsion, and Fluctuations}\label{subsec:scm-lowdim}
 
-\todo{Content to fill in (from v5 + Joseph Section 3.1):
+In the low-dimensional regime the dimension \(p\) is fixed and the sample size \(n \to \infty\). This is the classical setting of multivariate statistics, and the limit theorems of Section~\ref{sec:foundations} apply directly.
 
-(a) Almost sure convergence of the sample covariance.
-- Theorem: if \(\vect X_i\) iid with \(\E \vect X_1 = 0\) and \(\Cov(\vect X_1)
-  = \Sigma\), then \(\Sigmahat_n \convas \Sigma\) entrywise by SLLN.
-- Corollary: \(\lambda_i(\Sigmahat_n) \convas \lambda_i(\Sigma)\) by
-  continuity of eigenvalues (proof sketch via continuity of the
-  characteristic polynomial and continuity of its roots).
-Cite \citet[Prop.~3.1, 3.3]{Genzer2025}.
+\paragraph{Almost-sure convergence to the population covariance.}
 
-(b) Wishart distribution.
-- Definition: \(\mat S = \sum_{i=1}^n \vect X_i \vect X_i\transpose \sim
-  \Wishart{p}{n, \Sigma}\) for iid Gaussian \(\vect X_i \sim \Normal{0,
-  \Sigma}\).
-- Wishart density formula.
-- Theorem: for \(p = 1\), \(\Wishart{1}{n, 1}\) collapses to \(\chi_n^2\)
-  (proof by plugging in).
+\begin{theorem}[Entrywise consistency of \(\Sigmahat_n\)]\label{thm:scm-consistency}
+Let \(\vect{X}_1, \vect{X}_2, \ldots\) be iid copies of a random vector \(\vect{X} \in \R^p\) with mean \(\vect{0}\) and finite second moments \(\E[X_i X_j] < \infty\). Then
+\[
+  \Sigmahat_n \;\convas\; \Sigma \qquad \text{entrywise, as } n \to \infty.
+\]
+\end{theorem}
 
-(c) 2D Wishart and eigenvalue repulsion.
-- Joint density of ordered eigenvalues of \(\Wishart{2}{n, I_2}\) contains
-  the factor \(\lambda_2 - \lambda_1\), producing eigenvalue repulsion.
-- Simulation: scatter of \((\lambda_1, \lambda_2)\) and histogram of
-  \(\lambda_2 - \lambda_1\) (notebook 02).
-Include figure: 2D Wishart eigenvalue scatter.
+\begin{proof}
+The \((j, k)\) entry of \(\Sigmahat_n\) is
+\[
+  (\Sigmahat_n)_{j k} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{i j}\, X_{i k}.
+\]
+The variables \(\{X_{i j} X_{i k}\}_{i \ge 1}\) are iid with mean \(\E[X_{1 j} X_{1 k}] = \Sigma_{j k}\) (since \(\vect{X}_1\) has mean zero) and finite first moment by hypothesis. The strong law of large numbers (Theorem~\ref{thm:slln}) then gives \((\Sigmahat_n)_{j k} \convas \Sigma_{j k}\). Doing this for every pair \((j, k)\) yields entrywise almost-sure convergence \(\Sigmahat_n \convas \Sigma\).
+\end{proof}
 
-(d) Joint CLT for entries of \(\Sigmahat_n\) when \(\Sigma = I_2\).
-- Statement and proof via multivariate CLT (variances 2, 2, 1 for diagonal
-  and off-diagonal entries).
-- Consequence: matrix-valued CLT \(\sqrt{n}(\Sigmahat_n - I_2) \convd G\)
-  where \(G\) has GOE structure.
+Combined with the eigenvalue convergence developed in Section~\ref{subsec:linalg}, entrywise convergence forces convergence of the sample eigenvalues to the population eigenvalues.
 
-(e) Top eigenvalue fluctuation: repeated vs.\ distinct cases.
-- Repeated (\(\Sigma = I_2\)): \(\sqrt{n}(\lambda_2(\Sigmahat_n) - 1) \convd
-  \lambda_2(G)\), \emph{not} Gaussian.
-- Distinct (\(\Sigma = \diag(1, 2)\)): delta-method gives Gaussian
-  fluctuations with variances 2 and 8.
-- Simulation: Q-Q plots for both cases (notebook 03).
-Include figures: Q-Q repeated, Q-Q distinct.
+\begin{corollary}[Sample eigenvalues converge to population eigenvalues]\label{cor:scm-eigen-convergence}
+Under the hypotheses of Theorem~\ref{thm:scm-consistency},
+\[
+  \lambda_i(\Sigmahat_n) \;\convas\; \lambda_i(\Sigma) \qquad \text{for every } i = 1, \ldots, p.
+\]
+\end{corollary}
 
-(f) Eigenvector convergence.
-- Distinct case: \(\widehat{\vect u}_\ell \convas \vect e_\ell\) with sign
-  convention.
-- Repeated case: eigenvectors fail to converge; explicit counterexample
-  with rotating \(O_n\). This previews why spectral separation is essential
-  for eigenvector recovery, a theme that returns in Section~\ref{sec:spiked}.}
+\begin{proof}
+Apply Proposition~\ref{prop:eigen-convergence}(2) to the matrix-valued sequence \(\Sigmahat_n \convas \Sigma\).
+\end{proof}
 
+The qualitative low-dimensional picture is now clear: \(\Sigmahat_n\) is a consistent estimator of \(\Sigma\), and the sample eigenvalues track the population eigenvalues. The next two questions are quantitative. How fast does the convergence happen? And what does the fluctuation around the limit look like? The answer turns out to depend on whether the population eigenvalues of \(\Sigma\) are simple or repeated, and both cases will use the Wishart distribution.
+
+\paragraph{The Wishart distribution.}
+When the observations are Gaussian, the sample covariance matrix has a name.
+
+\begin{definition}[Wishart distribution]\label{def:wishart}
+Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid \(\Normal{\vect{0}, \Sigma}\) random vectors in \(\R^p\), and set
+\[
+  \mat{S} \;=\; \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose \;=\; n\, \Sigmahat_n.
+\]
+The distribution of \(\mat{S}\) is the \vocab{Wishart distribution} with \(n\) degrees of freedom and scale matrix \(\Sigma\), written \(\mat{S} \sim \Wishart{p}{n, \Sigma}\). When \(n \ge p\) and \(\Sigma\) is positive definite, \(\mat{S}\) admits the density (on the cone of positive-definite matrices)
+\begin{equation}
+  f_{\mat{S}}(\mat{S}) \;=\; \frac{\abs{\mat{S}}^{(n - p - 1)/2}\, \exp\!\bigl(-\tfrac{1}{2}\, \tr(\Sigma\inv \mat{S})\bigr)}{2^{n p / 2}\, \abs{\Sigma}^{n/2}\, \Gamma_p(n / 2)},
+  \label{eq:wishart-density}
+\end{equation}
+where \(\Gamma_p\) is the multivariate gamma function (see \citet[][\S 3.2]{YaoZhengBai2015}).
+\end{definition}
+
+The Wishart distribution is the multivariate analogue of the chi-square distribution, which it recovers in dimension one.
+
+\begin{example}[Wishart in dimension one]\label{ex:wishart-p1}
+Take \(p = 1\) and \(\Sigma = 1\). Then each \(\vect{X}_i\) is a scalar \(X_i \sim \Normal{0, 1}\), and \(\mat{S} = \sum_{i = 1}^n X_i^2\). By definition of the chi-square distribution, \(\mat{S} \sim \chi_n^2\). Specialization of the Wishart density~\eqref{eq:wishart-density} confirms this: with \(p = 1\) we have \(\Gamma_1(n/2) = \Gamma(n/2)\), \(\abs{\Sigma} = 1\), and \(\tr(\Sigma\inv \mat{S}) = \mat{S}\), so
+\[
+  f_{\mat{S}}(s) \;=\; \frac{s^{(n - 2)/2}\, e^{-s/2}}{2^{n/2}\, \Gamma(n/2)}, \qquad s > 0,
+\]
+which is exactly the \(\chi_n^2\) density. For general \(\sigma^2 > 0\), an analogous specialization gives \(\mat{S} \sim \sigma^2 \chi_n^2\).
+\end{example}
+
+\paragraph{Eigenvalue repulsion in dimension two.}
+For \(\Sigma = I_2\), the joint distribution of the two ordered eigenvalues \(0 \le \lambda_1 \le \lambda_2\) of \(\mat{S} \sim \Wishart{2}{n, I_2}\) admits an explicit density of the form
+\begin{equation}
+  f(\lambda_1, \lambda_2) \;=\; C\, (\lambda_1 \lambda_2)^{(n - 3)/2}\, e^{-(\lambda_1 + \lambda_2) / 2}\, (\lambda_2 - \lambda_1)\, \indic_{\{0 \le \lambda_1 \le \lambda_2\}},
+  \label{eq:wishart-2d-density}
+\end{equation}
+where \(C > 0\) is a normalizing constant; a derivation via a Jacobian computation on the spectral decomposition \(\mat{S} = \mat{Q} \diag(\lambda_1, \lambda_2) \mat{Q}\transpose\) is in \citet[][Ch.~3]{YaoZhengBai2015}. The key feature of \eqref{eq:wishart-2d-density} for our purposes is the factor \(\lambda_2 - \lambda_1\), which forces the joint density to vanish on the diagonal \(\lambda_1 = \lambda_2\). This is the simplest instance of \vocab{eigenvalue repulsion}, a phenomenon central to random matrix theory: the two eigenvalues of a random symmetric matrix avoid each other.
+
+Figure~\ref{fig:wishart-2d} shows the Monte Carlo cloud and confirms repulsion visually.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/wishart_2d_eigenvalues.png}
+  \caption{Eigenvalues of \(\Wishart{2}{n, I_2}\) for \(n = 100\), computed from \(5000\) independent Monte Carlo samples. \emph{Left:} scatter plot of \((\lambda_1, \lambda_2)\) with the line \(\lambda_2 = \lambda_1\) shown for reference. The cloud sits strictly above the diagonal (by ordering \(\lambda_1 \le \lambda_2\)) and is visibly \emph{bounded away} from it: this is the repulsion mandated by the factor \((\lambda_2 - \lambda_1)\) in equation~\eqref{eq:wishart-2d-density}. \emph{Right:} histogram of the gap \(\lambda_2 - \lambda_1\); the density vanishes at zero, again reflecting repulsion. Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \label{fig:wishart-2d}
+\end{figure}
+
+\paragraph{Matrix-valued central limit theorem.}
+Beyond the almost-sure convergence \(\Sigmahat_n \convas \Sigma\), the multivariate CLT gives the Gaussian fluctuation of \(\Sigmahat_n\) around \(\Sigma\) on the \(\sqrt{n}\) scale. We illustrate it in two contrasting two-dimensional cases.
+
+\begin{proposition}[Entrywise CLT for \(\Sigma = I_2\)]\label{prop:entrywise-clt-I2}
+Let \(\vect{X}_i \sim \Normal{\vect{0}, I_2}\) be iid. Then
+\[
+  \sqrt{n}\, \begin{pmatrix} (\Sigmahat_n)_{11} - 1 \\ (\Sigmahat_n)_{12} \\ (\Sigmahat_n)_{22} - 1 \end{pmatrix} \;\convd\; \Normal{\vect{0},\; \diag(2,\, 1,\, 2)}.
+\]
+Equivalently, the matrix-valued centered fluctuation \(\sqrt{n}\,(\Sigmahat_n - I_2)\) converges in distribution to a real symmetric Gaussian matrix \(\mat{G}\) with independent entries on and above the diagonal: each diagonal entry is \(\Normal{0, 2}\), and the off-diagonal entry is \(\Normal{0, 1}\).
+\end{proposition}
+
+\begin{proof}
+The three scalar variables on the left side are sample means of iid mean-zero random variables:
+\[
+  (\Sigmahat_n)_{11} - 1 = \frac{1}{n}\sum_i (X_{i1}^2 - 1), \quad (\Sigmahat_n)_{12} = \frac{1}{n}\sum_i X_{i1} X_{i2}, \quad (\Sigmahat_n)_{22} - 1 = \frac{1}{n}\sum_i (X_{i2}^2 - 1).
+\]
+The multivariate CLT (Section~\ref{subsec:rvecs}) applies. The variances of the three summands are
+\[
+  \Var(X_{i1}^2) = \E[X_{i1}^4] - 1 = 3 - 1 = 2, \qquad \Var(X_{i1} X_{i2}) = \E[X_{i1}^2]\, \E[X_{i2}^2] = 1, \qquad \Var(X_{i2}^2) = 2,
+\]
+using \(\E[Z^4] = 3\) for \(Z \sim \Normal{0, 1}\) on the diagonal and independence on the off-diagonal. The cross-covariances vanish by symmetry, e.g.\ \(\Cov(X_{i 1}^2, X_{i 1} X_{i 2}) = \E[X_{i 1}^3 X_{i 2}] - \E[X_{i 1}^2]\, \E[X_{i 1} X_{i 2}] = 0\), since both \(X_{i 2}\) and \(X_{i 1} X_{i 2}\) have mean zero.
+\end{proof}
+
+The limiting symmetric Gaussian matrix \(\mat{G}\) in Proposition~\ref{prop:entrywise-clt-I2} is the \(2 \times 2\) \vocab{Gaussian Orthogonal Ensemble} (GOE) matrix: real symmetric, with the diagonal variance double the off-diagonal variance. Its eigenvalues exhibit eigenvalue repulsion exactly as in \eqref{eq:wishart-2d-density} (in fact, for the GOE the joint eigenvalue density has the same diagonal-vanishing factor).
+
+\paragraph{Top-eigenvalue fluctuations: repeated vs.\ distinct case.}
+The matrix-valued CLT of Proposition~\ref{prop:entrywise-clt-I2} translates differently into eigenvalue statements depending on whether the population eigenvalues are simple or repeated.
+
+\smallskip
+\emph{Repeated case: \(\Sigma = I_2\).} The two population eigenvalues coincide at \(1\). The function from a symmetric matrix to its top eigenvalue is continuous everywhere, so the continuous mapping theorem (Proposition~\ref{prop:cmt}) gives
+\[
+  \sqrt{n}\,\bigl(\lambda_{\max}(\Sigmahat_n) - 1\bigr) \;\convd\; \lambda_{\max}(\mat{G}),
+\]
+where \(\mat{G}\) is the \(2 \times 2\) GOE matrix from Proposition~\ref{prop:entrywise-clt-I2}. The right side is the top eigenvalue of a GOE matrix, which is \emph{not} Gaussian; it has a slightly right-skewed density shaped by eigenvalue repulsion.
+
+\smallskip
+\emph{Distinct case: \(\Sigma = \diag(1, 2)\).} The two population eigenvalues are simple: \(\lambda_1(\Sigma) = 1\) and \(\lambda_2(\Sigma) = 2\). For a perturbation \(\mat{H}\) of \(\Sigma\), first-order perturbation theory says
+\[
+  \lambda_2(\Sigma + \mat{H}) \;=\; \lambda_2(\Sigma) \;+\; \vect{u}_2\transpose \mat{H} \vect{u}_2 \;+\; o(\norm{\mat{H}}),
+\]
+where \(\vect{u}_2 = \vect{e}_2\) is the population eigenvector for \(\lambda_2(\Sigma)\) (see Lemma B.10 in \citealp{AbryBoniecedidierWendt2024}; this is a multivariate mean-value theorem for eigenvalues). Applying this with \(\mat{H} = \Sigmahat_n - \Sigma\) gives \(\lambda_2(\Sigmahat_n) - 2 \approx (\Sigmahat_n)_{22} - 2\), so a CLT for \((\Sigmahat_n)_{22}\) becomes a CLT for \(\lambda_2(\Sigmahat_n)\). The relevant variance computation in the distinct case uses \(\Var(X_{i 2}^2) = \E[X_{i 2}^4] - 4 = 12 - 4 = 8\) for \(X_{i 2} \sim \Normal{0, 2}\), so
+\begin{equation}
+  \sqrt{n}\,\bigl(\lambda_2(\Sigmahat_n) - 2\bigr) \;\convd\; \Normal{0, 8}.
+  \label{eq:distinct-eigen-clt}
+\end{equation}
+The limit is now an ordinary Gaussian. The same delta-method argument applied to \(\lambda_1\) gives \(\sqrt{n}\,(\lambda_1(\Sigmahat_n) - 1) \convd \Normal{0, 2}\), and the two limits are independent because the relevant entries of \(\Sigmahat_n\) are uncorrelated.
+
+Figure~\ref{fig:lowdim-qq} confirms this dichotomy with normal Q-Q plots.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/low_dim_qq_plots.png}
+  \caption{Normal Q-Q plots for the standardized top sample eigenvalue \(\sqrt{n}\,(\lambda_{\max}(\Sigmahat_n) - \lambda_{\max}(\Sigma))\), \(5000\) Monte Carlo trials with \(n = 500\). \emph{Left:} \(\Sigma = I_2\) (repeated population eigenvalues). The systematic departure from the dashed reference line, especially the heavier right tail and the curve at the left, reflects the non-Gaussian GOE limit. \emph{Right:} \(\Sigma = \diag(1, 2)\) (distinct population eigenvalues). The points lie close to the reference line, confirming the Gaussian limit in equation~\eqref{eq:distinct-eigen-clt}. Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \label{fig:lowdim-qq}
+\end{figure}
+
+\paragraph{Eigenvector convergence: simple vs.\ repeated.}
+A parallel dichotomy applies to eigenvectors. In the distinct case \(\Sigma = \diag(1, 2)\), the population eigenvectors are \(\vect{e}_1\) and \(\vect{e}_2\), uniquely determined up to sign. The same first-order perturbation argument that gave \eqref{eq:distinct-eigen-clt} also produces, after a sign convention \(\inner{\widehat{\vect{u}}_\ell}{\vect{e}_\ell} \ge 0\),
+\[
+  \widehat{\vect{u}}_\ell \;\convas\; \vect{e}_\ell \qquad (\ell = 1, 2).
+\]
+The general statement is in \citet[][Lem.~B.2]{DidierPipiras2012}.
+
+In the repeated case \(\Sigma = I_2\) there is no canonical limiting eigenbasis: every direction in \(\R^2\) is a population eigenvector. The sample eigenvectors do not converge, even though the sample matrix itself does. The cleanest demonstration is a deterministic counterexample:
+
+\begin{example}[Sample eigenvectors can fail to converge under repeated eigenvalues]\label{ex:eigenvec-fail}
+Let
+\[
+  \mat{S}_n \;=\; \mat{O}_n\, \begin{pmatrix} 1 + \tfrac{1}{n} & 0 \\ 0 & 1 - \tfrac{1}{n} \end{pmatrix}\, \mat{O}_n\transpose,
+  \qquad
+  \mat{O}_n \;=\; \begin{pmatrix} \cos\theta_n & -\sin\theta_n \\ \sin\theta_n & \cos\theta_n \end{pmatrix}, \quad \theta_n = \frac{n \pi}{2}.
+\]
+Then \(\mat{S}_n \to I_2\) in operator norm, since \(\norm{\mat{S}_n - I_2}_{\mathrm{op}} = 1/n \to 0\). But the eigenvectors of \(\mat{S}_n\) are the columns of \(\mat{O}_n\), which rotate by \(\pi / 2\) at every step and never settle. The sample matrix converges; its eigenvectors do not.
+\end{example}
+
+The lesson of Example~\ref{ex:eigenvec-fail} is that eigenvectors require \emph{spectral separation}: without a gap between population eigenvalues, the eigenvectors are not stable under perturbation. This same theme returns in Section~\ref{sec:spiked}, where only above a critical signal level do sample eigenvectors carry reliable information about the population spike direction.
+
+%====================================================================
 \subsection{High Dimensions: Marchenko-Pastur and the Tracy-Widom Edge}\label{subsec:scm-highdim}
 
-\todo{Content to fill in (from v5 high-dim section + Joseph Section 3.2):
+The picture of Section~\ref{subsec:scm-lowdim} breaks down qualitatively when \(p\) is allowed to grow with \(n\). The basic phenomenon was previewed in Figure~\ref{fig:intro-regimes}: with \(p = 500\) and \(n = 1000\), the sample eigenvalues spread across the interval \([0.086, 2.914]\) even though the population covariance is the identity \(I_p\). They no longer converge to \(\lambda_i(\Sigma) = 1\). This subsection develops the limit theorems that explain the spread.
 
-(a) The high-dimensional regime.
-- Setup: \(p, n \to \infty\) with \(p/n \to y \in (0, \infty)\).
-- Empirical spectral distribution \(F_{\Sigmahat_n}(\lambda) = \frac{1}{p}
-  \#\{i : \lambda_i(\Sigmahat_n) \le \lambda\}\).
+The setup throughout is the \vocab{high-dimensional regime}: \(p, n \to \infty\) with
+\[
+  \frac{p}{n} \;\longrightarrow\; y \;\in\; (0, \infty).
+\]
+The ratio \(y\) is the \emph{aspect ratio} of the data. The relevant observable is no longer an individual eigenvalue, but the entire eigenvalue distribution.
 
-(b) Marchenko-Pastur law.
-- Theorem (Marchenko-Pastur 1967): for null \(\Sigma = I_p\) and \(0 < y < 1\),
-  \(F_{\Sigmahat_n} \convd \mathrm{MP}_y\) with support
-  \([(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]\) and density
-  \(f_{\mathrm{MP}}(\lambda) = \frac{1}{2\pi y \lambda}
-   \sqrt{(\lambda_+ - \lambda)(\lambda - \lambda_-)}\).
-- For \(y \ge 1\), an atom at zero of mass \(1 - 1/y\).
-- Convergence of \(\lambda_{\max}(\Sigmahat_n) \convas (1 + \sqrt{y})^2\).
-- Simulation: histogram against MP density at \(y = 1/2\) (notebook 04).
-Include figure: MP density vs.\ simulation.
+\begin{definition}[Empirical spectral distribution]\label{def:esd}
+The \emph{empirical spectral distribution} (ESD) of a \(p \times p\) symmetric matrix \(A\) with eigenvalues \(\lambda_1, \ldots, \lambda_p\) is the probability measure
+\[
+  F_A \;=\; \frac{1}{p} \sum_{i = 1}^p \delta_{\lambda_i},
+\]
+placing equal mass \(1/p\) at each eigenvalue.
+\end{definition}
 
-(c) Tracy-Widom edge heuristic.
-- Goal: explain why edge fluctuations live on scale \(p^{-2/3}\), not
-  \(n^{-1/2}\).
-- Heuristic: square-root density near the edge,
-  \(f_{\mathrm{MP}}(\lambda) \sim C(\lambda_+ - \lambda)^{1/2}\) as
-  \(\lambda \uparrow \lambda_+\), combined with the requirement that the
-  mass to the right of \(\lambda_{\max}\) be of order \(1/p\), yields
-  \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\).
-- Statement (informal): \(p^{2/3}(\lambda_{\max} - \lambda_+) \convd
-  \mathrm{TW}_1\) after model-dependent constants.
-- Remark on large-deviation heuristic confirming the same scaling from
-  left and right tails.
-Cite \citet{TracyWidom1996,Johnstone2001}.}
+\paragraph{The Marchenko-Pastur law.}
+
+\begin{theorem}[Marchenko-Pastur law for the null covariance \citep{MarchenkoPastur1967}]\label{thm:mp}
+Let \(\mat{X} \in \R^{p \times n}\) be a Gaussian matrix with iid \(\Normal{0, 1}\) entries, and let \(\Sigmahat_n = (1/n)\, \mat{X} \mat{X}\transpose\). As \(p, n \to \infty\) with \(p / n \to y \in (0, \infty)\), the ESD \(F_{\Sigmahat_n}\) converges weakly almost surely to the \vocab{Marchenko-Pastur law} \(\MP_y\), the probability distribution on \([0, \infty)\) with density
+\begin{equation}
+  f_{\MP_y}(\lambda) \;=\; \frac{1}{2 \pi y \lambda}\, \sqrt{(\lambda_+ - \lambda)(\lambda - \lambda_-)}, \qquad \lambda \in [\lambda_-, \lambda_+],
+  \label{eq:mp-density}
+\end{equation}
+where
+\[
+  \lambda_\pm \;=\; (1 \pm \sqrt{y})^2.
+\]
+If \(y > 1\), the law also has an atom at zero of mass \(1 - 1/y\).
+\end{theorem}
+
+A complete proof is in \citet[][Thm.~2.5]{YaoZhengBai2015}; see also \citet[][Thm.~3.6]{Vershynin2018}. The proof passes through the Stieltjes transform of \(F_{\Sigmahat_n}\) and is beyond the scope of this report; we take the result as given and verify it numerically.
+
+Three features of the MP law are worth noting up front, because they each play a role in later sections.
+
+\begin{itemize}[leftmargin=*,itemsep=0.3em]
+  \item The support is the interval \([\lambda_-, \lambda_+] = [(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]\). Its width \(\lambda_+ - \lambda_- = 4 \sqrt{y}\) is a direct measure of the high-dimensional spread; as \(y \to 0\) (the low-dimensional limit) the support collapses to the single point \(\lambda = 1\), recovering the low-dimensional consistency of Section~\ref{subsec:scm-lowdim}.
+  \item Near the upper edge \(\lambda_+\), the density vanishes like a square root: \(f_{\MP_y}(\lambda) \sim C(\lambda_+ - \lambda)^{1/2}\) as \(\lambda \uparrow \lambda_+\). This square-root edge will be the key input for the Tracy-Widom heuristic below.
+  \item The atom at zero when \(y > 1\) reflects the fact that with more variables than samples, the matrix \(\mat{X} \mat{X}\transpose\) has rank at most \(n < p\), so \(p - n\) of its eigenvalues are exactly zero.
+\end{itemize}
+
+The largest sample eigenvalue exits the bulk at the upper edge.
+
+\begin{theorem}[Convergence of the top eigenvalue \citep{BaikSilverstein2006}]\label{thm:lambda-max-edge}
+Under the hypotheses of Theorem~\ref{thm:mp},
+\[
+  \lambda_{\max}(\Sigmahat_n) \;\convas\; \lambda_+ \;=\; (1 + \sqrt{y})^2.
+\]
+\end{theorem}
+
+Figure~\ref{fig:mp-bulk} verifies the MP law and Theorem~\ref{thm:lambda-max-edge} numerically.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/mp_bulk_with_density.png}
+  \caption{Empirical eigenvalue distribution of the null sample covariance matrix \(\Sigmahat_n = (1/n)\, \mat{X} \mat{X}\transpose\) with iid Gaussian \(\mat{X}\), at \(p = 500\), \(n = 1000\) (so \(y = 1/2\)). The histogram of all \(500\) eigenvalues from one realization matches the Marchenko-Pastur density~\eqref{eq:mp-density} closely; the dotted lines mark the support edges \(\lambda_\pm = (1 \pm \sqrt{y})^2\), with \(\lambda_- \approx 0.086\) and \(\lambda_+ \approx 2.914\). Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \label{fig:mp-bulk}
+\end{figure}
+
+\paragraph{The Tracy-Widom edge.}
+Theorem~\ref{thm:lambda-max-edge} pins down where the top eigenvalue lives but says nothing about the size of its fluctuations. Those fluctuations are \emph{not} Gaussian, and the natural scale is not \(\sqrt{n}\) but \(p^{-2/3}\). The precise statement is the following.
+
+\begin{theorem}[Tracy-Widom edge for the null sample covariance matrix \citep{Johnstone2001}]\label{thm:tw}
+Under the hypotheses of Theorem~\ref{thm:mp}, define the Johnstone centering and scaling
+\begin{equation}
+  \mu_{n p} \;=\; \frac{(\sqrt{n - 1} + \sqrt{p})^2}{n}, \qquad
+  \sigma_{n p} \;=\; \frac{\sqrt{n - 1} + \sqrt{p}}{n}\, \left(\frac{1}{\sqrt{n - 1}} + \frac{1}{\sqrt{p}}\right)^{1/3}.
+  \label{eq:tw-constants}
+\end{equation}
+Then
+\[
+  \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}} \;\convd\; \mathrm{TW}_1,
+\]
+where \(\mathrm{TW}_1\) is the (real) Tracy-Widom distribution.
+\end{theorem}
+
+The Tracy-Widom distribution \(\mathrm{TW}_1\) is a non-Gaussian universal limit, first introduced by \citet{TracyWidom1996} as the limit of the largest eigenvalue of the Gaussian Orthogonal Ensemble. It has a left tail decaying like \(\exp(-c \abs{x}^3)\) and a right tail decaying like \(\exp(-c' \abs{x}^{3/2})\); its mean is approximately \(-1.21\) and its standard deviation approximately \(1.27\). The asymmetry is the visible signature of the law in finite-sample histograms.
+
+The centering \(\mu_{n p}\) and scaling \(\sigma_{n p}\) of \eqref{eq:tw-constants} converge to \((1 + \sqrt{y})^2\) and to a constant of order \(p^{-2/3}\) respectively as \(p, n \to \infty\), recovering the qualitative form
+\[
+  \lambda_{\max}(\Sigmahat_n) \;=\; (1 + \sqrt{y})^2 \;+\; O_p(p^{-2/3}).
+\]
+
+The \(p^{-2/3}\) scale is not arbitrary; it is exactly what the square-root edge of the MP density predicts.
+
+\paragraph{Heuristic: the \(p^{-2/3}\) edge scale.}
+Near the upper edge,
+\[
+  f_{\MP_y}(\lambda) \;\sim\; C\,(\lambda_+ - \lambda)^{1/2} \qquad (\lambda \uparrow \lambda_+).
+\]
+The largest sample eigenvalue is, roughly, the rightmost of \(p\) draws from this density. The integrated mass to the right of \(\lambda_{\max}\) should be on the order of \(1/p\):
+\[
+  \frac{1}{p} \;\sim\; \int_{\lambda_{\max}}^{\lambda_+} f_{\MP_y}(\lambda)\, d\lambda \;\sim\; C \int_{\lambda_{\max}}^{\lambda_+} (\lambda_+ - \lambda)^{1/2}\, d\lambda \;=\; \tfrac{2 C}{3}\, (\lambda_+ - \lambda_{\max})^{3/2}.
+\]
+Solving for the gap,
+\[
+  \lambda_+ - \lambda_{\max} \;\sim\; p^{-2/3}.
+\]
+The exponent \(3/2\) in the integrated square-root density inverts to the exponent \(2/3\) in the fluctuation scale. The same exponent arises in several other settings (largest particle in random matrix ensembles, longest increasing subsequences, growth models in mathematical physics); the family of limits it generates is the \emph{Tracy-Widom universality class}.
+
+\paragraph{Tracy-Widom in simulation.}
+Figure~\ref{fig:tw-edge} shows the standardized largest sample eigenvalue \((\lambda_{\max} - \mu_{n p}) / \sigma_{n p}\) at three increasing values of \(n\), with \(p = n / 2\) so that \(y = 1/2\) throughout. As \(n\) grows the empirical histograms collapse to a common limiting shape, distinctly left-skewed and non-Gaussian, which is the Tracy-Widom \(\mathrm{TW}_1\) density predicted by Theorem~\ref{thm:tw}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/tw_edge_simulation.png}
+  \caption{The Tracy-Widom edge in simulation. Each panel shows a histogram of the standardized top sample eigenvalue \((\lambda_{\max}(\Sigmahat_n) - \mu_{n p}) / \sigma_{n p}\) over \(R = 1500\) Monte Carlo trials, with \(p, n\) growing while \(y = p / n = 1/2\) is held fixed. The histograms are unambiguously non-Gaussian and become more sharply defined as \(n\) grows, converging to the Tracy-Widom \(\mathrm{TW}_1\) shape predicted by Theorem~\ref{thm:tw}. The asymmetry (heavier left tail, lighter right) is the visible signature of \(\mathrm{TW}_1\). Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \label{fig:tw-edge}
+\end{figure}
+
+\paragraph{The picture so far.}
+Combining Sections~\ref{subsec:scm-lowdim} and~\ref{subsec:scm-highdim}:
+\begin{itemize}[leftmargin=*,itemsep=0.3em]
+  \item In the low-dimensional regime, sample eigenvalues are consistent for population eigenvalues. Fluctuations are Gaussian on the \(\sqrt{n}\) scale at a simple eigenvalue (delta method) and GOE-shaped at a repeated one.
+  \item In the high-dimensional regime with null covariance, the entire sample spectrum is described by the Marchenko-Pastur bulk on \([\lambda_-, \lambda_+]\), and the top eigenvalue sits at the right edge \(\lambda_+ = (1 + \sqrt{y})^2\) with Tracy-Widom \(\mathrm{TW}_1\) fluctuations on the \(p^{-2/3}\) scale.
+\end{itemize}
+
+This is the null picture: \(\Sigma = I_p\) carries no structure. The next question is what happens when \(\Sigma\) does carry structure, and in particular when a small number of eigenvalues stand above an otherwise flat unit baseline. That is the spiked covariance model of \citet{Johnstone2001}, and it is the subject of Section~\ref{sec:spiked}.
 
 \clearpage
