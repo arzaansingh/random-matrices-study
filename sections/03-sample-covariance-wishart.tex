@@ -173,6 +173,40 @@ where \(C > 0\) is a normalizing constant; a derivation via a Jacobian computati
   \label{fig:wishart-2d}
 \end{figure}
 
+The factor \((\lambda_2 - \lambda_1)\) in~\eqref{eq:wishart-2d-density} is the simplest instance of a structure that appears in every classical random matrix ensemble: the \emph{Vandermonde determinant}.
+
+\begin{definition}[Vandermonde determinant]\label{def:vandermonde}
+For real numbers \(\lambda_1, \ldots, \lambda_p\), the \vocab{Vandermonde determinant} is
+\begin{equation}
+  V(\lambda_1, \ldots, \lambda_p)
+  \;=\;
+  \det\!\begin{pmatrix}
+    1               & 1               & \cdots & 1               \\
+    \lambda_1       & \lambda_2       & \cdots & \lambda_p       \\
+    \lambda_1^2     & \lambda_2^2     & \cdots & \lambda_p^2     \\
+    \vdots          & \vdots          &        & \vdots          \\
+    \lambda_1^{p-1} & \lambda_2^{p-1} & \cdots & \lambda_p^{p-1}
+  \end{pmatrix}
+  \;=\;
+  \prod_{1 \le i < j \le p} (\lambda_j - \lambda_i).
+  \label{eq:vandermonde}
+\end{equation}
+\end{definition}
+
+The closed-form on the right is a classical identity, proved by row reduction: subtracting \(\lambda_1\) times each row from the row below introduces a factor of \((\lambda_j - \lambda_1)\) in every column \(j \ge 2\), the first column collapses, and the rest is induction on \(p\). For \(p = 2\) the product reduces to \(V = \lambda_2 - \lambda_1\); for \(p = 3\), \(V = (\lambda_2 - \lambda_1)(\lambda_3 - \lambda_1)(\lambda_3 - \lambda_2)\); for \(p = 4\) it is a product of six gaps; and so on. The Vandermonde is therefore the product of all signed gaps between the \(p\) eigenvalues.
+
+The relevance for the Wishart distribution is geometric. To pass from the density~\eqref{eq:wishart-density} on the cone of positive-definite matrices to a density on the ordered eigenvalues, one diagonalizes \(\mat{S} = \mat{Q} \diag(\lambda_1, \ldots, \lambda_p) \mat{Q}\transpose\) and integrates out the orthogonal factor \(\mat{Q}\). The Jacobian of this change of variables turns out to be exactly \(\abs{V(\lambda_1, \ldots, \lambda_p)}\) (the calculation is in \citet[][\S~3.2]{YaoZhengBai2015}). The full joint eigenvalue density of \(\Wishart{p}{n, I_p}\) for \(n \ge p\) is therefore
+\begin{equation}
+  f(\lambda_1, \ldots, \lambda_p)
+  \;=\;
+  C_{n,p}\, \abs{V(\lambda_1, \ldots, \lambda_p)}\, \prod_{i=1}^p \lambda_i^{(n-p-1)/2}\, e^{-\lambda_i/2},
+  \qquad 0 \le \lambda_1 \le \cdots \le \lambda_p,
+  \label{eq:wishart-joint-density}
+\end{equation}
+with a normalizing constant \(C_{n,p}\) depending only on \(n\) and \(p\). Setting \(p = 2\) in~\eqref{eq:wishart-joint-density} gives \(\abs{V} = \lambda_2 - \lambda_1\), the prefactor \(\lambda_1^{(n-3)/2} \lambda_2^{(n-3)/2} = (\lambda_1 \lambda_2)^{(n-3)/2}\), and the exponential \(e^{-(\lambda_1 + \lambda_2)/2}\) — exactly~\eqref{eq:wishart-2d-density}, with the indicator collapsing into the ordering constraint.
+
+The Vandermonde factor vanishes on every hyperplane \(\lambda_i = \lambda_j\), so configurations with near-equal eigenvalues are systematically suppressed in every dimension. This is the algebraic mechanism behind eigenvalue repulsion: the gap visible in Figure~\ref{fig:wishart-2d} for \(p = 2\) generalizes to a product of \(\binom{p}{2}\) pairwise gaps in higher dimensions, each contributing its own zero on the corresponding diagonal. The same Vandermonde factor appears in the joint eigenvalue density of the Gaussian Orthogonal Ensemble defined below; only the prefactor and the exponential change. Repulsion is a universal feature of the spectra of random symmetric matrices, not a quirk of the Wishart family.
+
 \paragraph{Fluctuations and the role of eigenvalue multiplicity.} Beyond consistency, we want to know what \(\sqrt{n}(\Sigmahat_n - \Sigma)\) looks like. The limit is a Gaussian symmetric matrix whose variance structure has a standard name. The variances \(2\) on the diagonal and \(1\) off the diagonal appear so often in symmetric Gaussian matrix limits that they define a canonical ensemble.
 
 \begin{definition}[Gaussian Orthogonal Ensemble, \(2 \times 2\) case]\label{def:goe}
