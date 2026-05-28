@@ -577,16 +577,14 @@ def make_mp_varying_c_figure() -> Path:
 # ============================================================================
 
 def make_tw_universality_figure() -> Path:
-    """Two-panel figure: histogram (with TW1 density and N(0,1) comparison) and
-    a Q-Q plot following Genzer (2025, Fig.~7, listing 7).
+    """Two-panel figure showing the raw Johnstone-standardized top sample
+    eigenvalue (TW1-distributed: mean ~ -1.21, std ~ 1.27), without any
+    further mean-0/var-1 rescaling.
 
-    The R code listing computes:
-      values    <- top eigenvalue of (1/n) X^T X over R trials
-      scaled    <- (values - mean(values)) / sd(values)
-      qqnorm(scaled)   # all samples, vs N(0,1) theoretical quantiles
-    We reproduce exactly that procedure here, including the no-subsampling
-    Q-Q (every standardized sample becomes a point), so the right tail of
-    TW1 is fully visible above the y = x reference.
+    The Johnstone standardization z = (lambda_max - mu_np) / sigma_np is the
+    natural object: it is the unscaled TW1 random variable, so the histogram
+    shows the TW1 distribution directly and the Q-Q plot against N(0, 1)
+    reveals the full picture (location offset, scale, and shape) in one go.
     """
     try:
         from TracyWidom import TracyWidom
@@ -598,50 +596,49 @@ def make_tw_universality_figure() -> Path:
     rng = np.random.default_rng(SEED + 1)
     n, p = 1000, 500
     trials = 5000
+    mu_np, sigma_np = _johnstone_constants(n, p)
 
-    # Joseph-style: collect raw top eigenvalues, then normalize by sample
-    # mean and sample std afterward. No Johnstone constants in the loop.
-    values = np.empty(trials)
+    # Collect Johnstone-standardized samples z = (lambda_max - mu_np)/sigma_np.
+    # These are TW1-distributed: mean ~ -1.21, std ~ 1.27, left-skewed.
+    z = np.empty(trials)
     for t in range(trials):
         X = rng.normal(size=(p, n))
         S = (X @ X.T) / n
-        values[t] = float(np.linalg.eigvalsh(S)[-1])
-    mu_s = float(values.mean())
-    sd_s = float(values.std(ddof=1))
-    scaled = (values - mu_s) / sd_s
+        lam_top = float(np.linalg.eigvalsh(S)[-1])
+        z[t] = (lam_top - mu_np) / sigma_np
 
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
 
-    # Left: histogram vs TW1 density vs N(0,1) density.
+    # Left: histogram (raw TW1-distributed samples) with the TW1 density
+    # and N(0,1) density overlaid for direct comparison.
     ax_h = axes[0]
-    bins = np.linspace(-4, 5, 60)
-    ax_h.hist(scaled, bins=bins, density=True, color=PALETTE["def"], alpha=0.7,
+    bins = np.linspace(-6, 4, 60)
+    ax_h.hist(z, bins=bins, density=True, color=PALETTE["def"], alpha=0.7,
               edgecolor="white", linewidth=0.3,
-              label=fr"Standardized $\lambda_{{\max}}$ ({trials:,} trials)")
-    x_grid = np.linspace(-4, 5, 600)
+              label=fr"$z = (\lambda_{{\max}} - \mu_{{np}})/\sigma_{{np}}$ ({trials:,} trials)")
+    x_grid = np.linspace(-6, 4, 800)
     if have_tw:
-        # The TW1 density needs to be SHIFTED and SCALED to match our
-        # mean-0/var-1 normalization. Joseph's sample-based normalization
-        # produces samples with the shape of TW1 but standardized; the
-        # appropriate theoretical density on the same axes is the TW1 pdf
-        # transformed by the same shift/scale.
-        tw_mean = -1.2065335745820  # TW1 mean (computed by TracyWidom package)
-        tw_std = 1.2683380751845    # TW1 std
-        ax_h.plot(x_grid, tw1.pdf(x_grid * tw_std + tw_mean) * tw_std,
-                  color=PALETTE["thm"], linewidth=1.8,
-                  label=r"$\mathrm{TW}_1$ density (rescaled to mean 0, var 1)")
+        ax_h.plot(x_grid, tw1.pdf(x_grid), color=PALETTE["thm"], linewidth=1.8,
+                  label=r"$\mathrm{TW}_1$ density")
     gauss = (1.0 / np.sqrt(2 * np.pi)) * np.exp(-0.5 * x_grid ** 2)
     ax_h.plot(x_grid, gauss, color=PALETTE["accent"], linewidth=1.0,
               linestyle="--", label=r"$\mathcal{N}(0,1)$ density")
-    ax_h.set_xlim(-4, 5)
-    ax_h.set_xlabel(r"Normalized $\lambda_{\max}$ (mean $0$, var $1$)")
+    # Vertical markers for TW1 mean and N(0,1) mean to highlight the offset.
+    ax_h.axvline(-1.2065, color=PALETTE["thm"], linewidth=0.7, linestyle=":")
+    ax_h.text(-1.2065, ax_h.get_ylim()[1] * 0.92, r"  $\mu_{\mathrm{TW}_1} \approx -1.21$",
+              color=PALETTE["thm"], fontsize=8, ha="left", va="top")
+    ax_h.set_xlim(-6, 4)
+    ax_h.set_xlabel(r"$z = (\lambda_{\max}(\widehat{\Sigma}_n) - \mu_{np}) / \sigma_{np}$")
     ax_h.set_ylabel("Empirical density")
     ax_h.set_title(rf"Top sample eigenvalue at $n = {n}$, $p = {p}$ ($y = {p/n:g}$)")
     ax_h.legend(loc="upper left", frameon=False, fontsize=9)
 
-    # Right: Q-Q plot vs N(0,1), Joseph-style (all samples, no subsampling).
+    # Right: Q-Q plot of the raw TW1-distributed z against N(0, 1) quantiles.
+    # Because z has mean ~ -1.21 and std ~ 1.27, the Q-Q is offset and
+    # tilted relative to y = x; the curvature on top of that affine shift
+    # is the visible shape difference between TW1 and Gaussian.
     ax_q = axes[1]
-    sample = np.sort(scaled)
+    sample = np.sort(z)
     k = len(sample)
     probs = (np.arange(1, k + 1) - 0.5) / k
     theo_q = stats.norm.ppf(probs)
@@ -654,8 +651,8 @@ def make_tw_universality_figure() -> Path:
     ax_q.set_xlim(qmin, qmax)
     ax_q.set_ylim(qmin, qmax)
     ax_q.set_xlabel(r"Standard normal quantiles")
-    ax_q.set_ylabel(r"Normalized $\lambda_{\max}$ quantiles")
-    ax_q.set_title(r"Q-Q plot (centered/scaled $\lambda_{\max}$ vs $\mathcal{N}(0,1)$)")
+    ax_q.set_ylabel(r"$z$ quantiles (TW$_1$ scale)")
+    ax_q.set_title(r"Q-Q plot: Johnstone-standardized $\lambda_{\max}$ vs $\mathcal{N}(0,1)$")
     ax_q.legend(loc="upper left", frameon=False, fontsize=9)
 
     fig.tight_layout()
