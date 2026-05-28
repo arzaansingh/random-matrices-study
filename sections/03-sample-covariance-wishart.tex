@@ -10,54 +10,78 @@
 
 \section{Sample Covariance Matrices}\label{sec:scm}
 
-Section~\ref{subsec:rvecs} introduced the covariance matrix \(\Sigma\) of a random vector as a theoretical object with entries \(\Sigma_{ij} = \Cov(X_i, X_j)\). In practice this matrix is unknown; what one has in hand is a sample \(\vect{X}_1, \ldots, \vect{X}_n\) and an estimator built from it. The natural estimator is the \emph{sample covariance matrix} \(\Sigmahat_n\), the central object of this report.
-
-The remainder of this section asks two questions about \(\Sigmahat_n\). First, in what sense does \(\Sigmahat_n \to \Sigma\) when \(p\) is fixed and \(n \to \infty\), and how do its eigenvalues and eigenvectors compare to those of \(\Sigma\)? Second, what happens when \(p\) and \(n\) grow together with \(p/n \to y > 0\)? The answers, given in Sections~\ref{subsec:scm-lowdim} and~\ref{subsec:scm-highdim}, are qualitatively different, and that contrast is the central scientific point of this report.
+The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimension this empirical version behaves like a classical sample average. When the dimension grows with the sample size, its spectral behavior changes qualitatively, and both regimes are unpacked below.
 
 %====================================================================
-\subsection{The Sample Covariance Matrix}\label{subsec:scm-foundations}
-
-For random vectors \(\vect{X}_1, \ldots, \vect{X}_n\) with mean \(\vect{\mu}\) and population covariance \(\Sigma\), the most concrete way to define an estimator of \(\Sigma\) is entrywise. The \((j, k)\) entry of \(\Sigma\) is \(\Sigma_{jk} = \E[X_{1j} X_{1k}] - \mu_j \mu_k\); we estimate it by the corresponding sample average. Specializing to the mean-zero case \(\vect{\mu} = \vect{0}\) (used throughout the rest of this report), the natural estimator is
-\[
-  (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij} X_{ik}, \qquad j, k = 1, \ldots, p.
-\]
-The diagonal entries \((\Sigmahat_n)_{jj} = n^{-1} \sum_i X_{ij}^2\) are sample variances, and the off-diagonal entries are sample covariances; both are sample averages of products of coordinate values across the \(n\) observations.
+\subsection{Definition and Geometry of the Sample Covariance Matrix}\label{subsec:scm-foundations}
 
 \begin{definition}[Sample covariance matrix]\label{def:scm}
-Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid copies of a random vector \(\vect{X} \in \R^p\). In the \emph{mean-zero} case (\(\vect{\mu} = \vect{0}\) known), the \vocab{sample covariance matrix} is the \(p \times p\) matrix
+Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid copies of a random vector \(\vect{X} \in \R^p\). In the \emph{mean-zero} case (\(\E[\vect{X}] = \vect{0}\) known), the \vocab{sample covariance matrix} is the \(p \times p\) matrix
 \begin{equation}
-  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose,
+  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose.
   \label{eq:scm-outer}
 \end{equation}
-with entries \((\Sigmahat_n)_{jk} = n^{-1} \sum_i X_{ij} X_{ik}\). In the \emph{mean-unknown} case, the (unbiased) sample covariance matrix is
+In the \emph{mean-unknown} case, the (unbiased) sample covariance matrix is
 \[
   \Sigmahat_n \;=\; \frac{1}{n - 1} \sum_{i = 1}^n (\vect{X}_i - \bar{\vect{X}}_n)(\vect{X}_i - \bar{\vect{X}}_n)\transpose, \qquad \bar{\vect{X}}_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i.
 \]
 \end{definition}
 
-We work in the mean-zero case throughout the report; the Gaussian models that drive Sections~\ref{sec:scm} and~\ref{sec:spiked} all have \(\vect{\mu} = \vect{0}\) by convention, and the matrix algebra is cleaner. The asymptotic results below carry over to the mean-unknown version with no substantive change.
+We work in the mean-zero case throughout the rest of the report; the Gaussian models in Sections~\ref{sec:scm} and~\ref{sec:spiked} all have \(\vect{\mu} = \vect{0}\) by convention, and the matrix algebra is cleaner. The asymptotic results below carry over to the mean-unknown version with no substantive change.
 
-\paragraph{Matrix form.} Stacking the \(n\) observations as the columns of the \emph{data matrix}
+\paragraph{Each entry is a sample average.} Writing \(\vect{X}_i = (X_{i1}, \ldots, X_{ip})\transpose\), the \((j, k)\) entry of \(\Sigmahat_n\) is
+\begin{equation}
+  (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij}\, X_{ik}, \qquad j, k = 1, \ldots, p.
+  \label{eq:scm-entrywise}
+\end{equation}
+Each entry is therefore the sample average of the iid scalar products \(W_i^{(j,k)} = X_{ij} X_{ik}\), whose common mean (since \(\vect{X}_1\) has mean zero) is exactly
 \[
-  \mat{X} \;=\; (\vect{X}_1 \mid \cdots \mid \vect{X}_n) \;\in\; \R^{p \times n}
+  \E\!\bigl[X_{1j}\, X_{1k}\bigr] \;=\; \Cov(X_j, X_k) \;=\; \Sigma_{jk}.
 \]
-gives a compact rewriting of equation~\eqref{eq:scm-outer}: the sum of outer products is exactly \(\mat{X} \mat{X}\transpose\), so
+By the strong law of large numbers (Theorem~\ref{thm:slln}), every entry converges almost surely to its population counterpart, \((\Sigmahat_n)_{jk} \convas \Sigma_{jk}\) as \(n \to \infty\). This entrywise LLN is the mechanism behind the matrix-level convergence proved in Section~\ref{subsec:scm-lowdim}. The diagonal entries \((\Sigmahat_n)_{jj} = n^{-1} \sum_i X_{ij}^2\) are sample variances of individual coordinates; the off-diagonal entries are sample covariances between pairs of coordinates.
+
+\paragraph{Matrix form.} The entrywise formula~\eqref{eq:scm-entrywise} can be repackaged as a single matrix identity. Stack the \(n\) observations as the columns of the \emph{data matrix}
+\[
+  \mat{X} \;=\; (\vect{X}_1 \mid \vect{X}_2 \mid \cdots \mid \vect{X}_n) \;\in\; \R^{p \times n}.
+\]
+This is a \(p \times n\) matrix in which the rows correspond to features (the coordinates of \(\vect{X}\)) and the columns correspond to observations: row \(j\) holds the values \(X_{1j}, X_{2j}, \ldots, X_{nj}\) of the \(j\)\textsuperscript{th} feature across all \(n\) observations. The product \(\mat{X} \mat{X}\transpose\) is then a \(p \times p\) matrix whose \((j, k)\) entry, by the usual rules of matrix multiplication, is the dot product of the \(j\)\textsuperscript{th} and \(k\)\textsuperscript{th} feature rows of \(\mat{X}\):
+\[
+  (\mat{X} \mat{X}\transpose)_{jk} \;=\; \sum_{i = 1}^n X_{ij}\, X_{ik}.
+\]
+Dividing by \(n\) recovers equation~\eqref{eq:scm-entrywise}, so we obtain the compact form
 \begin{equation}
   \Sigmahat_n \;=\; \frac{1}{n}\, \mat{X} \mat{X}\transpose.
   \label{eq:scm-matrix-form}
 \end{equation}
-A direct check confirms that \eqref{eq:scm-matrix-form} agrees entrywise with \eqref{eq:scm-outer}: the \((j, k)\) entry of \(\mat{X} \mat{X}\transpose\) is \(\sum_i (\mat{X})_{ji} (\mat{X}\transpose)_{ik} = \sum_i X_{ij} X_{ik}\). The matrix form is the version we will manipulate throughout; up to a factor of \(n\), it is the Gram matrix of the data.
+This is the working form of the sample covariance matrix used throughout the rest of the report.
 
-\paragraph{Geometric meaning.} The eigenvectors of \(\Sigma\) are the directions of greatest, second-greatest, and so on, variance of \(\vect{X}\); the eigenvalues record the variance along each direction. The eigenvectors of \(\Sigmahat_n\) are the sample analogues. Figure~\ref{fig:scm-axes} shows the picture in two dimensions: for a sample drawn from \(\Normal{\vect{0}, \Sigma}\), the sample principal axes track the population principal axes closely, and the alignment is exact in the limit \(n \to \infty\) (we make this precise in Theorem~\ref{thm:scm-consistency} below).
+\paragraph{Symmetry and positive semidefiniteness.} The matrix form makes the structural properties of \(\Sigmahat_n\) immediate.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\textwidth]{figures/scatter_with_principal_axes.png}
-  \caption{Sample covariance captures the population principal axes. Each panel shows \(n = 400\) iid samples from \(\Normal{\vect{0}, \Sigma}\) in two dimensions, with the eigenvectors of \(\Sigma\) (solid arrows, scaled by \(\sqrt{\lambda_i(\Sigma)}\)) and the eigenvectors of \(\Sigmahat_n\) (dashed arrows, scaled by \(\sqrt{\lambda_i(\Sigmahat_n)}\)) overlaid. \emph{Left:} \(\Sigma = I_2\); the cloud is circular and the population axes are arbitrary, but the sample axes still pick out two perpendicular directions of comparable length. \emph{Right:} \(\Sigma = \diag(4, 1)\); the cloud is elongated along the \(x_1\) axis, and both the population and sample axes track the elongation. The sample axes deviate slightly from the population axes due to finite-sample noise.}
-  \label{fig:scm-axes}
-\end{figure}
+\begin{proposition}[\(\Sigmahat_n\) is symmetric and PSD]\label{prop:scm-psd}
+The sample covariance matrix \(\Sigmahat_n\) is symmetric and positive semidefinite. All of its eigenvalues are therefore nonnegative (Theorem~\ref{thm:pd-psd-eigen}).
+\end{proposition}
 
-\paragraph{A small worked example.} The following two-dimensional example, drawn from a hypothetical pair of exam scores, illustrates how Definition~\ref{def:scm} and equation~\eqref{eq:scm-matrix-form} translate into a concrete computation. (We use the mean-unknown version here because the means are not known to be zero.)
+\begin{proof}
+For the mean-zero version~\eqref{eq:scm-matrix-form}, symmetry is immediate: \((\mat{X} \mat{X}\transpose)\transpose = (\mat{X}\transpose)\transpose \mat{X}\transpose = \mat{X} \mat{X}\transpose\). For positive semidefiniteness, fix \(\vect{v} \in \R^p\):
+\begin{equation}
+  \vect{v}\transpose \Sigmahat_n \vect{v}
+  \;=\; \frac{1}{n}\, \vect{v}\transpose \mat{X} \mat{X}\transpose \vect{v}
+  \;=\; \frac{1}{n}\, (\mat{X}\transpose \vect{v})\transpose (\mat{X}\transpose \vect{v})
+  \;=\; \frac{1}{n}\, \norm{\mat{X}\transpose \vect{v}}_2^2
+  \;\ge\; 0.
+  \label{eq:scm-psd-identity}
+\end{equation}
+The mean-unknown version uses the centered data matrix in place of \(\mat{X}\); the same identity gives \(\vect{v}\transpose \Sigmahat_n \vect{v} = (n - 1)\inv \norm{\mat{X}_c\transpose \vect{v}}_2^2 \ge 0\).
+\end{proof}
+
+The identity~\eqref{eq:scm-psd-identity} has a clean statistical reading. The vector \(\mat{X}\transpose \vect{v} \in \R^n\) has \(i\)\textsuperscript{th} entry \(\vect{v}\transpose \vect{X}_i\), the projection of the \(i\)\textsuperscript{th} observation onto the direction \(\vect{v}\); dividing the squared norm of these projections by \(n\) gives the empirical second moment of the scalar sample \(\vect{v}\transpose \vect{X}_1, \ldots, \vect{v}\transpose \vect{X}_n\). In the mean-zero case this is exactly the empirical variance of the data in the direction \(\vect{v}\):
+\begin{equation}
+  \vect{v}\transpose \Sigmahat_n \vect{v} \;=\; \frac{1}{n} \sum_{i = 1}^n (\vect{v}\transpose \vect{X}_i)^2.
+  \label{eq:scm-empirical-var}
+\end{equation}
+Proposition~\ref{prop:scm-psd} therefore reads, in plain English, as the statement that the empirical variance in every direction is nonnegative. This is the sample analogue of the identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) from Proposition~\ref{prop:cov-psd}.
+
+\paragraph{A small worked example.} The following two-dimensional example illustrates how Definition~\ref{def:scm} and equation~\eqref{eq:scm-matrix-form} translate into a concrete computation. (We use the mean-unknown version because the population means are not assumed to be zero.)
 
 \begin{example}[Sample covariance from three two-dimensional observations]\label{ex:scm-numerical}
 Three observations on two variables are
@@ -83,32 +107,23 @@ Step three: divide by \(n - 1 = 2\) to obtain
 The diagonal entries (100 and 25) are sample variances; the off-diagonal entry (25) is the sample covariance, indicating positive linear association between the two variables.
 \end{example}
 
-\paragraph{Basic structural properties.} The sample covariance matrix inherits the symmetry and positive semidefiniteness of the population covariance.
+\paragraph{Covariance matrix as geometry.} Among all unit directions \(\vect{v} \in \R^p\), some have larger empirical variance than others. The spectral theorem (Theorem~\ref{thm:spectral}) factors \(\Sigmahat_n = \mat{Q} \mat{\Lambda} \mat{Q}\transpose\) with \(\mat{Q}\) orthogonal and \(\mat{\Lambda} = \diag(\lambda_1, \ldots, \lambda_p)\), and the Rayleigh quotient (Proposition~\ref{prop:rayleigh}) identifies the special directions that diagonalize the directional variance: the maximum of \(\vect{v}\transpose \Sigmahat_n \vect{v}\) over unit \(\vect{v}\) is the largest eigenvalue \(\lambda_1\), attained on the top eigenvector \(\vect{q}_1\). The eigenvectors of \(\Sigmahat_n\) are therefore the perpendicular \emph{principal directions} of variation in the data, and the eigenvalues record the empirical variance in each principal direction. Figure~\ref{fig:scm-geom} shows the population-level picture in two dimensions, with the covariance ellipse and the eigenvector directions overlaid on a data cloud.
 
-\begin{proposition}[\(\Sigmahat_n\) is symmetric and PSD]\label{prop:scm-psd}
-The sample covariance matrix \(\Sigmahat_n\) is symmetric. It is positive semidefinite, so by Theorem~\ref{thm:pd-psd-eigen} all of its eigenvalues are nonnegative.
-\end{proposition}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/sample_covariance_geometry.png}
+  \caption{Geometry of the covariance matrix. The figure shows \(n = 500\) iid samples from \(\Normal{\vect{0}, \Sigma}\) with \(\Sigma = \begin{pmatrix} 4 & 1.5 \\ 1.5 & 1 \end{pmatrix}\). The 2-\(\sigma\) ellipse \(\{\vect{x} : \vect{x}\transpose \Sigma\inv \vect{x} = 4\}\) encloses roughly \(86\%\) of the distribution; its principal axes point in the directions of the eigenvectors of \(\Sigma\), with lengths equal to \(2 \sqrt{\lambda_i}\). The eigenvalues \(\lambda_1, \lambda_2\) are the variances of \(\vect{X}\) projected onto the corresponding eigenvector directions. Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \label{fig:scm-geom}
+\end{figure}
 
-\begin{proof}
-For the mean-zero version~\eqref{eq:scm-matrix-form}, symmetry is immediate: \((\mat{X} \mat{X}\transpose)\transpose = (\mat{X}\transpose)\transpose \mat{X}\transpose = \mat{X} \mat{X}\transpose\). For positive semidefiniteness, fix any \(\vect{v} \in \R^p\) and write
-\[
-  \vect{v}\transpose \Sigmahat_n \vect{v}
-  \;=\; \frac{1}{n}\, \vect{v}\transpose \mat{X} \mat{X}\transpose \vect{v}
-  \;=\; \frac{1}{n}\, (\mat{X}\transpose \vect{v})\transpose (\mat{X}\transpose \vect{v})
-  \;=\; \frac{1}{n}\, \norm{\mat{X}\transpose \vect{v}}_2^2
-  \;\ge\; 0.
-\]
-The eigenvalue conclusion follows from Theorem~\ref{thm:pd-psd-eigen}. The mean-unknown version uses the centered data matrix in place of \(\mat{X}\); the same identity gives \(\vect{v}\transpose \Sigmahat_n \vect{v} = (n - 1)^{-1} \norm{\mat{X}_c\transpose \vect{v}}_2^2 \ge 0\).
-\end{proof}
-
-The remainder of this section divides along the two regimes set up at the start: low-dimensional in Section~\ref{subsec:scm-lowdim} (where \(p\) is fixed and \(n\) grows), and high-dimensional in Section~\ref{subsec:scm-highdim} (where \(p\) grows with \(n\)).
+In fixed dimension, this matrix behaves like an ordinary average and its eigenstructure tracks that of \(\Sigma\). When the dimension grows with the sample size, the eigenvalues spread away from the population eigenvalues and need separate analysis.
 
 %====================================================================
 \subsection{Low Dimensions: Consistency, Wishart, and Fluctuations}\label{subsec:scm-lowdim}
 
 In the low-dimensional regime the dimension \(p\) is fixed and the sample size \(n \to \infty\). This is the classical setting of multivariate statistics, in which the limit theorems of Section~\ref{sec:foundations} apply directly to the entries of \(\Sigmahat_n\). We unpack four nested questions: (i) does \(\Sigmahat_n\) converge to \(\Sigma\), (ii) what is the exact distribution of \(\Sigmahat_n\) for Gaussian data, (iii) what is the limiting distribution of the fluctuation \(\sqrt{n}(\Sigmahat_n - \Sigma)\), and (iv) what does that say about individual eigenvalues and eigenvectors of \(\Sigmahat_n\)?
 
-\paragraph{Consistency.} The first question has the cleanest answer. Figure~\ref{fig:scm-consistency} demonstrates it numerically: the Frobenius error \(\norm{\Sigmahat_n - \Sigma}_F\) decays like \(n^{-1/2}\) for any fixed \(p\), and goes to zero with high probability as \(n\) grows. The exact statement and proof are immediate from the strong law of large numbers in Section~\ref{subsec:limit-theorems}.
+\paragraph{Consistency of the matrix and its eigenvalues.} The first question has the cleanest answer. Figure~\ref{fig:scm-consistency} demonstrates it numerically: the Frobenius error \(\norm{\Sigmahat_n - \Sigma}_F\) decays like \(n^{-1/2}\) for any fixed \(p\), and goes to zero with high probability as \(n\) grows. The exact statement and proof are immediate from the strong law of large numbers (Theorem~\ref{thm:slln}).
 
 \begin{figure}[h]
   \centering
@@ -152,7 +167,7 @@ Apply Proposition~\ref{prop:eigen-convergence}(2) (the almost-sure version of ei
 
 Theorem~\ref{thm:scm-consistency} and Corollary~\ref{cor:scm-eigen-convergence} together give the qualitative low-dimensional picture: \(\Sigmahat_n\) is a consistent estimator of \(\Sigma\), and the sample eigenvalues track the population eigenvalues. The remaining questions concern the size and shape of the fluctuations.
 
-\paragraph{The Wishart distribution.} When the observations are Gaussian, \(\Sigmahat_n\) (more precisely, \(n \Sigmahat_n\)) has an exact distribution with a name. This makes it a tractable starting point for finer questions.
+\paragraph{Gaussian sample covariance and the Wishart law.} For Gaussian observations, \(\Sigmahat_n\) (more precisely, \(n \Sigmahat_n\)) has an exact distribution. This makes it a tractable starting point for finer questions than entrywise consistency.
 
 \begin{definition}[Wishart distribution]\label{def:wishart}
 Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid \(\Normal{\vect{0}, \Sigma}\) random vectors in \(\R^p\), and set
@@ -177,7 +192,7 @@ Take \(p = 1\) and \(\Sigma = 1\). Then each \(\vect{X}_i\) is a scalar \(X_i \s
 which is exactly the \(\chi_n^2\) density.
 \end{example}
 
-\paragraph{Eigenvalue repulsion in two dimensions.} For \(\Sigma = I_2\), the joint distribution of the two ordered eigenvalues \(0 \le \lambda_1 \le \lambda_2\) of \(\mat{S} \sim \Wishart{2}{n, I_2}\) admits an explicit density,
+For \(\Sigma = I_2\), the joint distribution of the two ordered eigenvalues \(0 \le \lambda_1 \le \lambda_2\) of \(\mat{S} \sim \Wishart{2}{n, I_2}\) admits an explicit density that reveals a striking phenomenon, namely \emph{eigenvalue repulsion}:
 \begin{equation}
   f(\lambda_1, \lambda_2) \;=\; C\, (\lambda_1 \lambda_2)^{(n - 3)/2}\, e^{-(\lambda_1 + \lambda_2) / 2}\, (\lambda_2 - \lambda_1)\, \indic_{\{0 \le \lambda_1 \le \lambda_2\}},
   \label{eq:wishart-2d-density}
@@ -198,7 +213,7 @@ where \(C > 0\) is a normalizing constant; a derivation via a Jacobian computati
   \label{fig:wishart-2d}
 \end{figure}
 
-\paragraph{The Gaussian Orthogonal Ensemble.} The eigenvalue repulsion that appears in the Wishart density~\eqref{eq:wishart-2d-density} also appears, with the same \((\lambda_2 - \lambda_1)\) factor, in a different random matrix model: the Gaussian Orthogonal Ensemble. We introduce it here because it is the limit object in the matrix-valued CLT below.
+\paragraph{Fluctuations and the role of eigenvalue multiplicity.} Beyond consistency, we want to know what \(\sqrt{n}(\Sigmahat_n - \Sigma)\) looks like. The limit is a Gaussian symmetric matrix whose variance structure has a standard name. The variances \(2\) on the diagonal and \(1\) off the diagonal appear so often in symmetric Gaussian matrix limits that they define a canonical ensemble.
 
 \begin{definition}[Gaussian Orthogonal Ensemble, \(2 \times 2\) case]\label{def:goe}
 A \(2 \times 2\) random matrix
@@ -214,7 +229,7 @@ and the three entries are mutually independent. More generally, a \(p \times p\)
 
 The variances \(2\) on the diagonal and \(1\) off the diagonal are chosen exactly so that the matrix is invariant in distribution under orthogonal conjugation \(\mat{G} \mapsto \mat{O} \mat{G} \mat{O}\transpose\); this is the eponymous orthogonal invariance. The top eigenvalue of \(\GOE_2\) is a non-Gaussian random variable, with a density slightly right-skewed by the repulsion that mirrors~\eqref{eq:wishart-2d-density}.
 
-\paragraph{The matrix-valued central limit theorem.} The next step transports the multivariate CLT of Section~\ref{subsec:rvecs} to a statement about the entire fluctuation matrix \(\sqrt{n}(\Sigmahat_n - \Sigma)\). For the null case \(\Sigma = I_2\), the limit is exactly the GOE.
+The multivariate CLT applied entry-by-entry to \(\sqrt{n}(\Sigmahat_n - \Sigma)\) yields the matrix-valued statement. In the null case the limit is exactly the GOE just defined.
 
 \begin{proposition}[Matrix-valued CLT for \(\Sigma = I_2\)]\label{prop:matrix-clt-I2}
 Let \(\vect{X}_i \sim \Normal{\vect{0}, I_2}\) be iid. Then \(\sqrt{n}\,(\Sigmahat_n - I_2)\) converges in distribution, as \(n \to \infty\), to a \(\GOE_2\) matrix.
@@ -248,7 +263,7 @@ because \(\E[X_{i2}] = 0\), and analogously for the other pairs.
 The three limiting variances are therefore \(2\), \(2\), \(1\) and the three limits are uncorrelated. By the multivariate CLT, the joint limit is \(\Normal{\vect{0},\, \diag(2, 2, 1)}\), which is exactly the entrywise distribution of a \(\GOE_2\) matrix from Definition~\ref{def:goe}.
 \end{proof}
 
-\paragraph{First-order eigenvalue perturbation.} Proposition~\ref{prop:matrix-clt-I2} describes the fluctuation of the \emph{matrix} \(\Sigmahat_n\), not of its individual eigenvalues. To translate matrix-level convergence into eigenvalue-level convergence, we need to know how eigenvalues respond to small perturbations of a symmetric matrix. The cleanest such statement, sufficient for our needs, is a multivariate mean-value theorem for simple eigenvalues.
+Proposition~\ref{prop:matrix-clt-I2} describes the fluctuation of the \emph{matrix} \(\Sigmahat_n\), not of its individual eigenvalues. The link from matrix to eigenvalues is a first-order perturbation lemma, the multivariate mean-value theorem for simple eigenvalues.
 
 \begin{lemma}[First-order perturbation for simple eigenvalues]\label{lem:first-order-perturbation}
 Let \(\mat{A}\) be a real symmetric \(p \times p\) matrix with a simple eigenvalue \(\lambda\) and unit eigenvector \(\vect{u}\). For any real symmetric \(\mat{H}\) with sufficiently small \(\norm{\mat{H}}\), the eigenvalue \(\lambda(\mat{A} + \mat{H})\) of \(\mat{A} + \mat{H}\) closest to \(\lambda\) satisfies
@@ -275,7 +290,6 @@ Substituting back,
 This is exactly Lemma~\ref{lem:first-order-perturbation} with \(\vect{u}\transpose \mat{H} \vect{u} = \vect{e}_2\transpose \mat{H} \vect{e}_2 = h_{22}\).
 \end{example}
 
-\paragraph{Top-eigenvalue fluctuations: repeated vs.\ distinct.}
 With Proposition~\ref{prop:matrix-clt-I2} and Lemma~\ref{lem:first-order-perturbation} in hand, the dichotomy between repeated and distinct population eigenvalues is straightforward.
 
 \smallskip
@@ -315,7 +329,7 @@ Figure~\ref{fig:lowdim-qq} confirms this dichotomy with normal Q-Q plots from a 
   \label{fig:lowdim-qq}
 \end{figure}
 
-\paragraph{Eigenvector convergence.} A parallel dichotomy applies to eigenvectors. In the distinct case \(\Sigma = \diag(1, 2)\), the population eigenvectors are \(\vect{e}_1\) and \(\vect{e}_2\), uniquely determined up to sign. The same first-order perturbation that produced~\eqref{eq:distinct-perturbation} also produces, after a sign convention \(\inner{\widehat{\vect{u}}_\ell}{\vect{e}_\ell} \ge 0\),
+\paragraph{Eigenvectors and spectral separation.} The same dichotomy applies to eigenvectors. In the distinct case \(\Sigma = \diag(1, 2)\), the population eigenvectors are \(\vect{e}_1\) and \(\vect{e}_2\), uniquely determined up to sign. The same first-order perturbation that produced~\eqref{eq:distinct-perturbation} also produces, after a sign convention \(\inner{\widehat{\vect{u}}_\ell}{\vect{e}_\ell} \ge 0\),
 \[
   \widehat{\vect{u}}_\ell \;\convas\; \vect{e}_\ell \qquad (\ell = 1, 2).
 \]
@@ -376,7 +390,7 @@ where \(\lambda_\pm = (1 \pm \sqrt{y})^2\). If \(y > 1\), the law has an additio
 
 A complete proof passes through the Stieltjes transform of \(F_{\Sigmahat_n}\) and is beyond the scope of this report; see \citet[][Thm.~2.5]{YaoZhengBai2015} and \citet[][Thm.~3.6]{Vershynin2018}. We use the result as a black box.
 
-Three features of the MP law play a role in later sections, and each is visible in Figure~\ref{fig:mp-bulk}.
+Three features of the MP law are worth recording, and each is visible in Figure~\ref{fig:mp-bulk}.
 \begin{itemize}[leftmargin=*,itemsep=0.3em]
   \item The support is the interval \([(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]\), of width \(4 \sqrt{y}\). As \(y \to 0\) the support collapses to the point \(\lambda = 1\), recovering the low-dimensional consistency of Section~\ref{subsec:scm-lowdim}.
   \item Near the upper edge \(\lambda_+\), the density vanishes like a square root: \(f_{\MP_y}(\lambda) \sim C(\lambda_+ - \lambda)^{1/2}\). This square-root edge is the input to the Tracy-Widom heuristic below.
@@ -435,12 +449,8 @@ The Tracy-Widom \(\mathrm{TW}_1\) law was first identified by \citet{TracyWidom1
   \label{fig:tw-edge}
 \end{figure}
 
-\paragraph{The picture so far.} Combining Sections~\ref{subsec:scm-lowdim} and~\ref{subsec:scm-highdim}, the two regimes look very different.
-\begin{itemize}[leftmargin=*,itemsep=0.3em]
-  \item \emph{Low dimensions.} Sample eigenvalues are consistent estimators of population eigenvalues. Fluctuations are Gaussian on the \(\sqrt{n}\) scale at a simple eigenvalue (via Lemma~\ref{lem:first-order-perturbation}) and \(\GOE\)-shaped at a repeated one (via the continuous mapping theorem applied to Proposition~\ref{prop:matrix-clt-I2}).
-  \item \emph{High dimensions, null covariance.} The entire empirical spectrum is described by the Marchenko-Pastur bulk on \([\lambda_-, \lambda_+]\), and the top eigenvalue sits at the right edge \(\lambda_+\) with Tracy-Widom \(\mathrm{TW}_1\) fluctuations on the \(p^{-2/3}\) scale.
-\end{itemize}
+The contrast between the two regimes is sharp. In fixed dimension, the sample covariance matrix behaves like an ordinary average: its entries converge to those of \(\Sigma\), and at a simple population eigenvalue the corresponding sample eigenvalue fluctuates Gaussianly on the \(\sqrt{n}\) scale via Lemma~\ref{lem:first-order-perturbation}. At a repeated population eigenvalue the limiting object is instead a finite-dimensional GOE matrix, with the non-Gaussian top-eigenvalue law that reflects eigenvalue repulsion. In high dimensions, by contrast, the sample eigenvalues no longer collapse to the population eigenvalues. Even for \(\Sigma = I_p\), they fill the Marchenko-Pastur interval \([\lambda_-, \lambda_+]\), and the largest eigenvalue sits at the right edge \(\lambda_+\) with Tracy-Widom \(\mathrm{TW}_1\) fluctuations on the \(p^{-2/3}\) scale.
 
-This is the \emph{null} picture: \(\Sigma = I_p\) carries no structure. The remaining question is what happens when \(\Sigma\) does carry structure, in particular when a small number of eigenvalues stand above an otherwise flat unit baseline. That setting is the spiked covariance model of \citet{Johnstone2001}, and it is the subject of Section~\ref{sec:spiked}.
+The next section inserts signal into this null picture by allowing a small number of population eigenvalues to rise above the unit background, and asks when the corresponding sample eigenvalue and eigenvector can recover that signal.
 
 \clearpage

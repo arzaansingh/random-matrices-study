@@ -4,9 +4,9 @@
 %% Build philosophy: match the depth of v5 LaTeX notes, build from absolute
 %% foundations, prove what can be proved cleanly, illustrate with figures.
 
-\section{Probability Foundations}\label{sec:foundations}
+\section{Probability and Linear Algebra Foundations}\label{sec:foundations}
 
-The high-dimensional phenomena studied in later sections all rest on a small set of foundational ideas from classical probability: distributions of random variables, ways to summarize and compare them, modes of convergence, the law of large numbers, and the central limit theorem. This section develops these tools in the depth needed to make later proofs go through cleanly. The exposition starts with the random variable, the basic object of probability theory, and builds toward the multivariate normal distribution that will drive every Gaussian sample-covariance computation in Section~\ref{sec:scm}.
+The main objects of this report are eigenvalues and eigenvectors of random covariance matrices. To study them we need two complementary languages. \emph{Probability} explains how averages of random quantities stabilize and how they fluctuate around their limits. \emph{Linear algebra} explains how a symmetric matrix encodes variance through eigenvalues and eigenvectors. This section develops both, starting from the random variable and building toward the spectral theorem for symmetric covariance matrices.
 
 %====================================================================
 \subsection{Random Variables and Distributions}\label{subsec:rvs}
@@ -54,16 +54,18 @@ Their shapes are shown in Figure~\ref{fig:distribution-shapes}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{figures/distribution_shapes.png}
-  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are absolutely continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but very different tails: the Cauchy density decays only like \(1/x^2\), so values far from zero remain plausible. This tail behavior is what breaks the moment generating function in Section~\ref{subsec:mgf} and motivates the characteristic function in Section~\ref{subsec:cf}.}
+  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are absolutely continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but very different tails: the Cauchy density decays only like \(1/x^2\), so values far from zero remain plausible. This tail behavior is what breaks the moment generating function and motivates the characteristic function below.}
   \label{fig:distribution-shapes}
 \end{figure}
 
 The Cauchy distribution will be a recurring foil: its heavy tails make some standard tools break, motivating sharper tools that do not.
 
 %====================================================================
-\subsection{Moments and Moment Generating Functions}\label{subsec:mgf}
+\subsection{Moments and Transform Methods}\label{subsec:transforms}
 
-Moments quantify the shape of a distribution.
+Moments quantify the shape of a distribution, and two ways to package the entire sequence of moments into a single function turn convergence-of-distributions questions into calculus. The first, the moment generating function, is the natural starting point. The second, the characteristic function, is the version that always exists and that powers proofs of limit theorems.
+
+\paragraph{Moments and the moment generating function.}
 
 \begin{definition}[Moments and central moments]\label{def:moments}
 For an integer \(j \ge 1\) such that \(\E\abs{X}^j < \infty\), the \(j\)\textsuperscript{th} \emph{moment} of \(X\) is \(\E[X^j]\) and the \(j\)\textsuperscript{th} \emph{central moment} is \(\E[(X - \mu)^j]\), where \(\mu = \E[X]\). The second central moment is the \emph{variance}, \(\Var(X) = \E[(X - \mu)^2]\). The absolute-moment hypothesis ensures that \(X^j\) is integrable, so the bare expectation \(\E[X^j]\) is well defined.
@@ -198,8 +200,7 @@ diverges for every \(t \ne 0\), since the integrand grows like \(e^{tx}/x^2\) at
 The remedy is the characteristic function.
 
 %====================================================================
-\subsection{Characteristic Functions}\label{subsec:cf}
-
+\paragraph{Characteristic functions.}
 Replacing the real argument \(t\) of the MGF by the imaginary argument \(it\) yields an object that always exists.
 
 \begin{definition}[Characteristic function]\label{def:cf}
@@ -271,12 +272,15 @@ Let \(X_n\) and \(X\) be random variables with characteristic functions \(\varph
 \end{enumerate}
 \end{theorem}
 
-A full proof is in \citet[][Thm.~26.3]{Billingsley1995}. The theorem is the key to the central limit theorem proof in Section~\ref{subsec:limit-theorems}: it reduces a question about distributions to a calculus exercise on a single complex-valued function.
+A full proof is in \citet[][Thm.~26.3]{Billingsley1995}. This theorem reduces convergence in distribution to pointwise convergence of characteristic functions, a calculus question on a single complex-valued function. It is the engine behind the central limit theorem proved below.
 
 %====================================================================
-\subsection{Modes of Convergence}\label{subsec:convergence}
+\subsection{Convergence and Limit Theorems}\label{subsec:limit-theorems}
 
-A sequence of random variables can converge to a limit in several inequivalent ways. The three modes used in this report, from strongest to weakest, are the following.
+Many statistical quantities are averages of independent observations. Two universality results describe their behavior: the law of large numbers says averages converge to their mean, and the central limit theorem says that after rescaling their random fluctuations are universally Gaussian. Before stating either we need a precise notion of convergence for random variables, because the two laws use different ones.
+
+\paragraph{Modes of convergence.}
+A sequence of random variables can converge to a limit in several inequivalent ways. The three modes used here, from strongest to weakest, are the following.
 
 \begin{definition}[Three modes of convergence]\label{def:modes}
 Let \(X_n, X\) be random variables on a common probability space.
@@ -330,19 +334,8 @@ If \(X_n \convas X\) (respectively \(\convp\), \(\convd\)) and \(g: \R \to \R\) 
 Slutsky's theorem (also useful later) is recorded in Appendix~\ref{app:auxiliary}.
 
 %====================================================================
-\subsection{Limit Theorems: LLN and CLT}\label{subsec:limit-theorems}
-
-The sample covariance matrix studied in Section~\ref{sec:scm} is built from averages. In the mean-zero case, for example,
-\[
-  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose,
-\]
-and each entry of this matrix is a one-dimensional sample average,
-\[
-  (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij}\, X_{ik}.
-\]
-Understanding the sample covariance matrix therefore begins with understanding averages of iid random variables. Two universality results do most of the work. The \emph{law of large numbers} (LLN) explains why averages converge to deterministic limits, so that \(\Sigmahat_n\) is a consistent estimator of \(\Sigma\). The \emph{central limit theorem} (CLT) explains the size and shape of their random fluctuations, so that we can characterize the Gaussian limit of \(\sqrt{n}(\Sigmahat_n - \Sigma)\) entrywise. The rest of this subsection develops both results and ends with an explicit bridge to the sample covariance setting.
-
-Before proving the weak law we need a way to turn information about the size of a random variable into a bound on the probability of a large deviation. Markov's inequality is the most basic tool of this kind; Chebyshev's inequality is the version specialized to deviations from the mean.
+\paragraph{Markov, Chebyshev, and the law of large numbers.}
+To prove a law of large numbers we need a way to turn information about the size of a random variable into a bound on the probability of a large deviation. Markov's inequality is the most basic such tool; Chebyshev's inequality is the version specialized to deviations from the mean.
 
 \begin{theorem}[Markov's inequality]\label{thm:markov}
 If \(Y \ge 0\) and \(a > 0\), then \(\Prob(Y \ge a) \le \E[Y]/a\).
@@ -405,7 +398,7 @@ Apply Chebyshev's inequality (Theorem~\ref{thm:chebyshev}) to \(\bar X_n\) with 
 This is the definition of \(\bar X_n \convp \mu\).
 \end{proof}
 
-The proof shows \emph{why} averaging reduces variance. Each individual observation has variance \(\sigma^2\), but the average has variance \(\sigma^2 / n\); as \(n\) grows the average becomes more tightly concentrated around \(\mu\). This is the prototype of the principle that makes the sample covariance entries \((\Sigmahat_n)_{jk}\) stabilize around the population entries \(\Sigma_{jk}\) in Section~\ref{sec:scm}.
+The proof shows \emph{why} averaging reduces variance. Each individual observation has variance \(\sigma^2\), but the average has variance \(\sigma^2 / n\); as \(n\) grows the average becomes more tightly concentrated around \(\mu\). Averaging shrinks variance, period.
 
 The weak law and the strong law agree on the punchline (\(\bar X_n \to \mu\)) but differ on the mode of convergence. The weak law guarantees that the probability of being far from the mean tends to zero; the strong law says something more pathwise, namely that with probability one the realized sequence \((\bar X_1(\omega), \bar X_2(\omega), \ldots)\) itself settles down to \(\mu\). The strong law also requires less than finite variance.
 
@@ -422,7 +415,7 @@ A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} v
   \label{fig:lln}
 \end{figure}
 
-The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens, and \emph{what the fluctuations look like}. The scale \(\sqrt{n}\) is not arbitrary: since \(\Var(\bar X_n) = \sigma^2 / n\) by the WLLN computation, the typical size of the deviation \(\bar X_n - \mu\) is \(n^{-1/2}\). Multiplying by \(\sqrt{n}\) cancels this decay and keeps the random fluctuation visible. This same dimensional logic produces the \(n^{-1/2}\) scale for the entries of \(\Sigmahat_n - \Sigma\) in Section~\ref{sec:scm}, and (after a different calculation) the \(p^{-2/3}\) scale for the top eigenvalue at the spectral edge in Section~\ref{subsec:scm-highdim}.
+The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens and \emph{what the fluctuations look like}. The scale \(\sqrt{n}\) is not arbitrary: since \(\Var(\bar X_n) = \sigma^2 / n\) by the WLLN computation, the typical size of the deviation \(\bar X_n - \mu\) is \(n^{-1/2}\). Multiplying by \(\sqrt{n}\) cancels this decay and keeps the random fluctuation visible at scale order one.
 
 \begin{theorem}[Central limit theorem]\label{thm:clt}
 Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(0 < \Var(X_1) = \sigma^2 < \infty\). Then
@@ -480,28 +473,15 @@ Figure~\ref{fig:clt} illustrates the CLT for exponential samples: even though th
   \label{fig:clt}
 \end{figure}
 
-To make the bridge to Section~\ref{sec:scm} concrete, observe that a single entry of the sample covariance matrix is itself an ordinary sample average to which the SLLN of Theorem~\ref{thm:slln} applies directly.
-
-\begin{example}[A sample covariance entry is a sample average]\label{ex:cov-entry-average}
-Let \(\vect{X}_1, \ldots, \vect{X}_n \in \R^p\) be iid mean-zero random vectors. The \((j, k)\) entry of the mean-zero sample covariance matrix is
-\[
-  (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij}\, X_{ik}.
-\]
-This is the sample average of the scalar random variables \(W_i = X_{ij}\, X_{ik}\). The \(W_i\) are iid and, provided \(\E\abs{W_1} < \infty\), have mean \(\E[X_{1j} X_{1k}] = \Sigma_{jk}\). Theorem~\ref{thm:slln} therefore gives
-\[
-  (\Sigmahat_n)_{jk} \;\convas\; \Sigma_{jk},
-\]
-which is the entrywise mechanism behind the sample covariance convergence proved in Section~\ref{subsec:scm-lowdim}. The CLT will likewise give the entrywise fluctuation \(\sqrt{n}\bigl((\Sigmahat_n)_{jk} - \Sigma_{jk}\bigr) \convd \Normal{0, \Var(W_1)}\) under finite fourth moments.
-\end{example}
 
 %====================================================================
 \subsection{Random Vectors and the Multivariate Normal Distribution}\label{subsec:rvecs}
 
-The objects of this report are sample covariance matrices, so the basic observation is no longer a single number \(X_i\) but a \emph{vector}
+Statistical observations rarely come as single numbers; they typically come as \emph{vectors},
 \[
   \vect{X}_i \;=\; (X_{i1}, X_{i2}, \ldots, X_{ip})\transpose,
 \]
-where \(X_{ij}\) is, for instance, the \(j\)\textsuperscript{th} feature of the \(i\)\textsuperscript{th} observation. A sample covariance matrix summarizes how these features vary together across observations. This subsection collects the vector analogues of Sections~\ref{subsec:rvs}--\ref{subsec:limit-theorems}: random vectors and their joint distributions, the covariance matrix and its first structural property, the multivariate normal distribution, and the multivariate central limit theorem. The linear-algebra companion topics (the spectral theorem, the eigenvalue characterization of positive semidefiniteness, matrix norms, and the convergence of eigenvalues under matrix convergence) are collected separately in Section~\ref{subsec:linalg}.
+where \(X_{ij}\) is, for instance, the \(j\)\textsuperscript{th} feature of the \(i\)\textsuperscript{th} observation. The vector analogues of Sections~\ref{subsec:rvs}--\ref{subsec:limit-theorems} are the joint distribution of \(\vect{X}\), the mean vector and covariance matrix that summarize its first two moments, the multivariate normal as the central model, and the multivariate central limit theorem.
 
 \paragraph{Random vectors and joint distributions.}
 
@@ -643,9 +623,9 @@ The identity
 \[
   \vect{v}\transpose \Sigma \vect{v} \;=\; \Var(\vect{v}\transpose \vect{X})
 \]
-is one of the most important facts in this report. The left side is linear algebra; the right side is probability. The bridge between them is the reason every spectral statement about \(\Sigma\) translates to a statement about variances of linear combinations of \(\vect{X}\), and vice versa. In Section~\ref{subsec:linalg} the same identity, combined with the spectral theorem, will give that every eigenvalue of \(\Sigma\) is a variance along the corresponding eigenvector direction.
+is the key identity of this section. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections, and vice versa.
 
-\paragraph{The multivariate normal distribution.} The multivariate normal distribution is the vector-valued analogue of the ordinary normal distribution. It is the workhorse distribution for the rest of this report: Gaussian sample covariance matrices lead to the Wishart distribution in Section~\ref{subsec:scm-lowdim}, and their spectral behavior in high dimensions is the Marchenko-Pastur / Tracy-Widom story of Section~\ref{subsec:scm-highdim}. We define it cleanly by its characteristic function.
+\paragraph{The multivariate normal distribution.} The multivariate normal distribution is the vector analogue of the ordinary normal. It is the natural model for vector observations because it is closed under linear operations and is characterized completely by its mean vector and covariance matrix. The cleanest definition uses the characteristic function.
 
 \begin{definition}[Multivariate normal]\label{def:mvn}
 A random vector \(\vect{X} \in \R^p\) is \emph{multivariate normal} with mean \(\vect{\mu} \in \R^p\) and covariance matrix \(\Sigma \in \R^{p \times p}\), written \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\), if its characteristic function is
@@ -694,7 +674,7 @@ A second property is special to the Gaussian family. For a general distribution,
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/bivariate_normal.png}
-  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the two coordinates are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. The elongation direction is the direction in which the random vector has largest variance, foreshadowing the role of eigenvectors of \(\Sigma\) in principal components analysis and in the spiked covariance models of Section~\ref{sec:spiked}. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the two coordinates are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. The direction of elongation is the direction in which the random vector has largest variance, which the next subsection will identify as the leading eigenvector of \(\Sigma\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:bvn}
 \end{figure}
 
@@ -719,24 +699,12 @@ The scalar random variables \(\vect{t}\transpose \vect{X}_i\) are iid with mean 
 This is exactly the projection of \(\Normal{\vect{0}, \Sigma}\) onto \(\vect{t}\), by~\eqref{eq:mvn-projection}. Since this holds for every \(\vect{t}\), the Cram\'er-Wold device delivers the vector convergence.
 \end{proof}
 
-\paragraph{Bridge to Section~\ref{sec:scm}.} We can now state, in one paragraph, the role that this entire section will play in the rest of the report. The sample covariance matrix in the mean-zero case is
-\[
-  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose,
-\]
-so each of its entries is a sample average. The strong law of large numbers (Theorem~\ref{thm:slln}), applied entrywise, will give
-\[
-  \Sigmahat_n \;\convas\; \Sigma \qquad \text{entrywise as } n \to \infty,
-\]
-which is the consistency statement of Section~\ref{subsec:scm-lowdim}. The multivariate CLT (Theorem~\ref{thm:multivariate-clt}), applied to the entries jointly, will give the Gaussian fluctuation
-\[
-  \sqrt{n}\,(\Sigmahat_n - \Sigma) \;\convd\; \mat{G}, \qquad \mat{G} \text{ a real symmetric Gaussian matrix},
-\]
-on the \(\sqrt{n}\) scale in fixed dimension. The rest of this report studies what these matrix-level limit theorems imply for the eigenvalues and eigenvectors of \(\Sigmahat_n\), and how the story changes qualitatively when the dimension \(p\) grows with the sample size \(n\).
+Vector averages therefore fluctuate on the same \(\sqrt{n}\) scale as scalar averages, but their limiting covariance records the dependence among coordinates.
 
 %====================================================================
-\subsection{Linear Algebra Preliminaries}\label{subsec:linalg}
+\subsection{Linear Algebra of Symmetric Matrices}\label{subsec:linalg}
 
-The remainder of this section collects the linear-algebra results that the analysis of sample covariance matrices in Section~\ref{sec:scm} will rely on but that are not themselves probabilistic: the spectral theorem, the eigenvalue characterization of positive semidefiniteness, matrix norms, and the continuity of eigenvalues as functions of matrix entries. The probability content of Sections~\ref{subsec:rvs}--\ref{subsec:rvecs} gave us \emph{what} sample covariance matrices are; the content here gives us the \emph{tools} for analyzing them.
+The identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) of the previous subsection ties covariance matrices to directional variance. To analyze that variance \emph{geometrically}, we use the structure of symmetric matrices: the spectral theorem, the eigenvalue characterization of positive semidefiniteness, and the Rayleigh-quotient identification of maximal-variance directions. This subsection also records two technical results, the equivalence of norms in finite dimensions and the continuity of eigenvalues as functions of matrix entries, that will let us push matrix-level convergence to eigenvalue-level convergence.
 
 \paragraph{The spectral theorem.}
 A real \(n \times n\) matrix \(A\) is \emph{symmetric} if \(A = A\transpose\). Throughout this paragraph, \(A\) denotes a real symmetric matrix. Symmetry has two crucial consequences: all eigenvalues of \(A\) are real, and there exists an orthonormal basis of \(\R^n\) consisting of eigenvectors of \(A\).
@@ -800,7 +768,27 @@ By PSD the left side is \(\ge 0\), so \(\lambda_k \ge 0\).
 where \(\vect{y} = Q\transpose \vect{x}\) and each \(\lambda_i y_i^2 \ge 0\) by hypothesis. Hence \(A\) is PSD.
 \end{proof}
 
-Combining Theorem~\ref{thm:pd-psd-eigen} with Proposition~\ref{prop:cov-psd}, every eigenvalue of a covariance matrix is nonnegative, and the eigenvalues are strictly positive if and only if no nontrivial linear combination of the coordinates is almost surely constant. The remaining sample-covariance analysis in Section~\ref{sec:scm} will use this fact silently every time it manipulates an eigenvalue.
+Combining Theorem~\ref{thm:pd-psd-eigen} with Proposition~\ref{prop:cov-psd}, every eigenvalue of a covariance matrix is nonnegative, and the eigenvalues are strictly positive if and only if no nontrivial linear combination of the coordinates is almost surely constant.
+
+The diagonalization in Corollary~\ref{cor:quad-form} also identifies which directions maximize and minimize the quadratic form. The result, the Rayleigh-quotient characterization, is what justifies saying that eigenvectors are the directions of greatest variance.
+
+\begin{proposition}[Rayleigh quotient]\label{prop:rayleigh}
+Let \(A\) be a real symmetric \(p \times p\) matrix with eigenvalues \(\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_p\) and corresponding orthonormal eigenvectors \(\vect{q}_1, \ldots, \vect{q}_p\). Then
+\[
+  \lambda_1 \;=\; \max_{\substack{\vect{v} \in \R^p \\ \norm{\vect{v}}_2 = 1}} \vect{v}\transpose A \vect{v}, \qquad \lambda_p \;=\; \min_{\substack{\vect{v} \in \R^p \\ \norm{\vect{v}}_2 = 1}} \vect{v}\transpose A \vect{v},
+\]
+with the maxima attained at \(\vect{v} = \vect{q}_1\) and \(\vect{v} = \vect{q}_p\) respectively.
+\end{proposition}
+
+\begin{proof}
+For any unit vector \(\vect{v}\), set \(\vect{y} = Q\transpose \vect{v}\). The orthogonal transformation preserves length, so \(\norm{\vect{y}}_2 = 1\). Corollary~\ref{cor:quad-form} gives
+\[
+  \vect{v}\transpose A \vect{v} \;=\; \sum_{i = 1}^p \lambda_i\, y_i^2,
+\]
+a convex combination of the eigenvalues \((\lambda_i)\) with weights \((y_i^2)\) summing to one. The maximum value of this combination is \(\lambda_1\), attained when all the weight is on the largest eigenvalue, i.e., \(\vect{y} = \vect{e}_1\) and hence \(\vect{v} = Q \vect{e}_1 = \vect{q}_1\). The minimum is \(\lambda_p\), attained at \(\vect{v} = \vect{q}_p\).
+\end{proof}
+
+Applied to a covariance matrix \(\Sigma\), Proposition~\ref{prop:rayleigh} says that the largest eigenvalue \(\lambda_1(\Sigma)\) is the maximum possible variance of a unit-norm linear combination of the coordinates, attained when that combination points along the top eigenvector. The eigenvectors of \(\Sigma\) are therefore the directions of greatest, second-greatest, and so on, variance of \(\vect{X}\), and the eigenvalues record the variance along each direction. This is the geometric meaning of the spectral decomposition of a covariance matrix.
 
 \paragraph{Worked examples in the \(2 \times 2\) case.}
 For a symmetric matrix \(A = \begin{pmatrix} a & b \\ b & d \end{pmatrix}\), the characteristic polynomial \(\det(A - \lambda I) = (a - \lambda)(d - \lambda) - b^2\) factors with eigenvalues
@@ -893,7 +881,7 @@ The \emph{characteristic polynomial} of \(A\) is
 whose roots are exactly the eigenvalues of \(A\), counted with algebraic multiplicity. The coefficients of \(p_A\) are themselves polynomials in the entries of \(A\) (apply Leibniz to \(A - \lambda I\)), so they too are continuous functions of \(A\).
 
 \paragraph{Eigenvalue convergence.}
-We can now state the key linear-algebra ingredient powering Section~\ref{sec:scm}: when a sequence of matrices converges, their eigenvalues converge. The deterministic statement is a standard fact about polynomial roots; we then push it through the modes of convergence developed in Section~\ref{subsec:convergence}, following \citet[][Prop.~3.1]{Genzer2025}.
+The key ingredient is that when a sequence of matrices converges, their eigenvalues converge. The deterministic statement is a standard fact about polynomial roots; we push it through the modes of convergence developed above, following \citet[][Prop.~3.1]{Genzer2025}.
 
 \begin{proposition}[Eigenvalue convergence via characteristic polynomials]\label{prop:eigen-convergence}
 Let \(\{\Sigma_n\}_{n \ge 1}\) and \(\Sigma_0\) be \(p \times p\) symmetric matrices, and write \(\lambda_i(\Sigma)\) for the \(i\)\textsuperscript{th} eigenvalue of \(\Sigma\) (with some fixed ordering convention).
@@ -924,6 +912,8 @@ and taking probabilities,
 This is \(\lambda_i(\Sigma_n) \convp \lambda_i(\Sigma_0)\) for every \(i\).
 \end{proof}
 
-The deterministic chain \emph{entries \(\to\) characteristic-polynomial coefficients \(\to\) roots} is the entire logical content. The almost-sure and in-probability versions follow by pushing continuity through the respective modes of convergence. In Section~\ref{sec:scm} this proposition will deliver, with no further work, that the eigenvalues of the sample covariance matrix \(\Sigmahat_n\) converge to those of the population covariance \(\Sigma\) whenever \(\Sigmahat_n\) converges to \(\Sigma\) in any of the standard senses.
+The deterministic chain \emph{entries \(\to\) characteristic-polynomial coefficients \(\to\) roots} is the entire logical content; the random versions follow by pushing continuity through the respective modes of convergence.
+
+The two pieces of this section now combine into a single statement about the sample covariance matrix. It is, on the one hand, a matrix of averages, controlled entrywise by the law of large numbers; and, on the other hand, a symmetric positive-semidefinite matrix, controlled geometrically by the spectral theorem and the Rayleigh quotient. The next section makes this statement precise and asks what changes when the dimension grows with the sample size.
 
 \clearpage

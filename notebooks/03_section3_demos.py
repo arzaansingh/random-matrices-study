@@ -43,6 +43,78 @@ FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================================
+# 0z. Sample covariance geometry: data cloud + covariance ellipse + arrows
+# ============================================================================
+
+def make_geometry_figure() -> Path:
+    """One-panel figure for §3.1: 2D data cloud from N(0, Sigma) with the
+    population covariance ellipse and eigenvector arrows overlaid, plus
+    numerical eigenvalue labels."""
+    from matplotlib.patches import Ellipse
+
+    rng = np.random.default_rng(SEED)
+    n = 500
+
+    Sigma = np.array([[4.0, 1.5], [1.5, 1.0]])
+    L = np.linalg.cholesky(Sigma)
+    Z = rng.normal(size=(n, 2))
+    X = Z @ L.T
+
+    evals, evecs = np.linalg.eigh(Sigma)        # ascending: evals[0] < evals[1]
+    lam_max, lam_min = float(evals[-1]), float(evals[0])
+    v_max, v_min = evecs[:, -1], evecs[:, 0]
+
+    fig, ax = plt.subplots(figsize=(7.5, 6.5))
+
+    # Data scatter
+    ax.scatter(X[:, 0], X[:, 1], s=8, alpha=0.35, color=PALETTE["def"],
+               label=fr"Sample of $n = {n}$ data points")
+
+    # Population 2-sigma covariance ellipse: axes 2*sqrt(lambda_i)
+    angle_deg = np.degrees(np.arctan2(v_max[1], v_max[0]))
+    width = 2 * 2 * np.sqrt(lam_max)
+    height = 2 * 2 * np.sqrt(lam_min)
+    ellipse = Ellipse((0, 0), width, height, angle=angle_deg,
+                      fill=False, edgecolor=PALETTE["thm"], linewidth=2.0,
+                      label=r"Population covariance ellipse ($2\sigma$)")
+    ax.add_patch(ellipse)
+
+    # Eigenvectors as arrows scaled by 2*sqrt(eigenvalue)
+    for v, lam in ((v_max, lam_max), (v_min, lam_min)):
+        endpoint = v * 2 * np.sqrt(lam)
+        ax.annotate("", xy=tuple(endpoint), xytext=(0, 0),
+                    arrowprops=dict(arrowstyle="->", color=PALETTE["link"], lw=2.5))
+    ax.plot([], [], color=PALETTE["link"], lw=2.5,
+            label=r"Eigenvectors of $\Sigma$ (length $2\sqrt{\lambda_i}$)")
+
+    # Numerical eigenvalue labels near arrowheads
+    end_max = v_max * 2 * np.sqrt(lam_max)
+    end_min = v_min * 2 * np.sqrt(lam_min)
+    ax.text(end_max[0] * 1.05 + 0.2, end_max[1] * 1.05 + 0.2,
+            rf"$\lambda_1 = {lam_max:.2f}$",
+            color=PALETTE["link"], fontsize=11)
+    ax.text(end_min[0] * 1.7 - 0.2, end_min[1] * 1.7 + 0.5,
+            rf"$\lambda_2 = {lam_min:.2f}$",
+            color=PALETTE["link"], fontsize=11)
+
+    ax.axhline(0, color=PALETTE["accent"], linewidth=0.4)
+    ax.axvline(0, color=PALETTE["accent"], linewidth=0.4)
+    ax.set_xlim(-6, 6)
+    ax.set_ylim(-6, 6)
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xlabel(r"$x_1$")
+    ax.set_ylabel(r"$x_2$")
+    ax.set_title(r"Geometry of the covariance matrix $\Sigma$")
+    ax.legend(loc="upper right", frameon=False, fontsize=9)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "sample_covariance_geometry.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
 # 0a. Scatter with principal axes (motivates §3.1)
 # ============================================================================
 
@@ -426,7 +498,8 @@ def make_tw_edge_figure() -> Path:
 
 if __name__ == "__main__":
     print("Generating Section 3 figures...")
-    for fn in (make_scatter_axes_figure, make_scm_consistency_figure,
+    for fn in (make_geometry_figure,
+               make_scatter_axes_figure, make_scm_consistency_figure,
                make_wishart_density_heatmap_figure,
                make_wishart_2d_figure, make_lowdim_qq_figure,
                make_mp_bulk_figure, make_tw_edge_figure):
