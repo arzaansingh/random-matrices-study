@@ -446,12 +446,27 @@ The largest of \(p\) iid draws from this density sits, heuristically, where the 
 \]
 so \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\). The exponent \(3/2\) in the integrated square-root density inverts to the exponent \(2/3\) in the fluctuation scale.
 
-\paragraph{Simulation.}
-Define the Johnstone-standardized statistic
+\paragraph{The Johnstone (2001) edge theorem.}
+The heuristic above predicts the right \emph{scale} of the fluctuations, but not their precise centering. To compare \(\lambda_{\max}\) to a definite distribution we need explicit finite-sample constants \(\mu_{n p}\) (which pins the centering to the edge) and \(\sigma_{n p}\) (which sets the \(p^{-2/3}\) scale). \citet{Johnstone2001} supplied both.
+
+\begin{theorem}[Tracy-Widom edge for the null sample covariance, \citealp{Johnstone2001}]\label{thm:tw}
+Under the hypotheses of Theorem~\ref{thm:mp}, define
+\begin{equation}
+  \mu_{n p} \;=\; \frac{(\sqrt{n - 1} + \sqrt{p})^2}{n}, \qquad
+  \sigma_{n p} \;=\; \frac{\sqrt{n - 1} + \sqrt{p}}{n}\, \left(\frac{1}{\sqrt{n - 1}} + \frac{1}{\sqrt{p}}\right)^{1/3}.
+  \label{eq:tw-constants}
+\end{equation}
+Then
 \[
-  z \;=\; \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}},
+  \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}} \;\convd\; \mathrm{TW}_1,
 \]
-where \(\mu_{n p}\) and \(\sigma_{n p}\) are the explicit centering and scaling constants computed by \citet{Johnstone2001} (recorded as Theorem~\ref{thm:tw} at the end of this section). The theorem predicts \(z \convd \mathrm{TW}_1\). Figure~\ref{fig:tw-edge} shows the empirical distribution of \(z\) collapsing to a common shape as \(p, n\) grow at fixed aspect ratio. Figure~\ref{fig:tw-universality} fixes a single large \((n, p)\) and compares the histogram of \(z\) directly to the TW\(_1\) density, with a Q-Q plot of \(z\) against \(\mathcal{N}(0, 1)\) on the side.
+where \(\mathrm{TW}_1\) is the distribution of Definition~\ref{def:tw1}.
+\end{theorem}
+
+The constants line up with the heuristic: \(\mu_{n p} \to (1 + \sqrt{y})^2 = \lambda_+\), so the centering picks out the MP upper edge in the limit, and \(\sigma_{n p}\) is of order \(n^{-2/3}\), so the scaling absorbs the \(p^{-2/3}\) edge scale derived just above. The same theorem can be written with the rate factored out, as in \citet[][Prop.~3.9]{Genzer2025}: \(n^{2/3}(\lambda_{\max}(\Sigmahat_n) - \mu_{n p})/\tilde\sigma \convd \mathrm{TW}_1\) with \(\tilde\sigma \to (1+\sqrt{y})(1+1/\sqrt{y})^{1/3}\); algebraically the two forms are identical. We use Theorem~\ref{thm:tw} as a black box here; the same constants will be reused in Section~\ref{sec:spiked} when we ask which population eigenvalues exceed this null TW\(_1\) baseline.
+
+\paragraph{Simulation.}
+Write \(z = (\lambda_{\max}(\Sigmahat_n) - \mu_{n p})/\sigma_{n p}\) for the Johnstone-standardized top eigenvalue, so that \(z \convd \mathrm{TW}_1\) by Theorem~\ref{thm:tw}. Figure~\ref{fig:tw-edge} shows the empirical distribution of \(z\) collapsing to a common shape as \(p, n\) grow at fixed aspect ratio. Figure~\ref{fig:tw-universality} fixes a single large \((n, p)\) and compares the histogram of \(z\) directly to the TW\(_1\) density, with a Q-Q plot of \(z\) against \(\mathcal{N}(0, 1)\) on the side.
 
 \begin{figure}[H]
   \centering
@@ -470,24 +485,5 @@ where \(\mu_{n p}\) and \(\sigma_{n p}\) are the explicit centering and scaling 
 The contrast between the two regimes is sharp. In fixed dimension, the sample covariance matrix behaves like an ordinary average: its entries converge to those of \(\Sigma\), and at a simple population eigenvalue the corresponding sample eigenvalue fluctuates Gaussianly on the \(\sqrt{n}\) scale via Lemma~\ref{lem:first-order-perturbation}. At a repeated population eigenvalue the limiting object is instead a finite-dimensional GOE matrix, with the non-Gaussian top-eigenvalue law that reflects eigenvalue repulsion. In high dimensions, by contrast, the sample eigenvalues no longer collapse to the population eigenvalues. Even for \(\Sigma = I_p\), they fill the Marchenko-Pastur interval \([\lambda_-, \lambda_+]\), and the largest eigenvalue sits at the right edge \(\lambda_+\) with Tracy-Widom \(\mathrm{TW}_1\) fluctuations on the \(p^{-2/3}\) scale.
 
 The next section inserts signal into this null picture by allowing a small number of population eigenvalues to rise above the unit background, and asks when the corresponding sample eigenvalue and eigenvector can recover that signal.
-
-\paragraph{Appendix to \S\ref{subsec:scm-highdim}: explicit Johnstone constants.}
-The standardization used in Figures~\ref{fig:tw-edge} and~\ref{fig:tw-universality} is given by the centering \(\mu_{n p}\) and scaling \(\sigma_{n p}\) below. We record the full statement once for completeness; the constants will be reused in Section~\ref{sec:spiked} when we ask which population eigenvalues exceed this null TW\(_1\) baseline.
-
-\begin{theorem}[Tracy-Widom edge for the null sample covariance, \citealp{Johnstone2001}]\label{thm:tw}
-Under the hypotheses of Theorem~\ref{thm:mp}, define
-\begin{equation}
-  \mu_{n p} \;=\; \frac{(\sqrt{n - 1} + \sqrt{p})^2}{n}, \qquad
-  \sigma_{n p} \;=\; \frac{\sqrt{n - 1} + \sqrt{p}}{n}\, \left(\frac{1}{\sqrt{n - 1}} + \frac{1}{\sqrt{p}}\right)^{1/3}.
-  \label{eq:tw-constants}
-\end{equation}
-Then
-\[
-  \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}} \;\convd\; \mathrm{TW}_1,
-\]
-where \(\mathrm{TW}_1\) is the distribution of Definition~\ref{def:tw1}.
-\end{theorem}
-
-The constants converge to the heuristic scales: \(\mu_{n p} \to (1 + \sqrt{y})^2 = \lambda_+\) and \(\sigma_{n p}\) is of order \(n^{-2/3}\), so the standardization absorbs the \(p^{-2/3}\) edge scale derived heuristically above. Theorem~\ref{thm:tw} can equivalently be written by separating the rate from the limiting constants, as in \citet[][Prop.~3.9]{Genzer2025}: \(n^{2/3}\,(\lambda_{\max}(\Sigmahat_n) - \mu_{n p}) / \tilde\sigma \convd \mathrm{TW}_1\) with \(\tilde\sigma \to (1+\sqrt{y})(1 + 1/\sqrt{y})^{1/3}\). The two formulations are algebraically identical.
 
 \clearpage
