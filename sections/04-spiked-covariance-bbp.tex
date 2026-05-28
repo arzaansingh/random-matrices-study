@@ -1,7 +1,8 @@
 %% sections/04-spiked-covariance-bbp.tex
 %% Section 4: Spiked Covariance Matrices (~11 pages)
 %% Source notes:
-%%   - v5 LaTeX notes: spiked covariance, BBP, simulations, overlap, clustering.
+%%   - v5 LaTeX notes: spiked covariance, phase transition, simulations,
+%%     overlap, clustering.
 %%   - Handwritten Gustavo Notes (April 17, April 27, April 30, May 14).
 %%   - Yao, Zheng, Bai (2015) Chapter 11: spiked sample covariance matrices.
 %%   - F\'eral and P\'ech\'e (2009) Theorem 1.6 for fluctuations.
@@ -10,11 +11,11 @@
 %%       eigenvector_overlap_distribution_n1200.png,
 %%       m2_two_strong_spikes.png, m2_mixed_spikes.png.
 
-\section{Spiked Covariance Matrices and the BBP Transition}\label{sec:spiked}
+\section{Spiked Covariance Matrices and the Spike Phase Transition}\label{sec:spiked}
 
 The Marchenko-Pastur law and the Tracy-Widom edge of Section~\ref{subsec:scm-highdim} describe what the sample spectrum looks like under the null hypothesis \(\Sigma = I_p\), where the population has no preferred direction. Real datasets virtually never satisfy this assumption: in single-cell genomics a small number of regulatory pathways dominate the variance across cells, in finance a handful of market factors drive the cross-section of asset returns, in image processing a few edge orientations carry most of the structure. The simplest mathematical model for such ``signal in noise'' covariance, introduced by \citet{Johnstone2001}, modifies the null setting in a single targeted way: a small number of population eigenvalues are allowed to exceed the noise baseline of \(1\), while all the remaining eigenvalues are equal to \(1\).
 
-The questions this section answers are then the natural ones. Which population spikes are detectable from the sample top eigenvalues? When a spike is detectable, where does it appear in the sample spectrum? And does the corresponding sample \emph{eigenvector} carry information about the population spike direction? The answer is a clean phase transition discovered by \citet{BaikBenArousPeche2005} for complex Wishart matrices and proved for the Johnstone real model and more generally by \citet{BaikSilverstein2006}: there is an explicit algebraic threshold determined by the aspect ratio \(y\), and a population spike is detectable precisely when it exceeds this threshold. Section~\ref{subsec:johnstone} sets up the model and the analytical object — the spike-location map \(\Psi\) — whose minimum value pins the threshold to the upper edge of the MP bulk.
+The questions this section answers are then the natural ones. Which population spikes are detectable from the sample top eigenvalues? When a spike is detectable, where does it appear in the sample spectrum? And does the corresponding sample \emph{eigenvector} carry information about the population spike direction? The answer is a clean phase transition first established by \citet{BaikBenArousPeche2005} for the complex Wishart case and by \citet{BaikSilverstein2006} for the general (real) spiked sample covariance: there is an explicit algebraic threshold determined by the aspect ratio \(y\), and a population spike is detectable precisely when it exceeds this threshold. Section~\ref{subsec:johnstone} sets up the model and the analytical object — the spike-location map \(\Psi\) — whose minimum value pins the threshold to the upper edge of the MP bulk.
 
 \subsection{Johnstone's Spiked Model and the Spike-Location Map}\label{subsec:johnstone}
 
@@ -109,7 +110,7 @@ The third feature is the crux. On the supercritical branch \(\alpha > 1 + \sqrt{
 
 The phase transition is therefore visible in two complementary ways: as a property of the algebraic map \(\Psi\) (whose minimum on \((1, \infty)\) happens to equal the MP edge), and as a property of the sample spectrum (whose top eigenvalue switches behavior at the same threshold). Section~\ref{subsec:bbp} states the result precisely.
 
-\subsection{The BBP Phase Transition for Eigenvalues}\label{subsec:bbp}
+\subsection{The Spike Phase Transition for Eigenvalues}\label{subsec:bbp}
 
 \todo{Content to fill in:
 - Theorem (Yao-Zheng-Bai Corollary 11.4 specialized to Johnstone):
@@ -189,7 +190,7 @@ Cite \citet{BaikBenArousPeche2005, YaoZhengBai2015}.}
   \(L = \text{noise bulk} + \text{low-rank class signal}\),
   in direct analogy with \(\Sigmahat_n = \text{noise} + \text{spike}\).
 - Conclusion: class structure is recoverable from \(L\) precisely when the
-  signal-to-noise ratio crosses an analogue of the BBP threshold; the
+  signal-to-noise ratio crosses an analogue of the spike threshold; the
   informative eigenvectors of \(L\) then provide the clustering. Cite
   \citet{vonLuxburg2007} for the algorithmic side and
   \citet{CouilletBenaych2016} for the high-dimensional analysis.
