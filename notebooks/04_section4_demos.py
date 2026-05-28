@@ -28,6 +28,7 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 
 from thesis_style import setup_plot, PALETTE
 
@@ -296,11 +297,158 @@ def make_phase_transition_figure() -> Path:
     return path
 
 
+# ============================================================================
+# Figure 4: top-eigenvalue fluctuations for fundamental and non-fundamental spikes
+# (Yao-Zheng-Bai Theorem 11.11 / Feral-Peche Theorem 1.6 vs Tracy-Widom edge).
+# ============================================================================
+
+def _johnstone_constants(n: int, p: int) -> tuple[float, float]:
+    """Johnstone (2001) finite-sample TW edge centering/scaling, also used
+    in Exercise 5; matches the constants in section 3 of the thesis."""
+    a = np.sqrt(n - 1) + np.sqrt(p)
+    mu = a ** 2 / n
+    sigma = (a / n) * (1.0 / np.sqrt(n - 1) + 1.0 / np.sqrt(p)) ** (1.0 / 3.0)
+    return float(mu), float(sigma)
+
+
+def _yzb_variance_simple_fundamental(alpha: float, y: float) -> float:
+    """Asymptotic variance sigma_alpha^2 from YZB Thm 11.11 / Eq. (11.36),
+    Gaussian case (beta_y = 0), m_k = 1:
+
+        sigma_alpha^2 = 2 alpha^2 psi'(alpha)
+                      = 2 alpha^2 [(alpha - 1)^2 - y] / (alpha - 1)^2.
+    """
+    return 2.0 * alpha ** 2 * (1.0 - y / (alpha - 1.0) ** 2)
+
+
+def make_spike_fluctuations_figure() -> Path:
+    """Two-row, two-column comparison of top-eigenvalue fluctuations for one
+    fundamental (alpha=2.5) and one non-fundamental (alpha=1.4) spike at
+    y = 1/2, n = 1500, R = 2000 trials.
+
+    Top row (fundamental spike): histogram of sqrt(n)(lambda_max - Psi(alpha))
+    against the predicted Gaussian limit N(0, sigma_alpha^2) from
+    YZB Thm 11.11 / Feral-Peche Thm 1.6; Q-Q plot against N(0, 1).
+
+    Bottom row (non-fundamental spike): histogram of the Johnstone-standardised
+    statistic (lambda_max - mu_np) / sigma_np against the TW1 density; Q-Q
+    plot against N(0, 1) showing the non-Gaussian shape.
+    """
+    try:
+        from TracyWidom import TracyWidom
+        tw1 = TracyWidom(beta=1)
+        have_tw = True
+    except ImportError:
+        have_tw = False
+
+    rng = np.random.default_rng(SEED + 3)
+    y = 0.5
+    n, p = 1500, 750
+    R = 2000
+
+    alpha_strong = 2.5
+    alpha_weak = 1.4
+    psi_strong = psi(alpha_strong, y)
+    lam_plus = mp_upper_edge(y)
+    mu_np, sigma_np = _johnstone_constants(n, p)
+    sigma2_alpha = _yzb_variance_simple_fundamental(alpha_strong, y)
+    sigma_alpha = np.sqrt(sigma2_alpha)
+
+    # Simulate top sample eigenvalues for both spike values.
+    lam_strong = np.empty(R)
+    lam_weak = np.empty(R)
+    for r in range(R):
+        eigs_s = simulate_spiked_eigenvalues([alpha_strong], p=p, n=n, rng=rng)
+        eigs_w = simulate_spiked_eigenvalues([alpha_weak], p=p, n=n, rng=rng)
+        lam_strong[r] = eigs_s[0]
+        lam_weak[r] = eigs_w[0]
+
+    # Standardised statistics.
+    z_strong = np.sqrt(n) * (lam_strong - psi_strong)         # ~ N(0, sigma_alpha^2)
+    z_weak = (lam_weak - mu_np) / sigma_np                    # ~ TW1 at the edge
+
+    fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+
+    # --- TOP-LEFT: histogram of z_strong against N(0, sigma_alpha^2) ---
+    ax = axes[0, 0]
+    bins = np.linspace(z_strong.min() - 0.5, z_strong.max() + 0.5, 50)
+    ax.hist(z_strong, bins=bins, density=True, color=PALETTE["def"], alpha=0.7,
+            edgecolor="white", linewidth=0.3,
+            label=fr"$\sqrt{{n}}(\lambda_{{\max}} - \Psi(\alpha))$, $R = {R}$")
+    grid = np.linspace(z_strong.min() - 0.5, z_strong.max() + 0.5, 400)
+    gauss = (1.0 / (sigma_alpha * np.sqrt(2 * np.pi))) * np.exp(-0.5 * (grid / sigma_alpha) ** 2)
+    ax.plot(grid, gauss, color=PALETTE["thm"], linewidth=1.6,
+            label=fr"$\mathcal{{N}}(0,\, \sigma_\alpha^2)$, $\sigma_\alpha^2 \approx {sigma2_alpha:.2f}$")
+    ax.set_xlabel(r"$\sqrt{n}\,(\lambda_{\max} - \Psi(\alpha))$")
+    ax.set_ylabel("Empirical density")
+    ax.set_title(rf"Fundamental spike $\alpha = {alpha_strong}$: histogram vs predicted Gaussian")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+
+    # --- TOP-RIGHT: Q-Q of z_strong / sigma_alpha against N(0,1) ---
+    ax = axes[0, 1]
+    sample = np.sort(z_strong / sigma_alpha)
+    probs = (np.arange(1, R + 1) - 0.5) / R
+    theo_q = stats.norm.ppf(probs)
+    ax.scatter(theo_q, sample, s=4, alpha=0.5, color=PALETTE["def"])
+    lim_lo = min(theo_q.min(), sample.min()) - 0.3
+    lim_hi = max(theo_q.max(), sample.max()) + 0.3
+    ax.plot([lim_lo, lim_hi], [lim_lo, lim_hi], color=PALETTE["accent"],
+            linestyle="--", linewidth=0.9, label=r"reference: $y = x$")
+    ax.set_xlim(lim_lo, lim_hi)
+    ax.set_ylim(lim_lo, lim_hi)
+    ax.set_xlabel(r"Standard normal quantiles")
+    ax.set_ylabel(r"Standardised $\sqrt{n}(\lambda_{\max} - \Psi(\alpha))/\sigma_\alpha$")
+    ax.set_title(r"Fundamental spike: Q-Q vs $\mathcal{N}(0,1)$")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+
+    # --- BOTTOM-LEFT: histogram of z_weak against TW1 ---
+    ax = axes[1, 0]
+    bins = np.linspace(-6, 4, 50)
+    ax.hist(z_weak, bins=bins, density=True, color=PALETTE["def"], alpha=0.7,
+            edgecolor="white", linewidth=0.3,
+            label=fr"$(\lambda_{{\max}} - \mu_{{np}})/\sigma_{{np}}$, $R = {R}$")
+    grid = np.linspace(-6, 4, 600)
+    gauss = (1.0 / np.sqrt(2 * np.pi)) * np.exp(-0.5 * grid ** 2)
+    if have_tw:
+        ax.plot(grid, tw1.pdf(grid), color=PALETTE["thm"], linewidth=1.6,
+                label=r"$\mathrm{TW}_1$ density")
+    ax.plot(grid, gauss, color=PALETTE["accent"], linewidth=1.0, linestyle="--",
+            label=r"$\mathcal{N}(0, 1)$ (for contrast)")
+    ax.set_xlabel(r"$(\lambda_{\max} - \mu_{np}) / \sigma_{np}$")
+    ax.set_ylabel("Empirical density")
+    ax.set_title(rf"Non-fundamental spike $\alpha = {alpha_weak}$: edge-scaled vs $\mathrm{{TW}}_1$")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+
+    # --- BOTTOM-RIGHT: Q-Q of z_weak against N(0,1) ---
+    ax = axes[1, 1]
+    sample = np.sort(z_weak)
+    probs = (np.arange(1, R + 1) - 0.5) / R
+    theo_q = stats.norm.ppf(probs)
+    ax.scatter(theo_q, sample, s=4, alpha=0.5, color=PALETTE["def"])
+    lim_lo = min(theo_q.min(), sample.min()) - 0.3
+    lim_hi = max(theo_q.max(), sample.max()) + 0.3
+    ax.plot([lim_lo, lim_hi], [lim_lo, lim_hi], color=PALETTE["accent"],
+            linestyle="--", linewidth=0.9, label=r"reference: $y = x$")
+    ax.set_xlim(lim_lo, lim_hi)
+    ax.set_ylim(lim_lo, lim_hi)
+    ax.set_xlabel(r"Standard normal quantiles")
+    ax.set_ylabel(r"$(\lambda_{\max} - \mu_{np})/\sigma_{np}$ quantiles")
+    ax.set_title(r"Non-fundamental spike: Q-Q vs $\mathcal{N}(0,1)$")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "spike_fluctuations.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
     for fn in (make_spiked_spectrum_figure,
                make_spike_location_map_figure,
-               make_phase_transition_figure):
+               make_phase_transition_figure,
+               make_spike_fluctuations_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")

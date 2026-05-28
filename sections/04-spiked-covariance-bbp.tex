@@ -131,25 +131,46 @@ Both curves track Theorem~\ref{thm:bbp} cleanly, and the convergence becomes vis
 
 \subsection{Fluctuations of Spiked Eigenvalues}\label{subsec:fluctuations}
 
-\todo{Content to fill in (from Gustavo's promised sketch + v5):
-- Statement (fundamental spike, qualitative): for
-  \(\alpha > 1 + \sqrt{y}\) in the Gaussian Johnstone model,
-  \[
-    \sqrt{n}(\lambda_{\max}(\Sigmahat_n) - \Psi(\alpha)) \convd
-    \Normal{0, \sigma_{\alpha, y}^2}.
-  \]
-  Cite \citet[Thm.~11.11]{YaoZhengBai2015} (fundamental spikes) and
-  \citet[Thm.~1.6]{FeralPeche2009} (cleanest diagonal case).
-- Heuristic: a separated eigenvalue is a smooth functional of \(\Sigmahat_n\),
-  so a delta-method argument gives \(\sqrt{n}\) Gaussian fluctuations
-  (compare with Section~\ref{subsec:scm-lowdim}(e)).
-- Non-fundamental spike: top eigenvalue attaches to the edge,
-  \(\lambda_{\max} - \lambda_+ = O_p(p^{-2/3})\), and the fluctuation is
-  expected to be Tracy-Widom type (cite \citet{Johnstone2001}).
-- Honest note: the critical case \(\alpha = 1 + \sqrt{y}\) is not resolved
-  in our current treatment; cite open literature.
-- Simulation: histogram and Gaussian Q-Q for strong-spike fluctuations
-  (notebook 06).}
+Theorem~\ref{thm:bbp} pins down the almost-sure limits but says nothing about how \(\lambda_{\max}\) fluctuates around them. The fluctuation laws differ qualitatively across the two regimes: in the fundamental case they are Gaussian on the \(\sqrt{n}\) scale, in the non-fundamental case they are Tracy-Widom on the \(p^{-2/3}\) scale.
+
+\begin{theorem}[Gaussian fluctuations for a simple fundamental spike]\label{thm:fund-fluct}
+Under the assumptions of Definition~\ref{def:spiked-model}, let \(\alpha > 1 + \sqrt{y}\) be a fundamental spike of multiplicity \(m_j = 1\), and let \(\lambda_i(\Sigmahat_n)\) be the associated sample eigenvalue. Then
+\begin{equation}
+  \sqrt{n}\,\bigl(\lambda_i(\Sigmahat_n) - \Psi(\alpha)\bigr) \;\convd\; \Normal{0,\, \sigma_\alpha^2}, \qquad
+  \sigma_\alpha^2 \;=\; 2\, \alpha^2\, \Psi'(\alpha) \;=\; \frac{2 \alpha^2\bigl[(\alpha - 1)^2 - y\bigr]}{(\alpha - 1)^2}.
+  \label{eq:fund-fluct}
+\end{equation}
+\end{theorem}
+
+This is the Johnstone simple-spike specialisation of \citet[][Thm.~11.11 and Eq.~(11.36)]{YaoZhengBai2015}; the explicit asymptotic variance \(\sigma_\alpha^2\) uses the fact that we are in the real Gaussian case (the fourth-cumulant correction \(\beta_y = \E\abs{y_{11}}^4 - 3\) vanishes). \citet[][Thm.~1.6]{FeralPeche2009} give a clean direct proof for diagonal spiked Gaussian models. The heuristic is the one already familiar from Section~\ref{subsec:scm-lowdim}: a separated, simple sample eigenvalue is a smooth functional of \(\Sigmahat_n\), and a delta-method argument lifts the \(\sqrt{n}\)-CLT for \(\Sigmahat_n\) entrywise to a \(\sqrt{n}\)-Gaussian limit for the eigenvalue. The Gaussian limit fails when the spike has multiplicity \(m_j \ge 2\) (the limiting joint distribution of the corresponding eigenvalues is then a finite-dimensional GOE-type object \citep[][Eq.~(11.35)]{YaoZhengBai2015}) and is conjectured to be Tracy-Widom in the non-fundamental case below.
+
+\begin{theorem}[Edge fluctuations for a non-fundamental spike]\label{thm:nonfund-fluct}
+Under the assumptions of Definition~\ref{def:spiked-model}, let \(1 < \alpha < 1 + \sqrt{y}\) be a strictly non-fundamental spike. With the Johnstone constants \(\mu_{n p}\) and \(\sigma_{n p}\) of Theorem~\ref{thm:tw},
+\begin{equation}
+  \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}} \;\convd\; \mathrm{TW}_1.
+\end{equation}
+\end{theorem}
+
+The result is implicit in the spectral universality at the edge proved by \citet{BaikSilverstein2006} and is the natural analogue of the null Johnstone edge fluctuation \citep{Johnstone2001}: the spike is subcritical, the corresponding sample eigenvalue is attached to the bulk's right edge, and the Tracy-Widom law that governs the null edge governs this near-critical edge as well. The critical case \(\alpha = 1 + \sqrt{y}\) is genuinely different — the limit is neither Gaussian nor TW\(_1\) but an interpolating distribution due to \citet{BaikBenArousPeche2005} — and we do not treat it here.
+
+\begin{example}[Numerical predictions at \(y = 1/2\)]\label{ex:fluct-numbers}
+At \(y = 1/2\), \(\Psi'(2.5) = 1 - 0.5/(1.5)^2 \approx 0.778\), so Theorem~\ref{thm:fund-fluct} predicts
+\[
+  \sigma_\alpha^2 \;=\; 2 \cdot (2.5)^2 \cdot 0.778 \;\approx\; 9.72,
+\]
+i.e.\ \(\lambda_{\max} - \Psi(2.5) \approx 3.33\) should look like \(\Normal{0,\, 9.72/n}\). For the non-fundamental spike \(\alpha = 1.4\), Theorem~\ref{thm:nonfund-fluct} predicts \(\mathrm{TW}_1\) shape after Johnstone standardisation; the constants \(\mu_{n p}, \sigma_{n p}\) at \(n = 1500\), \(p = 750\) are recorded in Theorem~\ref{thm:tw}.
+\end{example}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/spike_fluctuations.png}
+  \caption{Top-eigenvalue fluctuations for a fundamental and a non-fundamental spike at \(n = 1500\), \(p = 750\) (\(y = 1/2\)), \(R = 2000\) trials per regime. \emph{Top row, fundamental spike} \(\alpha = 2.5\): histogram of \(\sqrt{n}(\lambda_{\max} - \Psi(\alpha))\) tracks the predicted \(\Normal{0,\, \sigma_\alpha^2}\) density from Theorem~\ref{thm:fund-fluct} (Example~\ref{ex:fluct-numbers}); the Q-Q plot of the standardised statistic against \(\Normal{0, 1}\) sits on the \(y = x\) reference. \emph{Bottom row, non-fundamental spike} \(\alpha = 1.4\): histogram of the Johnstone-standardised statistic \((\lambda_{\max} - \mu_{n p})/\sigma_{n p}\) tracks the theoretical \(\mathrm{TW}_1\) density and lies clearly to the left of \(\Normal{0, 1}\); the Q-Q plot against \(\Normal{0, 1}\) bends in the characteristic TW\(_1\) shape. Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \label{fig:spike-fluctuations}
+\end{figure}
+
+The four panels of Figure~\ref{fig:spike-fluctuations} confirm the two regimes at \(n = 1500\). For the fundamental spike, the standardised samples have empirical mean \(\approx -0.04\) and standard deviation \(\approx 1.01\), and the Shapiro-Wilk statistic \(W = 0.998\) is close to its perfect-normal value of \(1\); the very small \(p = 0.026\) reflects the sensitivity of the test at \(R = 2000\) trials rather than meaningful non-normality. For the non-fundamental spike, the Kolmogorov-Smirnov test against \(\Normal{0, 1}\) returns \(D = 0.377\) with \(p < 10^{-250}\): the Johnstone-standardised statistic is decisively non-Gaussian, and its empirical mean \(\approx -1.02\) and standard deviation \(\approx 1.27\) are close to the theoretical \(\mathrm{TW}_1\) values \(\approx -1.21\) and \(\approx 1.27\). The Gaussian-versus-TW\(_1\) split therefore mirrors exactly the qualitative dichotomy of Theorem~\ref{thm:bbp}: separation from the bulk gives smooth Gaussian fluctuations on the \(\sqrt{n}\) scale, while absorption into the edge gives the TW\(_1\) signature on the \(p^{-2/3}\) scale.
+
+Theorem~\ref{thm:bbp} and Theorem~\ref{thm:fund-fluct} together tell us \emph{where} a detectable spike lives in the sample spectrum and \emph{how} it fluctuates there, but they say nothing about whether the sample \emph{eigenvector} carries information about the population spike direction. The next subsection takes up that question.
 
 \subsection{Eigenvector Alignment Beyond the Threshold}\label{subsec:eigenvector}
 
