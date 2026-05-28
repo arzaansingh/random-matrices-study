@@ -409,18 +409,23 @@ def make_mp_bulk_figure() -> Path:
     rng = np.random.default_rng(SEED)
     n, y_target = 1000, 0.5
     p = int(round(y_target * n))
-    X = rng.normal(size=(p, n))
-    S = (X @ X.T) / n
-    eigs = np.linalg.eigvalsh(S)
+    # Pool enough realizations to accumulate ~10,000 eigenvalues.
+    n_real = 10000 // p + 1
+    eigs_list = []
+    for _ in range(n_real):
+        X = rng.normal(size=(p, n))
+        S = (X @ X.T) / n
+        eigs_list.append(np.linalg.eigvalsh(S))
+    eigs = np.concatenate(eigs_list)
 
     y = p / n
     lam_minus = (1 - np.sqrt(y)) ** 2
     lam_plus = (1 + np.sqrt(y)) ** 2
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.hist(eigs, bins=50, density=True, color=PALETTE["def"], alpha=0.7,
+    ax.hist(eigs, bins=80, density=True, color=PALETTE["def"], alpha=0.7,
             edgecolor="white", linewidth=0.4,
-            label=f"Empirical histogram ({p} eigenvalues)")
+            label=f"Empirical histogram ({eigs.size:,} eigenvalues)")
 
     x_grid = np.linspace(0.001, lam_plus * 1.05, 600)
     ax.plot(x_grid, _mp_density(x_grid, y), color=PALETTE["thm"], linewidth=1.7,
@@ -501,53 +506,60 @@ def make_tw_edge_figure() -> Path:
 # ============================================================================
 
 def make_mp_varying_c_figure() -> Path:
-    """Four-panel grid showing MP density for c in {0.1, 0.5, 1, 2}."""
+    """Four-panel grid showing MP density for c in {0.1, 0.5, 1, 2}.
+
+    Each panel pools eigenvalues from multiple independent realizations to
+    accumulate at least 10,000 eigenvalues, giving a clean histogram match
+    against the theoretical MP density.
+    """
     rng = np.random.default_rng(SEED)
     n = 2000
+    target_eigs = 10000  # minimum non-zero eigenvalues per panel
     c_values = (0.1, 0.5, 1.0, 2.0)
 
     fig, axes = plt.subplots(2, 2, figsize=(11, 7))
 
     for ax, c in zip(axes.flat, c_values):
         p = int(round(c * n))
-        X = rng.normal(size=(p, n))
-        S = (X @ X.T) / n
-        eigs = np.linalg.eigvalsh(S)
-
         y = p / n
         lam_minus = (1.0 - np.sqrt(y)) ** 2
         lam_plus = (1.0 + np.sqrt(y)) ** 2
 
-        # Separate the deterministic zero eigenvalues for c > 1 (rank deficiency).
-        if y > 1:
-            n_zero = max(p - n, 0)
-            nonzero_eigs = eigs[eigs > 1e-8]
-            bins = np.linspace(0.0, lam_plus * 1.05, 60)
-            ax.hist(nonzero_eigs, bins=bins, density=True, color=PALETTE["def"],
-                    alpha=0.7, edgecolor="white", linewidth=0.3,
-                    label="Continuous bulk")
-            # Visual marker for the atom at zero.
-            ax.axvline(0.0, color=PALETTE["thm"], linewidth=2.4, alpha=0.9,
-                       label=f"Atom at 0, mass = {1 - 1/y:.2f}")
-        else:
-            bins = np.linspace(lam_minus * 0.5, lam_plus * 1.05, 60)
-            ax.hist(eigs, bins=bins, density=True, color=PALETTE["def"],
-                    alpha=0.7, edgecolor="white", linewidth=0.3,
-                    label="Empirical histogram")
+        # Pool eigenvalues across enough realizations to get target_eigs total.
+        # For y > 1 we keep only the nonzero eigenvalues (rank deficiency).
+        per_real = p if y <= 1 else min(p, n)
+        n_real = max(1, target_eigs // per_real + 1)
+        pooled = []
+        for _ in range(n_real):
+            X = rng.normal(size=(p, n))
+            S = (X @ X.T) / n
+            eigs = np.linalg.eigvalsh(S)
+            if y > 1:
+                eigs = eigs[eigs > 1e-8]
+            pooled.append(eigs)
+        pooled = np.concatenate(pooled)
 
-        x_grid = np.linspace(max(lam_minus * 0.5, 0.001), lam_plus * 1.0, 500)
+        bin_lo = max(0.0, lam_minus * 0.5) if y <= 1 else max(0.0, lam_minus)
+        bins = np.linspace(bin_lo, lam_plus * 1.05, 80)
+        ax.hist(pooled, bins=bins, density=True, color=PALETTE["def"],
+                alpha=0.7, edgecolor="white", linewidth=0.3,
+                label=f"Empirical ({pooled.size:,} eigenvalues)")
+
+        x_grid = np.linspace(max(lam_minus, 0.001) if y <= 1 else lam_minus * 1.001,
+                             lam_plus * 1.0, 600)
         density = _mp_density(x_grid, y)
-        # Scale the density by (1 - 1/y) for c > 1 to match the continuous-bulk normalization.
-        if y > 1:
-            density = density * (1.0 / y)
         ax.plot(x_grid, density, color=PALETTE["thm"], linewidth=1.5,
                 label=rf"$\mathrm{{MP}}_{{y={y:g}}}$ density")
         ax.axvline(lam_minus, color=PALETTE["accent"], linestyle=":",
                    linewidth=0.7)
         ax.axvline(lam_plus, color=PALETTE["accent"], linestyle=":",
                    linewidth=0.7)
+        if y > 1:
+            ax.axvline(0.0, color=PALETTE["accent"], linewidth=1.6,
+                       alpha=0.85,
+                       label=fr"Atom at 0, mass $= 1 - 1/y = {1 - 1/y:.2f}$")
 
-        ax.set_xlim(-0.1 if y > 1 else lam_minus * 0.5, lam_plus * 1.08)
+        ax.set_xlim(bin_lo - 0.05, lam_plus * 1.08)
         ax.set_xlabel(r"Eigenvalue $\lambda$")
         ax.set_ylabel("Empirical density")
         ax.set_title(rf"$y = p/n = {c:g}$ ($p = {p}$, $n = {n}$)")
@@ -566,9 +578,11 @@ def make_mp_varying_c_figure() -> Path:
 
 def make_tw_universality_figure() -> Path:
     """Two-panel figure: histogram (with TW1 density and N(0,1) comparison) and
-    Q-Q plot of standardized top sample eigenvalue against N(0,1).
+    a normalized Q-Q plot following Genzer (2025, Fig. 7).
 
-    Uses many more trials than the multi-n figure to make the TW shape clear.
+    The Q-Q plot subtracts the sample mean and divides by the sample
+    standard deviation before comparing to N(0, 1), so the comparison is
+    purely about shape (curvature reveals tail asymmetry).
     """
     try:
         from TracyWidom import TracyWidom
@@ -596,38 +610,57 @@ def make_tw_universality_figure() -> Path:
 
     # Left: histogram vs TW1 density vs N(0,1) density.
     ax_h = axes[0]
-    bins = np.linspace(-5, 5, 70)
+    bins = np.linspace(-6, 5, 80)
     ax_h.hist(z, bins=bins, density=True, color=PALETTE["def"], alpha=0.7,
               edgecolor="white", linewidth=0.3,
-              label=fr"Standardized $\lambda_{{\max}}$ ({trials} trials)")
-    x_grid = np.linspace(-5, 5, 600)
+              label=fr"Standardized $\lambda_{{\max}}$ ({trials:,} trials)")
+    x_grid = np.linspace(-6, 5, 800)
     if have_tw:
         ax_h.plot(x_grid, tw1.pdf(x_grid), color=PALETTE["thm"], linewidth=1.8,
                   label=r"$\mathrm{TW}_1$ density")
     gauss = (1.0 / np.sqrt(2 * np.pi)) * np.exp(-0.5 * x_grid ** 2)
     ax_h.plot(x_grid, gauss, color=PALETTE["accent"], linewidth=1.0,
               linestyle="--", label=r"$\mathcal{N}(0,1)$ density")
-    ax_h.set_xlim(-5, 5)
+
+    # Annotate the asymmetry: long left tail vs shorter right tail.
+    y_max = ax_h.get_ylim()[1]
+    ax_h.annotate("", xy=(-4.5, 0.03), xytext=(-2.5, 0.03),
+                  arrowprops=dict(arrowstyle="->", color=PALETTE["thm"],
+                                  lw=1.2))
+    ax_h.text(-3.5, 0.05, "long left tail\n(slow decay)",
+              ha="center", fontsize=8, color=PALETTE["thm"])
+    ax_h.annotate("", xy=(2.6, 0.03), xytext=(1.5, 0.03),
+                  arrowprops=dict(arrowstyle="->", color=PALETTE["thm"],
+                                  lw=1.2))
+    ax_h.text(2.1, 0.05, "short right tail\n(faster decay)",
+              ha="center", fontsize=8, color=PALETTE["thm"])
+
+    ax_h.set_xlim(-6, 5)
     ax_h.set_xlabel(r"$(\lambda_{\max}(\widehat{\Sigma}_n) - \mu_{np}) / \sigma_{np}$")
     ax_h.set_ylabel("Empirical density")
     ax_h.set_title(rf"Top sample eigenvalue at $n = {n}$, $p = {p}$ ($y = {p/n:g}$)")
     ax_h.legend(loc="upper left", frameon=False, fontsize=9)
 
-    # Right: Q-Q plot vs N(0,1).
+    # Right: NORMALIZED Q-Q plot vs N(0,1), Joseph-style. Subtract sample
+    # mean and divide by sample std so the comparison is purely about shape.
     ax_q = axes[1]
-    k = min(2000, trials)  # subsample for clarity
+    z_norm = (z - z.mean()) / z.std()
+    k = min(2000, trials)
     idx = rng.choice(trials, size=k, replace=False)
-    sample = np.sort(z[idx])
+    sample = np.sort(z_norm[idx])
     probs = (np.arange(1, k + 1) - 0.5) / k
     theo_q = stats.norm.ppf(probs)
-    ax_q.scatter(theo_q, sample, s=4, alpha=0.5, color=PALETTE["def"])
-    ref = np.linspace(min(theo_q.min(), sample.min()),
-                      max(theo_q.max(), sample.max()), 50)
+    ax_q.scatter(theo_q, sample, s=6, alpha=0.55, color=PALETTE["def"])
+    qmin = min(theo_q.min(), sample.min()) - 0.3
+    qmax = max(theo_q.max(), sample.max()) + 0.3
+    ref = np.linspace(qmin, qmax, 50)
     ax_q.plot(ref, ref, color=PALETTE["accent"], linestyle="--",
               linewidth=0.9, label=r"reference: $y = x$")
+    ax_q.set_xlim(qmin, qmax)
+    ax_q.set_ylim(qmin, qmax)
     ax_q.set_xlabel(r"Standard normal quantiles")
-    ax_q.set_ylabel(r"Standardized $\lambda_{\max}$ quantiles")
-    ax_q.set_title(r"Q-Q plot: top eigenvalue vs $\mathcal{N}(0,1)$")
+    ax_q.set_ylabel(r"Normalized $\lambda_{\max}$ quantiles")
+    ax_q.set_title(r"Q-Q plot (normalized: mean 0, var 1) vs $\mathcal{N}(0,1)$")
     ax_q.legend(loc="upper left", frameon=False, fontsize=9)
     ax_q.set_aspect("equal", adjustable="box")
 
