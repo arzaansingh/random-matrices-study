@@ -496,13 +496,156 @@ def make_tw_edge_figure() -> Path:
     return path
 
 
+# ============================================================================
+# 5. MP law across varying aspect ratios c = p/n
+# ============================================================================
+
+def make_mp_varying_c_figure() -> Path:
+    """Four-panel grid showing MP density for c in {0.1, 0.5, 1, 2}."""
+    rng = np.random.default_rng(SEED)
+    n = 2000
+    c_values = (0.1, 0.5, 1.0, 2.0)
+
+    fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+
+    for ax, c in zip(axes.flat, c_values):
+        p = int(round(c * n))
+        X = rng.normal(size=(p, n))
+        S = (X @ X.T) / n
+        eigs = np.linalg.eigvalsh(S)
+
+        y = p / n
+        lam_minus = (1.0 - np.sqrt(y)) ** 2
+        lam_plus = (1.0 + np.sqrt(y)) ** 2
+
+        # Separate the deterministic zero eigenvalues for c > 1 (rank deficiency).
+        if y > 1:
+            n_zero = max(p - n, 0)
+            nonzero_eigs = eigs[eigs > 1e-8]
+            bins = np.linspace(0.0, lam_plus * 1.05, 60)
+            ax.hist(nonzero_eigs, bins=bins, density=True, color=PALETTE["def"],
+                    alpha=0.7, edgecolor="white", linewidth=0.3,
+                    label="Continuous bulk")
+            # Visual marker for the atom at zero.
+            ax.axvline(0.0, color=PALETTE["thm"], linewidth=2.4, alpha=0.9,
+                       label=f"Atom at 0, mass = {1 - 1/y:.2f}")
+        else:
+            bins = np.linspace(lam_minus * 0.5, lam_plus * 1.05, 60)
+            ax.hist(eigs, bins=bins, density=True, color=PALETTE["def"],
+                    alpha=0.7, edgecolor="white", linewidth=0.3,
+                    label="Empirical histogram")
+
+        x_grid = np.linspace(max(lam_minus * 0.5, 0.001), lam_plus * 1.0, 500)
+        density = _mp_density(x_grid, y)
+        # Scale the density by (1 - 1/y) for c > 1 to match the continuous-bulk normalization.
+        if y > 1:
+            density = density * (1.0 / y)
+        ax.plot(x_grid, density, color=PALETTE["thm"], linewidth=1.5,
+                label=rf"$\mathrm{{MP}}_{{y={y:g}}}$ density")
+        ax.axvline(lam_minus, color=PALETTE["accent"], linestyle=":",
+                   linewidth=0.7)
+        ax.axvline(lam_plus, color=PALETTE["accent"], linestyle=":",
+                   linewidth=0.7)
+
+        ax.set_xlim(-0.1 if y > 1 else lam_minus * 0.5, lam_plus * 1.08)
+        ax.set_xlabel(r"Eigenvalue $\lambda$")
+        ax.set_ylabel("Empirical density")
+        ax.set_title(rf"$y = p/n = {c:g}$ ($p = {p}$, $n = {n}$)")
+        ax.legend(loc="upper right", frameon=False, fontsize=8)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "mp_varying_c.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
+# 6. TW1 universality: large-trial histogram + theoretical density + Q-Q plot
+# ============================================================================
+
+def make_tw_universality_figure() -> Path:
+    """Two-panel figure: histogram (with TW1 density and N(0,1) comparison) and
+    Q-Q plot of standardized top sample eigenvalue against N(0,1).
+
+    Uses many more trials than the multi-n figure to make the TW shape clear.
+    """
+    try:
+        from TracyWidom import TracyWidom
+        tw1 = TracyWidom(beta=1)
+        have_tw = True
+    except ImportError:
+        have_tw = False
+
+    rng = np.random.default_rng(SEED + 1)
+    n, p = 1000, 500
+    trials = 20000
+    mu, sigma = _johnstone_constants(n, p)
+
+    z = np.empty(trials)
+    # Compute via singular value to get just the top eigenvalue (faster than
+    # full eigendecomposition).
+    for t in range(trials):
+        X = rng.normal(size=(p, n))
+        # lambda_max(X X^T / n) = sigma_max(X)^2 / n.
+        s_top = np.linalg.svd(X, compute_uv=False)[0]
+        lam_top = (s_top ** 2) / n
+        z[t] = (lam_top - mu) / sigma
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+
+    # Left: histogram vs TW1 density vs N(0,1) density.
+    ax_h = axes[0]
+    bins = np.linspace(-5, 5, 70)
+    ax_h.hist(z, bins=bins, density=True, color=PALETTE["def"], alpha=0.7,
+              edgecolor="white", linewidth=0.3,
+              label=fr"Standardized $\lambda_{{\max}}$ ({trials} trials)")
+    x_grid = np.linspace(-5, 5, 600)
+    if have_tw:
+        ax_h.plot(x_grid, tw1.pdf(x_grid), color=PALETTE["thm"], linewidth=1.8,
+                  label=r"$\mathrm{TW}_1$ density")
+    gauss = (1.0 / np.sqrt(2 * np.pi)) * np.exp(-0.5 * x_grid ** 2)
+    ax_h.plot(x_grid, gauss, color=PALETTE["accent"], linewidth=1.0,
+              linestyle="--", label=r"$\mathcal{N}(0,1)$ density")
+    ax_h.set_xlim(-5, 5)
+    ax_h.set_xlabel(r"$(\lambda_{\max}(\widehat{\Sigma}_n) - \mu_{np}) / \sigma_{np}$")
+    ax_h.set_ylabel("Empirical density")
+    ax_h.set_title(rf"Top sample eigenvalue at $n = {n}$, $p = {p}$ ($y = {p/n:g}$)")
+    ax_h.legend(loc="upper left", frameon=False, fontsize=9)
+
+    # Right: Q-Q plot vs N(0,1).
+    ax_q = axes[1]
+    k = min(2000, trials)  # subsample for clarity
+    idx = rng.choice(trials, size=k, replace=False)
+    sample = np.sort(z[idx])
+    probs = (np.arange(1, k + 1) - 0.5) / k
+    theo_q = stats.norm.ppf(probs)
+    ax_q.scatter(theo_q, sample, s=4, alpha=0.5, color=PALETTE["def"])
+    ref = np.linspace(min(theo_q.min(), sample.min()),
+                      max(theo_q.max(), sample.max()), 50)
+    ax_q.plot(ref, ref, color=PALETTE["accent"], linestyle="--",
+              linewidth=0.9, label=r"reference: $y = x$")
+    ax_q.set_xlabel(r"Standard normal quantiles")
+    ax_q.set_ylabel(r"Standardized $\lambda_{\max}$ quantiles")
+    ax_q.set_title(r"Q-Q plot: top eigenvalue vs $\mathcal{N}(0,1)$")
+    ax_q.legend(loc="upper left", frameon=False, fontsize=9)
+    ax_q.set_aspect("equal", adjustable="box")
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "tw_universality.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 3 figures...")
     for fn in (make_geometry_figure,
                make_scatter_axes_figure, make_scm_consistency_figure,
                make_wishart_density_heatmap_figure,
                make_wishart_2d_figure, make_lowdim_qq_figure,
-               make_mp_bulk_figure, make_tw_edge_figure):
+               make_mp_bulk_figure, make_tw_edge_figure,
+               make_mp_varying_c_figure, make_tw_universality_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
