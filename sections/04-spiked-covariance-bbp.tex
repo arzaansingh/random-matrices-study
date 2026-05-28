@@ -12,33 +12,102 @@
 
 \section{Spiked Covariance Matrices and the BBP Transition}\label{sec:spiked}
 
-\todo{Opening paragraph: the Marchenko-Pastur law of
-Section~\ref{subsec:scm-highdim} described the null case \(\Sigma = I_p\),
-where all population eigenvalues are equal. In applications the population
-covariance carries structure: a small number of distinguished directions
-of high variance riding above a flat noise baseline. The
-\emph{spiked covariance model} of \citet{Johnstone2001} formalizes this,
-\[
-  \Sigma = \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1),
-\]
-with \(m\) fixed as \(p \to \infty\). The central question is when these
-population spikes are detectable from the sample spectrum, and when the
-sample eigenvectors carry meaningful information about the population
-spike directions. The answer is a clean phase transition.}
+The Marchenko-Pastur law and the Tracy-Widom edge of Section~\ref{subsec:scm-highdim} describe what the sample spectrum looks like under the null hypothesis \(\Sigma = I_p\), where the population has no preferred direction. Real datasets virtually never satisfy this assumption: in single-cell genomics a small number of regulatory pathways dominate the variance across cells, in finance a handful of market factors drive the cross-section of asset returns, in image processing a few edge orientations carry most of the structure. The simplest mathematical model for such ``signal in noise'' covariance, introduced by \citet{Johnstone2001}, modifies the null setting in a single targeted way: a small number of population eigenvalues are allowed to exceed the noise baseline of \(1\), while all the remaining eigenvalues are equal to \(1\).
+
+The questions this section answers are then the natural ones. Which population spikes are detectable from the sample top eigenvalues? When a spike is detectable, where does it appear in the sample spectrum? And does the corresponding sample \emph{eigenvector} carry information about the population spike direction? The answer is a clean phase transition discovered by \citet{BaikBenArousPeche2005} for complex Wishart matrices and proved for the Johnstone real model and more generally by \citet{BaikSilverstein2006}: there is an explicit algebraic threshold determined by the aspect ratio \(y\), and a population spike is detectable precisely when it exceeds this threshold. Section~\ref{subsec:johnstone} sets up the model and the analytical object — the spike-location map \(\Psi\) — whose minimum value pins the threshold to the upper edge of the MP bulk.
 
 \subsection{Johnstone's Spiked Model and the Spike-Location Map}\label{subsec:johnstone}
 
-\todo{Content to fill in (from v5 + Yao-Zheng-Bai Ch.\ 11 + Gustavo notes):
-- Definition: Johnstone's spiked model
-  \(\Sigma = \diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1)\) with
-  \(H = \delta_1\) for the bulk limiting distribution.
-- Definition: spike-location map
-  \(\Psi(\alpha) = \alpha + \frac{y \alpha}{\alpha - 1}\).
-- Compute \(\Psi'(\alpha) = 1 - \frac{y}{(\alpha - 1)^2}\).
-- Lemma: \(\Psi'(\alpha) > 0 \iff |\alpha - 1| > \sqrt{y}\); for large spikes
-  \(\alpha > 1\) this becomes \(\alpha > 1 + \sqrt{y}\).
-- Verify boundary behavior: \(\Psi(1 \pm \sqrt{y}) = (1 \pm \sqrt{y})^2\),
-  so the spike map agrees with the MP edges at the threshold.}
+We fix the model first.
+
+\begin{definition}[Johnstone's spiked covariance model]\label{def:spiked-model}
+Fix an integer \(m \ge 0\) (the number of \vocab{spikes}) and real numbers
+\[
+  \alpha_1 \;\ge\; \alpha_2 \;\ge\; \cdots \;\ge\; \alpha_m \;>\; 0,\qquad \alpha_j \ne 1.
+\]
+The \vocab{Johnstone spiked covariance} of dimension \(p \ge m + 1\) is
+\begin{equation}
+  \Sigma \;=\; \diag(\alpha_1, \dots, \alpha_m, \underbrace{1, \dots, 1}_{p - m \text{ times}}) \;\in\; \R^{p \times p}.
+  \label{eq:spiked-sigma}
+\end{equation}
+Throughout this section, \(\vect{X}_1, \dots, \vect{X}_n\) are iid \(\Normal{\vect{0}, \Sigma}\) and \(\Sigmahat_n = (1/n)\sum_i \vect{X}_i \vect{X}_i\transpose\) is the sample covariance, with \(p, n \to \infty\), \(p/n \to y \in (0, 1)\), and \(m\) fixed.
+\end{definition}
+
+The \(p - m\) ``baseline'' eigenvalues equal \(1\); the population covariance is the identity matrix in every direction \emph{except} along the \(m\) coordinate axes corresponding to the spikes. The spikes themselves are split into \emph{large spikes} (\(\alpha_j > 1\)) and \emph{small spikes} (\(\alpha_j < 1\)). Large spikes correspond to directions of unusually high variance, the case of interest for applications; the small-spike case is symmetric and we treat it only in passing.
+
+The structural question is then sharp: does a population spike \(\alpha_j > 1\) show up as a sample-side outlier, separated from the Marchenko-Pastur bulk? Figure~\ref{fig:spiked-spectrum} shows the answer empirically for two single-spike examples at \(y = 1/2\) and \(n = 1000\), one with \(\alpha = 2.5\) and one with \(\alpha = 1.4\). Both spikes are larger than \(1\), so naively one might expect both to produce sample outliers. They do not: the \(\alpha = 2.5\) spike produces a top sample eigenvalue at \(\approx 3.42\), well above the MP edge \(\lambda_+ \approx 2.91\); the \(\alpha = 1.4\) spike has its top sample eigenvalue at \(\approx 2.90\), \emph{indistinguishable} from the edge.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/spiked_spectrum.png}
+  \caption{Empirical spectra of \(\Sigmahat_n\) at \(n = 1000\), \(p = 500\) (\(y = 1/2\)) under a single population spike. The histograms show the bulk eigenvalues \(\lambda_2, \dots, \lambda_p\); the solid curve is the theoretical Marchenko-Pastur density of the null bulk; the dotted line is the MP upper edge \(\lambda_+ = (1 + \sqrt{y})^2 \approx 2.91\); the solid colored line is the top sample eigenvalue \(\lambda_{\max}\). \emph{Left:} strong spike, \(\alpha = 2.5\). The top eigenvalue is an outlier at \(\approx 3.42\), well above the bulk; the dashed line marks the prediction \(\Psi(\alpha) \approx 3.33\) from Definition~\ref{def:psi}. \emph{Right:} weak spike, \(\alpha = 1.4\). The top eigenvalue sits at the MP edge \(\approx 2.90\); the spike has been absorbed into the bulk. Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \label{fig:spiked-spectrum}
+\end{figure}
+
+The dividing line between the two regimes is determined by a single analytical object, the \emph{spike-location map} \(\Psi\).
+
+\begin{definition}[Spike-location map]\label{def:psi}
+For \(\alpha > 1\) and aspect ratio \(y \in (0, 1)\), the \vocab{spike-location map} is
+\begin{equation}
+  \Psi(\alpha) \;=\; \alpha \;+\; \frac{y\, \alpha}{\alpha - 1}.
+  \label{eq:psi}
+\end{equation}
+\end{definition}
+
+The form of \(\Psi\) is not arbitrary: it is exactly the value at which a separated sample eigenvalue would have to sit so that the bulk of the spectrum, perturbed by the spike, can still match the MP shape. The derivation passes through the Stieltjes transform; we take \(\Psi\) as given here and study its properties. The key fact is that the threshold for detectability is encoded in the shape of \(\Psi\).
+
+\begin{proposition}[Properties of the spike-location map]\label{prop:psi}
+For each fixed \(y \in (0, 1)\), the map \(\Psi: (1, \infty) \to \R\) defined by~\eqref{eq:psi} satisfies:
+\begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
+  \item \(\displaystyle \Psi'(\alpha) \;=\; 1 \;-\; \frac{y}{(\alpha - 1)^2}\).
+  \item \(\Psi\) has a unique minimum on \((1, \infty)\) at \(\alpha = 1 + \sqrt{y}\). On \((1, 1 + \sqrt{y})\) the map is strictly decreasing; on \((1 + \sqrt{y}, \infty)\) it is strictly increasing.
+  \item The minimum value is exactly the Marchenko-Pastur upper edge:
+  \[
+    \Psi(1 + \sqrt{y}) \;=\; (1 + \sqrt{y})^2 \;=\; \lambda_+.
+  \]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+For (1), compute directly:
+\[
+  \Psi'(\alpha) \;=\; 1 \;+\; y \cdot \frac{d}{d\alpha}\!\left[\frac{\alpha}{\alpha - 1}\right]
+  \;=\; 1 \;+\; y \cdot \frac{(\alpha - 1) - \alpha}{(\alpha - 1)^2}
+  \;=\; 1 \;-\; \frac{y}{(\alpha - 1)^2}.
+\]
+For (2), set \(\Psi'(\alpha) = 0\):
+\[
+  \frac{y}{(\alpha - 1)^2} \;=\; 1 \quad\Longleftrightarrow\quad (\alpha - 1)^2 \;=\; y \quad\Longleftrightarrow\quad \alpha \;=\; 1 \pm \sqrt{y}.
+\]
+On \((1, \infty)\), the relevant root is \(\alpha = 1 + \sqrt{y}\). For \(\alpha\) slightly larger than \(1\), \((\alpha - 1)^2 < y\), so \(\Psi'(\alpha) < 0\) and \(\Psi\) is decreasing; for \(\alpha > 1 + \sqrt{y}\), \((\alpha - 1)^2 > y\), so \(\Psi'(\alpha) > 0\) and \(\Psi\) is increasing. The minimum is therefore unique on \((1, \infty)\) and located at \(\alpha = 1 + \sqrt{y}\).
+
+For (3), substitute \(\alpha = 1 + \sqrt{y}\) into~\eqref{eq:psi}:
+\[
+  \Psi(1 + \sqrt{y}) \;=\; (1 + \sqrt{y}) \;+\; \frac{y\,(1 + \sqrt{y})}{\sqrt{y}}
+  \;=\; (1 + \sqrt{y}) \;+\; \sqrt{y}\,(1 + \sqrt{y})
+  \;=\; (1 + \sqrt{y})(1 + \sqrt{y})
+  \;=\; (1 + \sqrt{y})^2,
+\]
+where the middle step uses \(y/\sqrt{y} = \sqrt{y}\). This is exactly the Marchenko-Pastur upper edge \(\lambda_+\) (Theorem~\ref{thm:mp}).
+\end{proof}
+
+Figure~\ref{fig:spike-location-map} plots \(\Psi\) and marks the minimum. Notice three features:
+\begin{itemize}[leftmargin=*,itemsep=0.25em]
+  \item As \(\alpha \to 1^+\), the term \(y\alpha/(\alpha - 1)\) blows up, so \(\Psi(\alpha) \to +\infty\). Population spikes only slightly larger than \(1\) are, in a sense, ``too close to the noise'' to be interpreted by \(\Psi\) at all.
+  \item For large \(\alpha\), the correction \(y\alpha/(\alpha - 1) \to y\) is bounded, so \(\Psi(\alpha) \sim \alpha + y\) and the map is asymptotically linear. Large population spikes show up at sample-side eigenvalues that are close to (but slightly above) the population value, the high-dimensional analogue of the consistency \(\lambda_i(\Sigmahat_n) \to \lambda_i(\Sigma)\) of Section~\ref{subsec:scm-lowdim}.
+  \item In between, \(\Psi\) bottoms out at \(\alpha = 1 + \sqrt{y}\), and at this critical point its value is exactly the MP edge \(\lambda_+\). The curve and the edge meet there tangentially.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/spike_location_map.png}
+  \caption{The spike-location map \(\Psi(\alpha) = \alpha + y\alpha/(\alpha - 1)\) on \((1, \infty)\) at aspect ratio \(y = 1/2\). The function decreases from \(+\infty\) (as \(\alpha \to 1^+\)) down to its minimum at the threshold \(\alpha = 1 + \sqrt{y} \approx 1.71\), where it touches the MP upper edge \(\lambda_+ \approx 2.91\), and then increases linearly. The shaded supercritical region \(\alpha > 1 + \sqrt{y}\) is where \(\Psi\) actually predicts the top sample eigenvalue; on the subcritical branch (dashed) the prediction would lie above \(\lambda_+\) but is not realized, because the corresponding sample eigenvalue gets absorbed into the bulk (Section~\ref{subsec:bbp} makes this precise). Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \label{fig:spike-location-map}
+\end{figure}
+
+The third feature is the crux. On the supercritical branch \(\alpha > 1 + \sqrt{y}\) the map \(\Psi\) is monotonically increasing, and \(\Psi(\alpha) > \lambda_+\) strictly. We will see in Section~\ref{subsec:bbp} that this is exactly the regime in which the top sample eigenvalue separates from the bulk and converges to \(\Psi(\alpha)\). On the subcritical branch \(1 < \alpha < 1 + \sqrt{y}\), the formula~\eqref{eq:psi} still produces a value larger than \(\lambda_+\), but the sample top eigenvalue does \emph{not} attain it; instead it sticks to \(\lambda_+\), as if the spike were not there at all. Figure~\ref{fig:spiked-spectrum} already showed both behaviors: the strong-spike panel has its top eigenvalue near \(\Psi(2.5) \approx 3.33\), the weak-spike panel has its top eigenvalue at \(\lambda_+ \approx 2.91\).
+
+The phase transition is therefore visible in two complementary ways: as a property of the algebraic map \(\Psi\) (whose minimum on \((1, \infty)\) happens to equal the MP edge), and as a property of the sample spectrum (whose top eigenvalue switches behavior at the same threshold). Section~\ref{subsec:bbp} states the result precisely.
 
 \subsection{The BBP Phase Transition for Eigenvalues}\label{subsec:bbp}
 
