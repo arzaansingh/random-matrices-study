@@ -332,9 +332,17 @@ Slutsky's theorem (also useful later) is recorded in Appendix~\ref{app:auxiliary
 %====================================================================
 \subsection{Limit Theorems: LLN and CLT}\label{subsec:limit-theorems}
 
-Two universality results anchor classical probability: averages of iid samples converge to their mean (law of large numbers), and properly normalized averages have a universal Gaussian fluctuation (central limit theorem). We prove both, building on the tools of Sections~\ref{subsec:cf}--\ref{subsec:convergence}.
+The sample covariance matrix studied in Section~\ref{sec:scm} is built from averages. In the mean-zero case, for example,
+\[
+  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose,
+\]
+and each entry of this matrix is a one-dimensional sample average,
+\[
+  (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij}\, X_{ik}.
+\]
+Understanding the sample covariance matrix therefore begins with understanding averages of iid random variables. Two universality results do most of the work. The \emph{law of large numbers} (LLN) explains why averages converge to deterministic limits, so that \(\Sigmahat_n\) is a consistent estimator of \(\Sigma\). The \emph{central limit theorem} (CLT) explains the size and shape of their random fluctuations, so that we can characterize the Gaussian limit of \(\sqrt{n}(\Sigmahat_n - \Sigma)\) entrywise. The rest of this subsection develops both results and ends with an explicit bridge to the sample covariance setting.
 
-We first need two classical inequalities.
+Before proving the weak law we need a way to turn information about the size of a random variable into a bound on the probability of a large deviation. Markov's inequality is the most basic tool of this kind; Chebyshev's inequality is the version specialized to deviations from the mean.
 
 \begin{theorem}[Markov's inequality]\label{thm:markov}
 If \(Y \ge 0\) and \(a > 0\), then \(\Prob(Y \ge a) \le \E[Y]/a\).
@@ -397,13 +405,15 @@ Apply Chebyshev's inequality (Theorem~\ref{thm:chebyshev}) to \(\bar X_n\) with 
 This is the definition of \(\bar X_n \convp \mu\).
 \end{proof}
 
-A stronger statement holds without the finite-variance assumption.
+The proof shows \emph{why} averaging reduces variance. Each individual observation has variance \(\sigma^2\), but the average has variance \(\sigma^2 / n\); as \(n\) grows the average becomes more tightly concentrated around \(\mu\). This is the prototype of the principle that makes the sample covariance entries \((\Sigmahat_n)_{jk}\) stabilize around the population entries \(\Sigma_{jk}\) in Section~\ref{sec:scm}.
+
+The weak law and the strong law agree on the punchline (\(\bar X_n \to \mu\)) but differ on the mode of convergence. The weak law guarantees that the probability of being far from the mean tends to zero; the strong law says something more pathwise, namely that with probability one the realized sequence \((\bar X_1(\omega), \bar X_2(\omega), \ldots)\) itself settles down to \(\mu\). The strong law also requires less than finite variance.
 
 \begin{theorem}[Kolmogorov's strong law of large numbers]\label{thm:slln}
 If \(X_1, X_2, \ldots\) are iid with \(\E[\abs{X_1}] < \infty\) and \(\E[X_1] = \mu\), then \(\bar X_n \convas \mu\).
 \end{theorem}
 
-A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} shows the convergence concretely.
+A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} visualizes this stabilization for two distributions with very different shapes but the same mean and variance.
 
 \begin{figure}[h]
   \centering
@@ -412,7 +422,7 @@ A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} s
   \label{fig:lln}
 \end{figure}
 
-The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens, and \emph{what the fluctuations look like}.
+The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens, and \emph{what the fluctuations look like}. The scale \(\sqrt{n}\) is not arbitrary: since \(\Var(\bar X_n) = \sigma^2 / n\) by the WLLN computation, the typical size of the deviation \(\bar X_n - \mu\) is \(n^{-1/2}\). Multiplying by \(\sqrt{n}\) cancels this decay and keeps the random fluctuation visible. This same dimensional logic produces the \(n^{-1/2}\) scale for the entries of \(\Sigmahat_n - \Sigma\) in Section~\ref{sec:scm}, and (after a different calculation) the \(p^{-2/3}\) scale for the top eigenvalue at the spectral edge in Section~\ref{subsec:scm-highdim}.
 
 \begin{theorem}[Central limit theorem]\label{thm:clt}
 Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(0 < \Var(X_1) = \sigma^2 < \infty\). Then
@@ -435,10 +445,11 @@ The proof has four steps: standardize, expand the characteristic function near z
 \[
   e^{i t Y_1} \;=\; 1 \;+\; i t Y_1 \;-\; \tfrac{1}{2} t^2 Y_1^2 \;+\; o(t^2 Y_1^2).
 \]
-Taking expectations and using \(\E[Y_1] = 0\) and \(\E[Y_1^2] = 1\),
+The finite-variance assumption \(\Var(X_1) = \sigma^2 < \infty\) is what makes this second-order expansion legitimate after taking expectations: it ensures that the remainder integrates correctly under \(\E\). Using \(\E[Y_1] = 0\) and \(\E[Y_1^2] = 1\),
 \[
   \varphi(t) \;=\; 1 \;-\; \tfrac{1}{2} t^2 \;+\; o(t^2) \qquad (t \to 0).
 \]
+This expansion is the analytic engine of the CLT: near zero, the characteristic function of \emph{every} standardized finite-variance random variable agrees with the standard normal CF up to second order. The CLT then says that the second-order match propagates through the iid sum to give a matching limit, which is the deep reason the Gaussian distribution appears universally.
 
 \smallskip
 \noindent\emph{Step 3 (factor by independence).} The \(Y_i\) are independent, so the characteristic function of \(Z_n\) factors into a product of \(n\) copies of \(\varphi(t/\sqrt{n})\):
@@ -469,10 +480,28 @@ Figure~\ref{fig:clt} illustrates the CLT for exponential samples: even though th
   \label{fig:clt}
 \end{figure}
 
+To make the bridge to Section~\ref{sec:scm} concrete, observe that a single entry of the sample covariance matrix is itself an ordinary sample average to which the SLLN of Theorem~\ref{thm:slln} applies directly.
+
+\begin{example}[A sample covariance entry is a sample average]\label{ex:cov-entry-average}
+Let \(\vect{X}_1, \ldots, \vect{X}_n \in \R^p\) be iid mean-zero random vectors. The \((j, k)\) entry of the mean-zero sample covariance matrix is
+\[
+  (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij}\, X_{ik}.
+\]
+This is the sample average of the scalar random variables \(W_i = X_{ij}\, X_{ik}\). The \(W_i\) are iid and, provided \(\E\abs{W_1} < \infty\), have mean \(\E[X_{1j} X_{1k}] = \Sigma_{jk}\). Theorem~\ref{thm:slln} therefore gives
+\[
+  (\Sigmahat_n)_{jk} \;\convas\; \Sigma_{jk},
+\]
+which is the entrywise mechanism behind the sample covariance convergence proved in Section~\ref{subsec:scm-lowdim}. The CLT will likewise give the entrywise fluctuation \(\sqrt{n}\bigl((\Sigmahat_n)_{jk} - \Sigma_{jk}\bigr) \convd \Normal{0, \Var(W_1)}\) under finite fourth moments.
+\end{example}
+
 %====================================================================
 \subsection{Random Vectors and the Multivariate Normal Distribution}\label{subsec:rvecs}
 
-The objects of this report are sample covariance matrices, which act on random vectors rather than random scalars. This subsection collects the multivariate analogues of Sections~\ref{subsec:rvs}--\ref{subsec:limit-theorems}: random vectors and joint distributions, the covariance matrix and its first structural property, the multivariate normal distribution, and the multivariate central limit theorem. The linear-algebra side of the story (spectral theorem, eigenvalue characterization of positive semidefiniteness, norms, and the convergence of eigenvalues under matrix convergence) is collected in Section~\ref{subsec:linalg}.
+The objects of this report are sample covariance matrices, so the basic observation is no longer a single number \(X_i\) but a \emph{vector}
+\[
+  \vect{X}_i \;=\; (X_{i1}, X_{i2}, \ldots, X_{ip})\transpose,
+\]
+where \(X_{ij}\) is, for instance, the \(j\)\textsuperscript{th} feature of the \(i\)\textsuperscript{th} observation. A sample covariance matrix summarizes how these features vary together across observations. This subsection collects the vector analogues of Sections~\ref{subsec:rvs}--\ref{subsec:limit-theorems}: random vectors and their joint distributions, the covariance matrix and its first structural property, the multivariate normal distribution, and the multivariate central limit theorem. The linear-algebra companion topics (the spectral theorem, the eigenvalue characterization of positive semidefiniteness, matrix norms, and the convergence of eigenvalues under matrix convergence) are collected separately in Section~\ref{subsec:linalg}.
 
 \paragraph{Random vectors and joint distributions.}
 
@@ -483,7 +512,7 @@ A \emph{random vector} is a function \(\vect{X} = (X_1, \ldots, X_p)\transpose: 
 \]
 \end{definition}
 
-The joint CDF obeys the multivariate analogues of properties (F1)--(F3) of Proposition~\ref{prop:cdf-characterization}.
+The joint CDF is a multivariate threshold probability: it asks for the probability that \emph{every} coordinate of \(\vect{X}\) falls below the corresponding coordinate of \(\vect{x}\). Unlike the individual marginal CDFs \(F_{X_i}\), the joint CDF carries dependence information: it records not only how each coordinate behaves on its own, but how the coordinates behave together. The joint CDF obeys the multivariate analogues of the properties (F1)--(F3) of Proposition~\ref{prop:cdf-characterization}.
 
 \begin{proposition}[Properties of the joint CDF]\label{prop:joint-cdf}
 The joint CDF \(F_{\vect{X}}: \R^p \to [0, 1]\) satisfies:
@@ -556,10 +585,28 @@ a \(p \times p\) matrix with entries
 \[
   \Sigma_{ij} \;=\; \Cov(X_i, X_j) \;=\; \E[X_i X_j] \;-\; \E[X_i]\, \E[X_j].
 \]
-The diagonal entries are variances, \(\Sigma_{ii} = \Var(X_i)\), and the off-diagonals are pairwise covariances.
 \end{definition}
 
-The covariance matrix carries the first two moments of every linear combination of the coordinates of \(\vect{X}\).
+Written out entrywise, the covariance matrix is
+\[
+  \Sigma \;=\; \begin{pmatrix}
+    \Var(X_1)       & \Cov(X_1, X_2) & \cdots & \Cov(X_1, X_p) \\
+    \Cov(X_2, X_1)  & \Var(X_2)      & \cdots & \Cov(X_2, X_p) \\
+    \vdots          & \vdots         & \ddots & \vdots         \\
+    \Cov(X_p, X_1)  & \Cov(X_p, X_2) & \cdots & \Var(X_p)
+  \end{pmatrix}.
+\]
+The diagonal entries record the variability of the individual coordinates, and the off-diagonal entries record the pairwise linear association between coordinates. The matrix is automatically symmetric because \(\Cov(X_i, X_j) = \Cov(X_j, X_i)\).
+
+\begin{example}[A \(2 \times 2\) covariance matrix]\label{ex:cov-matrix-2d}
+Suppose \(\vect{X} = (X_1, X_2)\transpose\) has covariance matrix
+\[
+  \Sigma \;=\; \begin{pmatrix} 4 & 1.5 \\ 1.5 & 1 \end{pmatrix}.
+\]
+The diagonal reads off \(\Var(X_1) = 4\) and \(\Var(X_2) = 1\); the off-diagonal reads off \(\Cov(X_1, X_2) = 1.5\), so large values of \(X_1\) tend to occur together with large values of \(X_2\). For the direction \(\vect{v} = (1, -1)\transpose\), a direct computation gives \(\vect{v}\transpose \Sigma \vect{v} = 4 - 2(1.5) + 1 = 2\), which equals \(\Var(X_1 - X_2)\). The quadratic form on \(\Sigma\) at \(\vect{v}\) is the variance of the corresponding linear combination of coordinates, an identity we now state and prove in general.
+\end{example}
+
+Covariance matrices are not arbitrary symmetric matrices. They have a built-in positivity property because every linear combination of the coordinates has a nonnegative variance, and the quadratic form on \(\Sigma\) literally computes that variance. This is the central property of \(\Sigma\) that will be exploited again and again throughout the report.
 
 \begin{proposition}[\(\Sigma\) is symmetric and PSD]\label{prop:cov-psd}
 For any random vector with finite second moments:
@@ -592,12 +639,16 @@ For (3), \(\Sigma\) fails to be positive definite precisely when \(\vect{v}\tran
 
 Example~\ref{ex:max-dependent} is the prototypical failure of positive definiteness: with \(X_2 = X_1\) a.s., the vector \(\vect{v} = (1, -1)\transpose\) gives \(\vect{v}\transpose \vect{X} = X_1 - X_2 = 0\) a.s., so \(\vect{v}\transpose \Sigma \vect{v} = 0\). The covariance matrix is PSD but not PD.
 
-The identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) is the structural fact that will organize the analysis of sample covariance matrices in Section~\ref{sec:scm}: every spectral statement about \(\Sigma\) translates to a statement about variances of linear combinations of \(\vect{X}\), and vice versa.
+The identity
+\[
+  \vect{v}\transpose \Sigma \vect{v} \;=\; \Var(\vect{v}\transpose \vect{X})
+\]
+is one of the most important facts in this report. The left side is linear algebra; the right side is probability. The bridge between them is the reason every spectral statement about \(\Sigma\) translates to a statement about variances of linear combinations of \(\vect{X}\), and vice versa. In Section~\ref{subsec:linalg} the same identity, combined with the spectral theorem, will give that every eigenvalue of \(\Sigma\) is a variance along the corresponding eigenvector direction.
 
-\paragraph{The multivariate normal distribution.}
+\paragraph{The multivariate normal distribution.} The multivariate normal distribution is the vector-valued analogue of the ordinary normal distribution. It is the workhorse distribution for the rest of this report: Gaussian sample covariance matrices lead to the Wishart distribution in Section~\ref{subsec:scm-lowdim}, and their spectral behavior in high dimensions is the Marchenko-Pastur / Tracy-Widom story of Section~\ref{subsec:scm-highdim}. We define it cleanly by its characteristic function.
 
 \begin{definition}[Multivariate normal]\label{def:mvn}
-A random vector \(\vect{X} \in \R^p\) is \emph{multivariate normal} with mean \(\vect{\mu}\) and covariance \(\Sigma\), written \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\), if its characteristic function is
+A random vector \(\vect{X} \in \R^p\) is \emph{multivariate normal} with mean \(\vect{\mu} \in \R^p\) and covariance matrix \(\Sigma \in \R^{p \times p}\), written \(\vect{X} \sim \Normal{\vect{\mu}, \Sigma}\), if its characteristic function is
 \begin{equation}
   \varphi_{\vect{X}}(\vect{t}) \;=\; \exp\!\Bigl(i\, \vect{t}\transpose \vect{\mu} \;-\; \tfrac{1}{2}\, \vect{t}\transpose \Sigma \vect{t}\Bigr), \qquad \vect{t} \in \R^p.
   \label{eq:mvn-cf}
@@ -608,7 +659,14 @@ When \(\Sigma\) is positive definite, \(\vect{X}\) admits the density
 \]
 \end{definition}
 
-Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible.
+A note on notation: in the scalar case (Example~\ref{ex:common-distributions}) the second argument of \(\Normal{\mu, \sigma^2}\) is a variance, while in the multivariate case the second argument of \(\Normal{\vect{\mu}, \Sigma}\) is a covariance \emph{matrix}. The two-argument macro \(\Normal{\,\cdot\,,\,\cdot\,}\) is the same; only the type of the second slot changes.
+
+Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible. The CF definition also has a clean intuitive content: the exponent \(i \vect{t}\transpose \vect{\mu} - \tfrac{1}{2} \vect{t}\transpose \Sigma \vect{t}\) is the CF exponent of a univariate \(\Normal{\vect{t}\transpose \vect{\mu},\, \vect{t}\transpose \Sigma \vect{t}}\), since the scalar projection \(\vect{t}\transpose \vect{X}\) has mean \(\vect{t}\transpose \vect{\mu}\) and variance \(\vect{t}\transpose \Sigma \vect{t}\) (by the bridge identity above). Equation~\eqref{eq:mvn-cf} therefore says
+\begin{equation}
+  \vect{t}\transpose \vect{X} \;\sim\; \Normal{\vect{t}\transpose \vect{\mu},\; \vect{t}\transpose \Sigma \vect{t}} \qquad \text{for every } \vect{t} \in \R^p.
+  \label{eq:mvn-projection}
+\end{equation}
+That is, \emph{every} one-dimensional projection of a multivariate normal is univariate normal. This is the most useful working characterization of \(\Normal{\vect{\mu}, \Sigma}\).
 
 The multivariate normal is closed under affine transformations.
 
@@ -631,21 +689,49 @@ We compute the characteristic function of \(\mat{A} \vect{X} + \vect{b}\). For \
 This is the CF of \(\Normal{\mat{A} \vect{\mu} + \vect{b},\, \mat{A} \Sigma \mat{A}\transpose}\), so the distribution of \(\mat{A} \vect{X} + \vect{b}\) is identified by the uniqueness of characteristic functions.
 \end{proof}
 
-A second algebraic property is special to Gaussians: uncorrelated jointly Gaussian variables are independent. For general distributions, \(\Cov(X_1, X_2) = 0\) does not imply \(X_1 \perp X_2\); for the multivariate normal it does, because the density factors as soon as \(\Sigma\) is diagonal (and the CF factors for the same reason in the singular case). Figure~\ref{fig:bvn} shows the bivariate density contours at three correlation values.
+A second property is special to the Gaussian family. For a general distribution, zero covariance only means no linear association: \(\Cov(X_1, X_2) = 0\) does not imply that \(X_1\) and \(X_2\) are independent. For a multivariate normal vector with diagonal covariance, however, the coordinates \emph{are} independent, because the density factors into a product of marginal densities (and the characteristic function factors for the same reason in the singular case). Figure~\ref{fig:bvn} shows the corresponding bivariate density contours at three correlation values.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/bivariate_normal.png}
-  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the components are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the two coordinates are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. The elongation direction is the direction in which the random vector has largest variance, foreshadowing the role of eigenvectors of \(\Sigma\) in principal components analysis and in the spiked covariance models of Section~\ref{sec:spiked}. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:bvn}
 \end{figure}
 
-\paragraph{The multivariate central limit theorem.}
-The multivariate CLT follows from the univariate version through the \emph{Cram\'er-Wold device}: a sequence of random vectors converges in distribution if and only if every fixed linear combination of the coordinates converges in distribution. Applied to iid centered random vectors \(\vect{X}_i\) with finite second moments and covariance \(\Sigma\),
+\paragraph{The multivariate central limit theorem.} The univariate CLT (Theorem~\ref{thm:clt}) extends from scalar averages to vector averages.
+
+\begin{theorem}[Multivariate central limit theorem]\label{thm:multivariate-clt}
+Let \(\vect{X}_1, \vect{X}_2, \ldots\) be iid random vectors in \(\R^p\) with mean \(\vect{\mu}\) and covariance matrix \(\Sigma\) (with finite second moments). Let \(\bar{\vect{X}}_n = n^{-1} \sum_{i=1}^n \vect{X}_i\). Then
 \[
-  \sqrt{n}\, (\bar{\vect{X}}_n - \vect{\mu}) \;\convd\; \Normal{\vect{0},\, \Sigma}.
+  \sqrt{n}\,(\bar{\vect{X}}_n - \vect{\mu}) \;\convd\; \Normal{\vect{0},\, \Sigma}.
 \]
-The vector CLT powers every fixed-\(p\) sample covariance calculation in Section~\ref{sec:scm} and sets up the contrast with the high-dimensional regime, where \(\sqrt{n}\)-Gaussian fluctuations no longer suffice to describe the spectral behavior of \(\Sigmahat_n\).
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The argument is the \emph{Cram\'er-Wold device}: a sequence of random vectors converges in distribution if and only if every fixed linear projection of the sequence converges in distribution to the corresponding projection of the limit. Fix \(\vect{t} \in \R^p\) and project:
+\[
+  \vect{t}\transpose\, \sqrt{n}\,(\bar{\vect{X}}_n - \vect{\mu}) \;=\; \sqrt{n}\left(\frac{1}{n}\sum_{i=1}^n \vect{t}\transpose \vect{X}_i \;-\; \vect{t}\transpose \vect{\mu}\right).
+\]
+The scalar random variables \(\vect{t}\transpose \vect{X}_i\) are iid with mean \(\vect{t}\transpose \vect{\mu}\) and variance \(\vect{t}\transpose \Sigma \vect{t}\) (by the bridge identity \(\vect{t}\transpose \Sigma \vect{t} = \Var(\vect{t}\transpose \vect{X}_1)\)). The univariate CLT (Theorem~\ref{thm:clt}) gives
+\[
+  \vect{t}\transpose\, \sqrt{n}\,(\bar{\vect{X}}_n - \vect{\mu}) \;\convd\; \Normal{0,\; \vect{t}\transpose \Sigma \vect{t}}.
+\]
+This is exactly the projection of \(\Normal{\vect{0}, \Sigma}\) onto \(\vect{t}\), by~\eqref{eq:mvn-projection}. Since this holds for every \(\vect{t}\), the Cram\'er-Wold device delivers the vector convergence.
+\end{proof}
+
+\paragraph{Bridge to Section~\ref{sec:scm}.} We can now state, in one paragraph, the role that this entire section will play in the rest of the report. The sample covariance matrix in the mean-zero case is
+\[
+  \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose,
+\]
+so each of its entries is a sample average. The strong law of large numbers (Theorem~\ref{thm:slln}), applied entrywise, will give
+\[
+  \Sigmahat_n \;\convas\; \Sigma \qquad \text{entrywise as } n \to \infty,
+\]
+which is the consistency statement of Section~\ref{subsec:scm-lowdim}. The multivariate CLT (Theorem~\ref{thm:multivariate-clt}), applied to the entries jointly, will give the Gaussian fluctuation
+\[
+  \sqrt{n}\,(\Sigmahat_n - \Sigma) \;\convd\; \mat{G}, \qquad \mat{G} \text{ a real symmetric Gaussian matrix},
+\]
+on the \(\sqrt{n}\) scale in fixed dimension. The rest of this report studies what these matrix-level limit theorems imply for the eigenvalues and eigenvectors of \(\Sigmahat_n\), and how the story changes qualitatively when the dimension \(p\) grows with the sample size \(n\).
 
 %====================================================================
 \subsection{Linear Algebra Preliminaries}\label{subsec:linalg}
