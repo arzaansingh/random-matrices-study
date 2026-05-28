@@ -321,6 +321,67 @@ def _yzb_variance_simple_fundamental(alpha: float, y: float) -> float:
     return 2.0 * alpha ** 2 * (1.0 - y / (alpha - 1.0) ** 2)
 
 
+def make_top_eigenvalue_distributions_figure() -> Path:
+    """Side-by-side histogram of the raw top sample eigenvalue at
+    y = 1/2, n = 800, R = 1000 trials, for a fundamental spike (alpha=2.5)
+    and a non-fundamental spike (alpha=1.4). Vertical lines mark the
+    asymptotic outlier location Psi(alpha_strong), the asymptotic
+    Marchenko-Pastur edge lambda_+, and Johnstone's finite-sample edge
+    mu_{n,p}. This mirrors the final figure of Exercise 5 of the project
+    notebook (raw_top_eigenvalue_strong_vs_weak_with_finite_edge.png) and
+    is the qualitative entry point to the fluctuation discussion.
+    """
+    rng = np.random.default_rng(SEED + 4)
+    y = 0.5
+    n, p = 800, 400
+    R = 1000
+
+    alpha_strong = 2.5
+    alpha_weak = 1.4
+    psi_strong = psi(alpha_strong, y)
+    lam_plus = mp_upper_edge(y)
+    mu_np, _ = _johnstone_constants(n, p)
+
+    lam_strong = np.empty(R)
+    lam_weak = np.empty(R)
+    for r in range(R):
+        eigs_s = simulate_spiked_eigenvalues([alpha_strong], p=p, n=n, rng=rng)
+        eigs_w = simulate_spiked_eigenvalues([alpha_weak], p=p, n=n, rng=rng)
+        lam_strong[r] = eigs_s[0]
+        lam_weak[r] = eigs_w[0]
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    ax.hist(lam_strong, bins=35, density=True, color=PALETTE["def"],
+            alpha=0.55, edgecolor="white", linewidth=0.3,
+            label=rf"Fundamental spike $\alpha = {alpha_strong}$")
+    ax.hist(lam_weak, bins=35, density=True, color=PALETTE["accent"],
+            alpha=0.55, edgecolor="white", linewidth=0.3,
+            label=rf"Non-fundamental spike $\alpha = {alpha_weak}$")
+
+    ax.axvline(psi_strong, color=PALETTE["def"], linestyle="--", linewidth=1.6,
+               label=rf"$\Psi(\alpha_{{\mathrm{{strong}}}}) \approx {psi_strong:.2f}$")
+    ax.axvline(lam_plus, color=PALETTE["accent"], linestyle=":", linewidth=1.6,
+               label=rf"Asymptotic edge $\lambda_+ \approx {lam_plus:.2f}$")
+    ax.axvline(mu_np, color=PALETTE["thm"], linestyle="-.", linewidth=1.6,
+               label=rf"Finite-sample edge $\mu_{{n,p}} \approx {mu_np:.2f}$")
+
+    ax.set_xlabel(r"Largest sample eigenvalue $\lambda_{\max}(\widehat{\Sigma}_n)$")
+    ax.set_ylabel("Empirical density")
+    ax.set_title(
+        rf"Top-eigenvalue distributions at $y = 1/2$, $n = {n}$, $p = {p}$, "
+        rf"$R = {R}$ trials per spike"
+    )
+    ax.legend(loc="upper center", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "top_eigenvalue_distributions.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 def make_spike_fluctuations_figure() -> Path:
     """Two-row, two-column comparison of top-eigenvalue fluctuations for one
     fundamental (alpha=2.5) and one non-fundamental (alpha=1.4) spike at
@@ -552,11 +613,14 @@ def make_fluctuation_phase_transition_figure() -> Path:
 
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
+    # NOTE: make_fluctuation_phase_transition_figure() is defined above but
+    # not generated here. It will be re-enabled once §4.3 is extended with
+    # a dedicated phase-transition discussion for the fluctuation regime.
     for fn in (make_spiked_spectrum_figure,
                make_spike_location_map_figure,
                make_phase_transition_figure,
-               make_spike_fluctuations_figure,
-               make_fluctuation_phase_transition_figure):
+               make_top_eigenvalue_distributions_figure,
+               make_spike_fluctuations_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
