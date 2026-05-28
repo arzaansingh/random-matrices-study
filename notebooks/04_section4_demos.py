@@ -202,9 +202,9 @@ def make_spike_location_map_figure() -> Path:
     ax.plot(a_ref, a_ref, color="lightgray", linestyle="-",
             linewidth=0.7, label=r"reference: $\Psi = \alpha$")
 
-    # Shade the supercritical region (alpha > threshold).
+    # Shade the fundamental-spike region (alpha > threshold).
     ax.axvspan(thr, 5.0, color=PALETTE["vocab"], alpha=0.35,
-               label="Supercritical: outlier above the bulk")
+               label="Fundamental spikes (outlier above the bulk)")
 
     ax.set_xlim(1.0, 5.0)
     ax.set_ylim(2.0, 6.5)
@@ -221,9 +221,86 @@ def make_spike_location_map_figure() -> Path:
     return path
 
 
+# ============================================================================
+# Figure 3: m=1 phase transition -- almost-sure convergence to Psi(alpha)
+#           (fundamental) or lambda_+ (non-fundamental) as n grows.
+# ============================================================================
+
+def make_phase_transition_figure() -> Path:
+    """Smoothed m=1 simulation illustrating Yao-Zheng-Bai Cor 11.4 specialised
+    to Johnstone. For each n in a geometric sequence we run R replications
+    and plot the mean top sample eigenvalue with a 10-90 percentile band,
+    for a fundamental spike (alpha=2.5, lambda_max should approach Psi(alpha))
+    and a non-fundamental spike (alpha=1.4, lambda_max should approach
+    (1+sqrt(y))^2).
+    """
+    rng = np.random.default_rng(SEED + 1)
+    y = 0.5
+    n_values = [100, 200, 400, 800, 1600]
+    R = 100
+    alpha_strong = 2.5
+    alpha_weak = 1.4
+
+    psi_strong = psi(alpha_strong, y)
+    edge = mp_upper_edge(y)
+
+    strong_mean, strong_q10, strong_q90 = [], [], []
+    weak_mean, weak_q10, weak_q90 = [], [], []
+
+    for n in n_values:
+        p = int(round(y * n))
+        s_vals = np.empty(R)
+        w_vals = np.empty(R)
+        for r in range(R):
+            eigs_s = simulate_spiked_eigenvalues([alpha_strong], p=p, n=n, rng=rng)
+            eigs_w = simulate_spiked_eigenvalues([alpha_weak], p=p, n=n, rng=rng)
+            s_vals[r] = eigs_s[0]
+            w_vals[r] = eigs_w[0]
+        strong_mean.append(s_vals.mean())
+        strong_q10.append(np.quantile(s_vals, 0.10))
+        strong_q90.append(np.quantile(s_vals, 0.90))
+        weak_mean.append(w_vals.mean())
+        weak_q10.append(np.quantile(w_vals, 0.10))
+        weak_q90.append(np.quantile(w_vals, 0.90))
+
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+
+    # Fundamental spike (alpha=2.5).
+    ax.plot(n_values, strong_mean, marker="o", color=PALETTE["def"], linewidth=1.4,
+            label=rf"Fundamental spike $\alpha = {alpha_strong}$ (mean over $R = {R}$)")
+    ax.fill_between(n_values, strong_q10, strong_q90, color=PALETTE["def"],
+                    alpha=0.18, label=r"10--90\% band")
+    ax.axhline(psi_strong, color=PALETTE["def"], linestyle="--", linewidth=1.0,
+               label=rf"prediction $\Psi(\alpha) \approx {psi_strong:.2f}$")
+
+    # Non-fundamental spike (alpha=1.4).
+    ax.plot(n_values, weak_mean, marker="s", color=PALETTE["accent"], linewidth=1.4,
+            label=rf"Non-fundamental spike $\alpha = {alpha_weak}$")
+    ax.fill_between(n_values, weak_q10, weak_q90, color=PALETTE["accent"], alpha=0.20)
+    ax.axhline(edge, color=PALETTE["accent"], linestyle=":", linewidth=1.0,
+               label=rf"MP edge $\lambda_+ \approx {edge:.2f}$")
+
+    ax.set_xscale("log")
+    ax.set_xticks(n_values)
+    ax.set_xticklabels([str(n) for n in n_values])
+    ax.set_xlabel(r"Sample size $n$ (log scale, $p = n/2$)")
+    ax.set_ylabel(r"$\lambda_{\max}(\widehat{\Sigma}_n)$")
+    ax.set_title(rf"Convergence of $\lambda_{{\max}}$ at $y = 1/2$, $m = 1$")
+    ax.legend(loc="upper right", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.4)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "spike_phase_transition.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
-    for fn in (make_spiked_spectrum_figure, make_spike_location_map_figure):
+    for fn in (make_spiked_spectrum_figure,
+               make_spike_location_map_figure,
+               make_phase_transition_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
