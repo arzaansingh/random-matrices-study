@@ -663,6 +663,61 @@ def make_tw_universality_figure() -> Path:
 
 
 # ============================================================================
+# 6b. Normality tests on TW1-distributed standardized top eigenvalue
+# ============================================================================
+
+def compute_tw_normality_tests() -> dict:
+    """Run Kolmogorov-Smirnov and Shapiro-Wilk tests on simulated samples
+    of z = (lambda_max - mu_np) / sigma_np at n=1000, p=500, R=5000.
+
+    Returns a dict with the test statistics and p-values for both the
+    TW1-distributed samples (which the tests should reject) and a control
+    sample of R=5000 draws from N(0, 1) (which the tests should accept).
+    """
+    from scipy.stats import kstest, shapiro
+
+    rng = np.random.default_rng(SEED + 1)  # same seed as tw_universality
+    n, p = 1000, 500
+    trials = 5000
+    mu_np, sigma_np = _johnstone_constants(n, p)
+
+    # TW1-distributed samples.
+    z = np.empty(trials)
+    for t in range(trials):
+        X = rng.normal(size=(p, n))
+        S = (X @ X.T) / n
+        z[t] = (float(np.linalg.eigvalsh(S)[-1]) - mu_np) / sigma_np
+
+    # Center and scale to mean 0 / var 1 so that the KS-vs-N(0,1)
+    # comparison is testing SHAPE alone (not location/scale).
+    z_norm = (z - z.mean()) / z.std(ddof=1)
+
+    ks_z = kstest(z_norm, "norm")
+    sw_z = shapiro(z[:5000])  # Shapiro-Wilk caps internally at 5000
+
+    # Control: genuine N(0,1) samples.
+    rng_ctrl = np.random.default_rng(SEED + 3)
+    g = rng_ctrl.normal(size=trials)
+    ks_g = kstest(g, "norm")
+    sw_g = shapiro(g[:5000])
+
+    print("\n=== Normality tests on standardized top eigenvalue ===")
+    print(f"TW1-distributed samples (R={trials}, n={n}, p={p}):")
+    print(f"  Kolmogorov-Smirnov vs N(0,1):  D = {ks_z.statistic:.4f}, p = {ks_z.pvalue:.3e}")
+    print(f"  Shapiro-Wilk:                    W = {sw_z.statistic:.4f}, p = {sw_z.pvalue:.3e}")
+    print(f"Control N(0,1) sample (R={trials}):")
+    print(f"  Kolmogorov-Smirnov vs N(0,1):  D = {ks_g.statistic:.4f}, p = {ks_g.pvalue:.3e}")
+    print(f"  Shapiro-Wilk:                    W = {sw_g.statistic:.4f}, p = {sw_g.pvalue:.3e}")
+
+    return {
+        "tw1": {"ks_D": float(ks_z.statistic), "ks_p": float(ks_z.pvalue),
+                "sw_W": float(sw_z.statistic), "sw_p": float(sw_z.pvalue)},
+        "ctrl": {"ks_D": float(ks_g.statistic), "ks_p": float(ks_g.pvalue),
+                 "sw_W": float(sw_g.statistic), "sw_p": float(sw_g.pvalue)},
+    }
+
+
+# ============================================================================
 # 7. Edge repulsion: visual evidence of the asymmetric MP edge geometry
 # ============================================================================
 

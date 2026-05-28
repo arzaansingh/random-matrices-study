@@ -482,6 +482,20 @@ Write \(z = (\lambda_{\max}(\Sigmahat_n) - \mu_{n p})/\sigma_{n p}\) for the Joh
   \label{fig:tw-universality}
 \end{figure}
 
+\paragraph{Quantitative tests of normality.}
+The visual non-normality in Figures~\ref{fig:tw-edge} and~\ref{fig:tw-universality} can be backed up by classical goodness-of-fit tests. Two natural choices are the \emph{Kolmogorov-Smirnov} test, with statistic
+\[
+  D_R \;=\; \sup_x \, \abs{F_R(x) - F(x)}
+\]
+measuring the largest gap between the empirical CDF \(F_R\) of an \(R\)-sample and a reference CDF \(F\), and the \emph{Shapiro-Wilk} test, whose null hypothesis is that the sample comes from \emph{some} normal distribution, without specifying its mean or variance. Applied to the \(R = 5000\) standardized samples \(z\) from Figure~\ref{fig:tw-universality} (further centred to mean \(0\) and scaled to variance \(1\) before the KS comparison against \(\Normal{0,1}\), so that the test is sensitive to shape rather than location), both reject normality decisively:
+\[
+  D_{5000} = 0.029, \;\; p = 3.5 \times 10^{-4} \qquad\text{(Kolmogorov-Smirnov)},
+\]
+\[
+  W = 0.995, \;\; p = 5.1 \times 10^{-12} \qquad\text{(Shapiro-Wilk)}.
+\]
+The Shapiro-Wilk statistic \(W\) is close to \(1\) (the value attained by a perfect normal sample), but at \(R = 5000\) trials even a small departure shows up at machine-precision \(p\)-values; the KS statistic is similarly tiny in absolute terms yet far outside the null distribution. For comparison, a control sample of \(5000\) genuine \(\Normal{0, 1}\) draws yields \(D = 0.017\) (\(p \approx 0.12\)) and \(W = 0.9997\) (\(p \approx 0.69\)), neither of which rejects normality. The TW\(_1\)-distributed top eigenvalue is therefore non-Gaussian by every standard diagnostic, visual and quantitative.
+
 The contrast between the two regimes is sharp. In fixed dimension, the sample covariance matrix behaves like an ordinary average: its entries converge to those of \(\Sigma\), and at a simple population eigenvalue the corresponding sample eigenvalue fluctuates Gaussianly on the \(\sqrt{n}\) scale via Lemma~\ref{lem:first-order-perturbation}. At a repeated population eigenvalue the limiting object is instead a finite-dimensional GOE matrix, with the non-Gaussian top-eigenvalue law that reflects eigenvalue repulsion. In high dimensions, by contrast, the sample eigenvalues no longer collapse to the population eigenvalues. Even for \(\Sigma = I_p\), they fill the Marchenko-Pastur interval \([\lambda_-, \lambda_+]\), and the largest eigenvalue sits at the right edge \(\lambda_+\) with Tracy-Widom \(\mathrm{TW}_1\) fluctuations on the \(p^{-2/3}\) scale.
 
 The next section inserts signal into this null picture by allowing a small number of population eigenvalues to rise above the unit background, and asks when the corresponding sample eigenvalue and eigenvector can recover that signal.
