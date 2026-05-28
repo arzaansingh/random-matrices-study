@@ -443,12 +443,120 @@ def make_spike_fluctuations_figure() -> Path:
     return path
 
 
+# ============================================================================
+# Figure 5: fluctuation phase transition swept across alpha. Mirrors the
+# Section 4.2 alpha-sweep but on the sqrt(n) fluctuation scale: shows the
+# theoretical band ±1.282 sigma_alpha (Theorem 4.3) opening up only above the
+# threshold while the non-fundamental side stays pinned near zero on the
+# Gaussian scale (the true edge fluctuations live on the smaller p^{-2/3}
+# scale).
+# ============================================================================
+
+def make_fluctuation_phase_transition_figure() -> Path:
+    """Sweep alpha across the threshold and plot the centered, sqrt(n)-scaled
+    top sample eigenvalue, with the predicted ±1.282 sigma_alpha band on the
+    fundamental side and the empirical 10-90% band overlaid. The visual
+    content of the phase transition for fluctuations: the predicted
+    Gaussian band collapses to width zero at alpha = 1+sqrt(y), and stays
+    closed below it where the relevant scale is no longer sqrt(n)."""
+    rng = np.random.default_rng(SEED + 2)
+    y = 0.5
+    n, p = 800, 400
+    R = 80
+    thr = 1.0 + np.sqrt(y)
+    lam_plus = mp_upper_edge(y)
+
+    alpha_grid = np.concatenate([
+        np.linspace(1.05, thr, 14, endpoint=False),
+        np.linspace(thr, 3.5, 24),
+    ])
+    alpha_grid = np.unique(np.round(alpha_grid, 4))
+
+    all_alpha, all_z = [], []
+    means_z, q10_z, q90_z = [], [], []
+    for alpha in alpha_grid:
+        center = psi(alpha, y) if alpha > thr else lam_plus
+        lam_vals = np.empty(R)
+        for r in range(R):
+            eigs = simulate_spiked_eigenvalues([alpha], p=p, n=n, rng=rng)
+            lam_vals[r] = eigs[0]
+        z_vals = np.sqrt(n) * (lam_vals - center)
+        all_alpha.extend([alpha] * R)
+        all_z.extend(z_vals.tolist())
+        means_z.append(z_vals.mean())
+        q10_z.append(np.quantile(z_vals, 0.10))
+        q90_z.append(np.quantile(z_vals, 0.90))
+    means_z = np.asarray(means_z)
+    q10_z = np.asarray(q10_z)
+    q90_z = np.asarray(q90_z)
+
+    # Theoretical 1-sigma and 10-90% bands above threshold.
+    a_dense = np.linspace(thr * 1.0005, 3.6, 400)
+    sigma_theory = np.sqrt(2.0 * a_dense ** 2 * (1.0 - y / (a_dense - 1.0) ** 2))
+    q90_gauss = 1.2816  # Phi^{-1}(0.9)
+    band_hi = +q90_gauss * sigma_theory
+    band_lo = -q90_gauss * sigma_theory
+
+    fig, ax = plt.subplots(figsize=(9, 5.6))
+
+    # Translucent scatter of all trials.
+    ax.scatter(all_alpha, all_z, s=6, color=PALETTE["def"], alpha=0.15,
+               label=rf"Individual trials ($R = {R}$ per $\alpha$)")
+
+    # Empirical 10-90% band.
+    ax.fill_between(alpha_grid, q10_z, q90_z, color=PALETTE["def"], alpha=0.25,
+                    label=r"10--90\% empirical band")
+
+    # Empirical mean curve (should be approximately zero by construction).
+    ax.plot(alpha_grid, means_z, marker="o", markersize=3.0,
+            color=PALETTE["def"], linewidth=1.2,
+            label=r"Empirical mean of $\sqrt{n}(\lambda_{\max} - c_\alpha)$")
+
+    # Theoretical 10-90% Gaussian band on the fundamental side.
+    ax.plot(a_dense, band_hi, color=PALETTE["thm"], linewidth=1.8,
+            label=r"Predicted 10--90\% Gaussian band $\pm 1.28\,\sigma_\alpha$")
+    ax.plot(a_dense, band_lo, color=PALETTE["thm"], linewidth=1.8)
+    ax.fill_between(a_dense, band_lo, band_hi, color=PALETTE["thm"], alpha=0.08)
+
+    # Zero reference.
+    ax.axhline(0, color="black", linewidth=0.6)
+
+    # Threshold marker.
+    ax.axvline(thr, color=PALETTE["accent"], linestyle="--", linewidth=1.0,
+               label=rf"Threshold $\alpha = 1+\sqrt{{y}} \approx {thr:.2f}$")
+
+    # Shade the fundamental region for consistency with Figure 4.2.
+    ax.axvspan(thr, 3.6, color=PALETTE["vocab"], alpha=0.15)
+
+    ax.set_xlim(1.0, 3.55)
+    y_band = max(abs(q90_z).max(), abs(q10_z).max(), abs(band_hi).max()) * 1.1
+    ax.set_ylim(-y_band, y_band)
+    ax.set_xlabel(r"Population spike $\alpha$")
+    ax.set_ylabel(
+        r"$\sqrt{n}\,(\lambda_{\max} - c_\alpha)$, "
+        r"$c_\alpha = \Psi(\alpha)$ or $\lambda_+$"
+    )
+    ax.set_title(
+        rf"Fluctuation phase transition at $y = 1/2$, "
+        rf"$n = {n}$, $p = {p}$, $m = 1$"
+    )
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "spike_fluctuation_phase_transition.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
     for fn in (make_spiked_spectrum_figure,
                make_spike_location_map_figure,
                make_phase_transition_figure,
-               make_spike_fluctuations_figure):
+               make_spike_fluctuations_figure,
+               make_fluctuation_phase_transition_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
