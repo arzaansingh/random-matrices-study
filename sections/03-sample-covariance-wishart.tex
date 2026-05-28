@@ -402,15 +402,12 @@ Under the hypotheses of Theorem~\ref{thm:mp},
 \end{theorem}
 
 \paragraph{From the MP edge to a non-Gaussian limit.}
-Theorem~\ref{thm:lambda-max-edge} settles \emph{where} \(\lambda_{\max}(\Sigmahat_n)\) lives in the limit but not \emph{how} it fluctuates around \(\lambda_+\). The fluctuations are not Gaussian, and the reason is geometric. The largest sample eigenvalue sits at the right edge of the Marchenko-Pastur bulk, with the other \(p - 1\) sample eigenvalues densely packed to its left and nothing to its right. The two sides of \(\lambda_{\max}\) behave very differently:
+Theorem~\ref{thm:lambda-max-edge} settles \emph{where} \(\lambda_{\max}(\Sigmahat_n)\) lives in the limit but not \emph{how} it fluctuates around \(\lambda_+\). The fluctuations cannot be Gaussian: the geometry on the two sides of \(\lambda_{\max}\) is fundamentally different.
 \begin{itemize}[leftmargin=*,itemsep=0.25em]
-  \item \emph{To the left:} the eigenvalues immediately below \(\lambda_{\max}\) repel each other (this is the Vandermonde factor in~\eqref{eq:vandermonde}), exerting an upward ``pressure'' that resists \(\lambda_{\max}\) drifting too far back into the bulk.
-  \item \emph{To the right:} the support of the MP density ends at \(\lambda_+\); past the edge the density is zero, so there is no analogous pressure pushing \(\lambda_{\max}\) back. Excursions above \(\lambda_+\) are constrained only by the small probability of any sample eigenvalue exceeding the typical edge.
+  \item \emph{To the left,} the other \(p - 1\) sample eigenvalues are densely packed and repel each other via the Vandermonde factor in~\eqref{eq:vandermonde}, exerting an upward ``pressure'' that resists \(\lambda_{\max}\) drifting back into the bulk.
+  \item \emph{To the right,} the support of the MP density ends at \(\lambda_+\); past the edge there is nothing, so excursions above \(\lambda_+\) are unconstrained by neighbouring eigenvalues.
 \end{itemize}
-Two regimes, two different restoring mechanisms: the resulting limit distribution is asymmetric and non-Gaussian. It is the \emph{Tracy-Widom Type 1 distribution} \(\mathrm{TW}_1\), identified by \citet{TracyWidom1996} as the top-eigenvalue distribution of the GOE and shown by \citet{Johnstone2001} to govern the null sample covariance edge after rescaling. \citet{Wolchover2014} gives an accessible non-technical introduction to TW1 and its appearance across mathematics and physics.
-
-\paragraph{The Tracy-Widom Type 1 distribution.}
-The TW1 distribution does not have a closed-form density. Its cumulative distribution function is defined through an ordinary differential equation.
+Two regimes, two different restoring mechanisms: the limit is left-skewed, with mean \(\approx -1.207\) and standard deviation \(\approx 1.268\). It is the \emph{Tracy-Widom Type 1 distribution}, discovered by \citet{TracyWidom1996} as the top-eigenvalue limit of the GOE; \citet{Wolchover2014} is an accessible non-technical introduction.
 
 \begin{definition}[Tracy-Widom Type 1 distribution]\label{def:tw1}
 The \vocab{Tracy-Widom Type 1} law \(\mathrm{TW}_1\) is the probability distribution on \(\R\) with cumulative distribution function
@@ -427,37 +424,37 @@ where \(q\) is the unique \emph{Hastings-McLeod solution} \citep{HastingsMcLeod1
 with \(\mathrm{Ai}\) the Airy function.
 \end{definition}
 
-The boundary condition \(q(x) \sim \mathrm{Ai}(x)\) at \(+\infty\) picks out the specific solution that decays at the right rate; without it, Painlev\'e II has a family of solutions and \(F_1\) would not be defined. Numerically, \(\mathrm{TW}_1\) is asymmetric and left-skewed, with mean \(\approx -1.207\) and standard deviation \(\approx 1.268\). It is the same distribution discovered by \citet{TracyWidom1996} for the GOE, and \(\mathrm{TW}_1\) also arises in problems far from random matrices, such as the length of the longest increasing subsequence of a random permutation \citep{BaikDeiftJohansson1999}; this is what is meant by the \emph{Tracy-Widom universality class}. We will not need the analytic properties of \(F_1\) in what follows; we use \(\mathrm{TW}_1\) through its name and its empirical density, plotted in Figure~\ref{fig:tw-universality} below.
+\(\mathrm{TW}_1\) has no closed-form density: the CDF~\eqref{eq:tw1-cdf} is defined indirectly through the Painlev\'e II ODE, and the Hastings-McLeod boundary condition pins down the unique solution that decays correctly at \(+\infty\). The same distribution arises in problems far from random matrices, the longest increasing subsequence of a random permutation \citep{BaikDeiftJohansson1999} being the canonical example. This universality is what gives the family its name. We use \(\mathrm{TW}_1\) here only through its name and its empirical density, plotted in Figure~\ref{fig:tw-universality}.
 
 \smallskip
-\noindent\emph{Heuristic for the \(p^{-2/3}\) edge scale.} Why \(p^{-2/3}\)? A short calculation using only the square-root edge of the MP density makes the exponent plausible. Near the upper edge,
+\noindent\emph{Heuristic for the \(p^{-2/3}\) edge scale.} A short calculation using only the square-root edge of the MP density makes the exponent plausible. Near the upper edge,
 \[
   f_{\MP_y}(\lambda) \;\sim\; C\,(\lambda_+ - \lambda)^{1/2} \qquad (\lambda \uparrow \lambda_+).
 \]
 The largest of \(p\) iid draws from this density sits, heuristically, where the mass beyond it equals \(1/p\):
 \[
-  \frac{1}{p} \;\sim\; \int_{\lambda_{\max}}^{\lambda_+} f_{\MP_y}(\lambda)\, d\lambda \;\sim\; \tfrac{2 C}{3}\, (\lambda_+ - \lambda_{\max})^{3/2}.
+  \frac{1}{p} \;\sim\; \int_{\lambda_{\max}}^{\lambda_+} f_{\MP_y}(\lambda)\, d\lambda \;\sim\; \tfrac{2 C}{3}\, (\lambda_+ - \lambda_{\max})^{3/2},
 \]
-Solving for the gap gives \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\). The exponent \(3/2\) in the integrated square-root density inverts to the exponent \(2/3\) in the fluctuation scale.
+so \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\). The exponent \(3/2\) in the integrated square-root density inverts to the exponent \(2/3\) in the fluctuation scale.
 
-\paragraph{Simulation: convergence to the TW\(_1\) shape.}
-With Definition~\ref{def:tw1} in hand we can already see TW\(_1\) numerically. After centering and scaling the top sample eigenvalue by constants \(\mu_{n p}\) and \(\sigma_{n p}\) appropriate to the null sample covariance, the standardized statistic
+\paragraph{Simulation.}
+Define the Johnstone-standardized statistic
 \[
-  z \;=\; \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}}
+  z \;=\; \frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\sigma_{n p}},
 \]
-should converge in distribution to \(\mathrm{TW}_1\). We use the specific constants computed by \citet{Johnstone2001}; their precise form is recorded at the end of this section (Theorem~\ref{thm:tw}). Figures~\ref{fig:tw-edge} and~\ref{fig:tw-universality} confirm the convergence in simulation. Figure~\ref{fig:tw-edge} shows that \(z\) collapses to a common shape as \(p, n\) grow at fixed aspect ratio. Figure~\ref{fig:tw-universality} fixes a large \((p, n)\) pair and plots the raw \(z\)-values directly, without any further rescaling, so the histogram has the actual TW\(_1\) mean of \(\approx -1.21\) (visibly to the left of \(0\)) and the actual TW\(_1\) spread \(\approx 1.27\). The Q-Q plot on the right compares those raw \(z\) values to standard normal quantiles; because the two distributions differ in location, scale, and shape simultaneously, the resulting curve sits well below the \(y = x\) reference at small theoretical quantiles, climbs through it, and crosses above the reference in the extreme right tail. That right-tail crossing is the part that matters: it is the empirical fingerprint of TW\(_1\)'s heavier-than-Gaussian right tail.
+where \(\mu_{n p}\) and \(\sigma_{n p}\) are the explicit centering and scaling constants computed by \citet{Johnstone2001} (recorded as Theorem~\ref{thm:tw} at the end of this section). The theorem predicts \(z \convd \mathrm{TW}_1\). Figure~\ref{fig:tw-edge} shows the empirical distribution of \(z\) collapsing to a common shape as \(p, n\) grow at fixed aspect ratio. Figure~\ref{fig:tw-universality} fixes a single large \((n, p)\) and compares the histogram of \(z\) directly to the TW\(_1\) density, with a Q-Q plot of \(z\) against \(\mathcal{N}(0, 1)\) on the side.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/tw_edge_simulation.png}
-  \caption{The Tracy-Widom edge in simulation. Each panel shows a histogram of the standardized top sample eigenvalue \((\lambda_{\max}(\Sigmahat_n) - \mu_{n p}) / \sigma_{n p}\) over \(R = 1500\) Monte Carlo trials, with \(p, n\) growing at fixed aspect ratio \(y = 1/2\). The histograms collapse to a common left-skewed shape that is not Gaussian (compare against the dashed \(\Normal{0, 1}\) density); the \(\mathrm{TW}_1\) mean \(\approx -1.21\) is shown for reference. Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \caption{Histogram of \(z = (\lambda_{\max}(\Sigmahat_n) - \mu_{n p}) / \sigma_{n p}\) at three growing \((n, p)\) pairs with fixed aspect ratio \(y = 1/2\); \(R = 1500\) Monte Carlo trials per panel. The standard normal density (dashed) and the TW\(_1\) mean (\(\approx -1.21\), dotted) are shown for reference. Generated by \texttt{notebooks/03\_section3\_demos.py}.}
   \label{fig:tw-edge}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/tw_universality.png}
-  \caption{Direct comparison with the limiting Tracy-Widom distribution. For each of \(R = 5000\) trials we compute \(\lambda_{\max}((1/n)\,\mat{X}\mat{X}\transpose)\) with iid \(\Normal{0,1}\) entries at \(n = 1000\), \(p = 500\) (\(y = 1/2\)), and form the Johnstone-standardized statistic \(z = (\lambda_{\max} - \mu_{n p}) / \sigma_{n p}\). The two panels show the raw \(z\)-values without any further normalization, so the empirical objects retain the TW\(_1\) location and scale. \emph{Left:} histogram of \(z\) overlaid on the theoretical TW\(_1\) density (solid sage curve) and the standard normal density (dashed) for contrast. The TW\(_1\) bulk is shifted to the left of the Gaussian; its mean (vertical dotted marker at \(-1.21\)) sits well below \(0\), and its mode at \(\approx -1.77\) is even further left. The histogram tracks TW\(_1\) closely. \emph{Right:} Q-Q plot of every \(z\) sample against \(\mathcal{N}(0, 1)\) quantiles, with the \(y = x\) reference drawn for context. Because TW\(_1\) has different mean, scale, and shape than \(\Normal{0, 1}\), the points are not expected to lie on \(y = x\); they sit below it at the bulk (consequence of TW\(_1\)'s negative mean) and cross above it at the upper extreme (consequence of TW\(_1\)'s heavier right tail). Generated by \texttt{notebooks/03\_section3\_demos.py}.}
+  \caption{Direct comparison of the empirical \(z = (\lambda_{\max} - \mu_{n p}) / \sigma_{n p}\) at \(n = 1000\), \(p = 500\) (\(y = 1/2\), \(R = 5000\) trials) with the limiting Tracy-Widom distribution. \emph{Left:} histogram of \(z\) against the theoretical \(\mathrm{TW}_1\) density (solid) and the standard normal density (dashed); the TW\(_1\) bulk is centred on its mean \(\approx -1.21\), well to the left of the Gaussian. \emph{Right:} Q-Q plot of \(z\) against \(\mathcal{N}(0, 1)\) quantiles. The curve sits below the \(y = x\) reference at the bulk (TW\(_1\)'s negative mean) and crosses above it at the upper extreme (TW\(_1\)'s heavier right tail). Generated by \texttt{notebooks/03\_section3\_demos.py}.}
   \label{fig:tw-universality}
 \end{figure}
 
