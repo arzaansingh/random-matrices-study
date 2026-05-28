@@ -662,6 +662,94 @@ def make_tw_universality_figure() -> Path:
     return path
 
 
+# ============================================================================
+# 7. Edge repulsion: visual evidence of the asymmetric MP edge geometry
+# ============================================================================
+
+def make_edge_repulsion_figure() -> Path:
+    """Visualize WHY the TW1 limit is left-skewed.
+
+    For each of R realizations of Sigmahat_n we record the top K
+    eigenvalues. The picture is a strip plot: rank on the y-axis
+    (lambda_max on top, lambda_{max-1} below, ...), eigenvalue on the
+    x-axis, with the MP upper edge lambda_+ drawn as a reference. The
+    two-sided geometry that produces TW1's left-skew becomes visible:
+    - the rows below lambda_max all sit packed against lambda_+ on the
+      left, none of them ever escaping past the bulk;
+    - lambda_max itself scatters substantially, with realizations both
+      above and below lambda_+.
+
+    The increasing width of the rows from the bulk inward toward
+    lambda_max is the Vandermonde "pressure" that pushes neighbouring
+    eigenvalues apart, in action.
+    """
+    rng = np.random.default_rng(SEED + 2)
+    n, p = 600, 300
+    y = p / n
+    lam_plus = (1.0 + np.sqrt(y)) ** 2
+    R = 500
+    K = 6
+
+    top_eigs = np.empty((R, K))
+    for r in range(R):
+        X = rng.normal(size=(p, n))
+        S = (X @ X.T) / n
+        eigs = np.linalg.eigvalsh(S)  # ascending
+        top_eigs[r] = eigs[-K:]       # K largest, in ascending order
+
+    fig, ax = plt.subplots(figsize=(11, 5.2))
+
+    # Strip plot: each rank gets a y-position; eigenvalues are scattered
+    # horizontally with a small vertical jitter to make the cloud readable.
+    rank_labels = [
+        r"$\lambda_{\max}$",
+        r"$\lambda_{\max-1}$",
+        r"$\lambda_{\max-2}$",
+        r"$\lambda_{\max-3}$",
+        r"$\lambda_{\max-4}$",
+        r"$\lambda_{\max-5}$",
+    ]
+    cmap = plt.cm.viridis_r
+    for k in range(K):
+        # Rank k=0 -> lambda_max (top of plot). top_eigs[:, K-1] is lambda_max.
+        x_vals = top_eigs[:, K - 1 - k]
+        y_vals = k + rng.uniform(-0.32, 0.32, size=R)
+        ax.scatter(
+            x_vals,
+            y_vals,
+            s=8,
+            color=cmap(k / max(K - 1, 1)),
+            alpha=0.55,
+            edgecolor="none",
+        )
+
+    ax.axvline(
+        lam_plus,
+        color=PALETTE["accent"],
+        linestyle="--",
+        linewidth=1.2,
+        label=rf"MP upper edge $\lambda_+ = (1+\sqrt{{y}})^2 \approx {lam_plus:.2f}$",
+    )
+
+    ax.set_yticks(range(K))
+    ax.set_yticklabels(rank_labels, fontsize=11)
+    ax.invert_yaxis()  # so lambda_max appears at top
+    ax.set_xlabel(r"Eigenvalue value")
+    ax.set_ylabel(r"Rank")
+    ax.set_title(
+        rf"Top {K} eigenvalues across {R} realizations of $\widehat{{\Sigma}}_n$ "
+        rf"at $n = {n}$, $p = {p}$ ($y = {y:g}$)"
+    )
+    ax.legend(loc="upper right", frameon=False, fontsize=9)
+    ax.grid(axis="x", linestyle=":", alpha=0.4)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "edge_repulsion.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 3 figures...")
     for fn in (make_geometry_figure,
@@ -669,7 +757,8 @@ if __name__ == "__main__":
                make_wishart_density_heatmap_figure,
                make_wishart_2d_figure, make_lowdim_qq_figure,
                make_mp_bulk_figure, make_tw_edge_figure,
-               make_mp_varying_c_figure, make_tw_universality_figure):
+               make_mp_varying_c_figure, make_tw_universality_figure,
+               make_edge_repulsion_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
