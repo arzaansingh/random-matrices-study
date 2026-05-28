@@ -43,6 +43,175 @@ FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================================
+# 0a. Scatter with principal axes (motivates §3.1)
+# ============================================================================
+
+def make_scatter_axes_figure() -> Path:
+    """Two panels of n=400 samples in R^2 with population and sample
+    principal axes overlaid. Left: Sigma = I (circular). Right:
+    Sigma = diag(4, 1) (elongated). Illustrates what the SCM
+    eigendecomposition captures geometrically."""
+    rng = np.random.default_rng(SEED)
+    n = 400
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+
+    cases = [
+        (np.eye(2), r"$\Sigma = I_2$"),
+        (np.diag([4.0, 1.0]), r"$\Sigma = \mathrm{diag}(4, 1)$"),
+    ]
+
+    for ax, (Sigma, label) in zip(axes, cases):
+        L = np.linalg.cholesky(Sigma)
+        Z = rng.normal(size=(n, 2))
+        X = Z @ L.T
+
+        # Sample covariance (mean-zero formula since population mean is 0)
+        S = (X.T @ X) / n
+
+        # Eigendecompositions
+        evals_pop, evecs_pop = np.linalg.eigh(Sigma)
+        evals_sam, evecs_sam = np.linalg.eigh(S)
+
+        # Plot data
+        ax.scatter(X[:, 0], X[:, 1], s=6, alpha=0.35, color=PALETTE["def"],
+                   label="Data")
+
+        # Plot population principal axes (scaled by sqrt eigenvalue)
+        for i in range(2):
+            v = evecs_pop[:, i] * np.sqrt(evals_pop[i]) * 2.0
+            ax.annotate("", xy=(v[0], v[1]), xytext=(0, 0),
+                        arrowprops=dict(arrowstyle="->", color=PALETTE["thm"],
+                                        lw=1.8))
+        ax.plot([], [], color=PALETTE["thm"], lw=1.8,
+                label=r"Population axes (eigenvectors of $\Sigma$)")
+
+        # Plot sample principal axes (scaled by sqrt sample eigenvalue), dashed
+        for i in range(2):
+            v = evecs_sam[:, i] * np.sqrt(evals_sam[i]) * 2.0
+            ax.annotate("", xy=(v[0], v[1]), xytext=(0, 0),
+                        arrowprops=dict(arrowstyle="->", color=PALETTE["link"],
+                                        lw=1.5, linestyle="--"))
+        ax.plot([], [], color=PALETTE["link"], lw=1.5, linestyle="--",
+                label=r"Sample axes (eigenvectors of $\widehat{\Sigma}_n$)")
+
+        ax.set_xlim(-6, 6)
+        ax.set_ylim(-6, 6)
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xlabel(r"$x_1$")
+        ax.set_ylabel(r"$x_2$")
+        ax.set_title(label)
+        ax.legend(loc="lower right", frameon=False, fontsize=8)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "scatter_with_principal_axes.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
+# 0b. SCM consistency (motivates §3.2 Theorem 3.2)
+# ============================================================================
+
+def make_scm_consistency_figure() -> Path:
+    """Plot ||Sigmahat_n - Sigma||_F vs n on a log-log axis for several p,
+    with the theoretical 1/sqrt(n) reference rate overlaid. Demonstrates
+    entrywise SLLN convergence visually."""
+    rng = np.random.default_rng(SEED)
+
+    n_values = np.unique(np.round(np.logspace(1.5, 4.0, 20)).astype(int))
+    trials = 40
+    p_values = (2, 5, 20)
+
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    palette_cycle = [PALETTE["def"], PALETTE["link"], PALETTE["accent"]]
+
+    for p, col in zip(p_values, palette_cycle):
+        Sigma = np.eye(p)
+        errs = np.zeros(len(n_values))
+        for j, n in enumerate(n_values):
+            errs_trial = np.empty(trials)
+            for t in range(trials):
+                X = rng.normal(size=(p, n))
+                S = (X @ X.T) / n
+                errs_trial[t] = np.linalg.norm(S - Sigma, ord="fro")
+            errs[j] = errs_trial.mean()
+        ax.loglog(n_values, errs, marker="o", color=col, linewidth=1.2,
+                  markersize=4, label=rf"$p = {p}$ (mean over {trials} trials)")
+
+    # Reference 1/sqrt(n) line
+    ref_n = n_values
+    ref_err = ref_n.astype(float) ** (-0.5)
+    # Anchor the reference at the median observed value to make the slope visible
+    ax.loglog(ref_n, ref_err * 5.0, "--", color=PALETTE["thm"], linewidth=1.0,
+              label=r"Reference slope $n^{-1/2}$")
+
+    ax.set_xlabel(r"Sample size $n$")
+    ax.set_ylabel(r"$\|\widehat{\Sigma}_n - \Sigma\|_F$ (Frobenius error)")
+    ax.set_title(r"Sample covariance consistency: $\widehat{\Sigma}_n \to I_p$")
+    ax.legend(loc="lower left", frameon=False, fontsize=9)
+    ax.grid(True, which="both", linestyle=":", alpha=0.4)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "scm_consistency.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
+# 0c. Wishart 2D joint eigenvalue density heatmap (theoretical)
+# ============================================================================
+
+def make_wishart_density_heatmap_figure() -> Path:
+    """Heatmap of the theoretical joint density of (lambda_1, lambda_2)
+    for W_2(n, I_2), showing the (lambda_2 - lambda_1) repulsion factor
+    that creates a 'dead zone' near the diagonal."""
+    from scipy.special import gammaln
+    n = 100
+
+    # Joint density: f(l1, l2) = C * (l1 l2)^((n-3)/2) * exp(-(l1+l2)/2)
+    #                            * (l2 - l1) on l1 <= l2.
+    # Normalizing constant (Yao-Zheng-Bai or direct calculation):
+    # For W_p(n, I_p) eigenvalue joint density,
+    # f(l1,...,lp) = (1 / Z) * prod l_i^((n-p-1)/2) * exp(-sum l_i / 2)
+    #                       * prod_{i<j} (l_j - l_i).
+    # We just plot the density up to constant scaling (the heatmap shape
+    # is what matters).
+
+    grid = np.linspace(50, 200, 250)
+    L1, L2 = np.meshgrid(grid, grid)
+
+    with np.errstate(invalid="ignore", divide="ignore"):
+        log_dens = ((n - 3) / 2.0) * (np.log(L1) + np.log(L2)) \
+                   - 0.5 * (L1 + L2) + np.log(np.maximum(L2 - L1, 0))
+    dens = np.exp(log_dens - np.nanmax(log_dens))
+    dens[L1 > L2] = np.nan  # mask the half-plane lambda_1 > lambda_2
+
+    fig, ax = plt.subplots(figsize=(6.5, 5))
+    pcm = ax.pcolormesh(L1, L2, dens, shading="auto", cmap="Blues", vmin=0)
+    ax.plot([grid.min(), grid.max()], [grid.min(), grid.max()], "--",
+            color=PALETTE["accent"], linewidth=1.0, label=r"diagonal $\lambda_2 = \lambda_1$")
+    ax.set_xlabel(r"$\lambda_1$ (smaller eigenvalue)")
+    ax.set_ylabel(r"$\lambda_2$ (larger eigenvalue)")
+    ax.set_xlim(grid.min(), grid.max())
+    ax.set_ylim(grid.min(), grid.max())
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_title(rf"Joint eigenvalue density for $W_2({n}, I_2)$ (theoretical, normalized)")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+
+    cbar = fig.colorbar(pcm, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label("density (relative)")
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "wishart_density_heatmap.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+# ============================================================================
 # 1. Wishart 2D eigenvalues: scatter + gap histogram
 # ============================================================================
 
@@ -257,7 +426,9 @@ def make_tw_edge_figure() -> Path:
 
 if __name__ == "__main__":
     print("Generating Section 3 figures...")
-    for fn in (make_wishart_2d_figure, make_lowdim_qq_figure,
+    for fn in (make_scatter_axes_figure, make_scm_consistency_figure,
+               make_wishart_density_heatmap_figure,
+               make_wishart_2d_figure, make_lowdim_qq_figure,
                make_mp_bulk_figure, make_tw_edge_figure):
         path = fn()
         print(f"  Saved: {path.name}")
