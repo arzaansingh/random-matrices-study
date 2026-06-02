@@ -614,24 +614,24 @@ def make_fluctuation_phase_transition_figure() -> Path:
 # ============================================================================
 # Figure 6: the critical window. Two figures supporting the §4.3 discussion of
 # what happens to the top eigenvalue as the spike approaches alpha_c = 1+sqrt(y)
-# (ported from Exercise 5, restyled, with our notation: c -> y, S_n -> Sigmahat).
+# (ported from Exercise 5, restyled, with our notation: c -> y, S_n -> Sigmahat;
+# raw eigenvalues throughout, no edge rescaling).
 # ============================================================================
 
-def make_critical_boxplot_sweep_figure() -> Path:
-    """Fixed-alpha sweep of lambda_max(Sigmahat_n) across the threshold.
+def make_critical_violin_sweep_figure() -> Path:
+    """Violin sweep of the RAW top eigenvalue across the threshold.
 
-    For a grid of spike values straddling alpha_c = 1+sqrt(y), boxplots of the
-    top sample eigenvalue over R replications, with the deterministic prediction
-    (lambda_+ below the threshold, Psi(alpha) above) overlaid as diamonds. The
-    point is that the location moves CONTINUOUSLY and tangentially through the
-    threshold: because Psi(alpha_c) = lambda_+ and Psi'(alpha_c) = 0, a barely
-    supercritical spike still sits essentially on the edge, so the transition is
-    not visually abrupt at finite n.
+    Shows how the whole distribution of lambda_max(Sigmahat_n) changes with the
+    spike. Below alpha_c it is tight, pinned at the MP edge, and asymmetric (the
+    Tracy-Widom edge law); above alpha_c it lifts along Psi(alpha), broadens, and
+    becomes symmetric (Gaussian). Near alpha_c the violins overlap because the
+    location barely moves (Psi'(alpha_c) = 0); they separate only well away from
+    the threshold. One picture for location, spread, and shape at once.
     """
     rng = np.random.default_rng(SEED + 5)
     y = 0.5
     n, p = 800, 400
-    R = 300
+    R = 800
     thr = 1.0 + np.sqrt(y)
     lam_plus = mp_upper_edge(y)
 
@@ -639,138 +639,102 @@ def make_critical_boxplot_sweep_figure() -> Path:
     alpha_grid = thr + offsets
 
     data = []
-    centers = []
     for alpha in alpha_grid:
         lam_vals = np.empty(R)
         for r in range(R):
             lam_vals[r] = simulate_spiked_eigenvalues([alpha], p=p, n=n, rng=rng)[0]
         data.append(lam_vals)
-        centers.append(lam_plus if alpha <= thr + 1e-12 else psi(alpha, y))
 
-    positions = np.arange(1, len(alpha_grid) + 1)
-    fig, ax = plt.subplots(figsize=(10, 5.6))
+    fig, ax = plt.subplots(figsize=(10, 5.8))
 
-    bp = ax.boxplot(
-        data, positions=positions, showfliers=False, widths=0.55,
-        patch_artist=True,
-    )
-    for box in bp["boxes"]:
-        box.set(facecolor=PALETTE["def"], alpha=0.30, edgecolor=PALETTE["def"],
-                linewidth=1.0)
-    for med in bp["medians"]:
-        med.set(color=PALETTE["accent"], linewidth=1.4)
-    for whisk in bp["whiskers"]:
-        whisk.set(color=PALETTE["def"], linewidth=1.0)
-    for cap in bp["caps"]:
-        cap.set(color=PALETTE["def"], linewidth=1.0)
+    parts = ax.violinplot(data, positions=alpha_grid, widths=0.035,
+                          showmedians=True, showextrema=False)
+    for body in parts["bodies"]:
+        body.set(facecolor=PALETTE["def"], edgecolor=PALETTE["def"], alpha=0.45)
+    parts["cmedians"].set(color=PALETTE["accent"], linewidth=1.2)
 
-    # Predicted-center diamonds.
-    ax.scatter(positions, centers, marker="D", s=55, color=PALETTE["thm"],
-               zorder=5, label=r"Predicted center ($\lambda_+$ or $\Psi(\alpha)$)")
-
-    # MP edge and threshold guides.
-    ax.axhline(lam_plus, color=PALETTE["accent"], linestyle="--", linewidth=1.1,
+    # Theoretical location: lambda_+ below the threshold, Psi(alpha) above.
+    a_sub = np.linspace(alpha_grid.min() - 0.02, thr, 50)
+    a_sup = np.linspace(thr, alpha_grid.max() + 0.02, 120)
+    ax.plot(a_sub, np.full_like(a_sub, lam_plus), color=PALETTE["thm"], linewidth=1.6)
+    ax.plot(a_sup, psi(a_sup, y), color=PALETTE["thm"], linewidth=1.6,
+            label=r"Predicted location ($\lambda_+$, then $\Psi(\alpha)$)")
+    ax.axhline(lam_plus, color=PALETTE["accent"], linestyle="--", linewidth=1.0,
                label=rf"MP edge $\lambda_+ \approx {lam_plus:.2f}$")
-    crit_pos = positions[np.argmin(np.abs(offsets))]
-    ax.axvline(crit_pos, color=PALETTE["thm"], linestyle=":", linewidth=1.1,
+    ax.axvline(thr, color=PALETTE["thm"], linestyle=":", linewidth=1.0,
                label=rf"Threshold $\alpha_c = 1+\sqrt{{y}} \approx {thr:.2f}$")
 
-    ax.set_xticks(positions)
-    ax.set_xticklabels([f"{a:.2f}" for a in alpha_grid], rotation=45)
     ax.set_xlabel(r"Population spike $\alpha$")
     ax.set_ylabel(r"Top sample eigenvalue $\lambda_{\max}(\widehat{\Sigma}_n)$")
     ax.set_title(
-        rf"Top-eigenvalue location across the threshold "
+        rf"Distribution of $\lambda_{{\max}}$ across the threshold "
         rf"($y = 1/2$, $n = {n}$, $p = {p}$, $R = {R}$)"
     )
     ax.legend(loc="upper left", frameon=False, fontsize=9)
     ax.grid(True, axis="y", linestyle=":", alpha=0.35)
 
     fig.tight_layout()
-    path = FIGURES_DIR / "critical_boxplot_sweep.png"
+    path = FIGURES_DIR / "critical_violin_sweep.png"
     fig.savefig(path)
     plt.close(fig)
     return path
 
 
-def make_critical_window_merge_figure() -> Path:
-    """Two-panel illustration that the just-below and just-above distributions
-    collapse onto a common critical shape as delta = |alpha - alpha_c| -> 0.
+def make_critical_merge_densities_figure() -> Path:
+    """Raw top-eigenvalue densities just below vs just above the threshold, at a
+    SMALL and a LARGE distance delta = |alpha - alpha_c|.
 
-    Left: edge-scaled densities W = (lambda_max - mu_np)/sigma_np for the pairs
-    (alpha_c - delta, alpha_c + delta) at a large delta (clearly separated) and
-    a small delta (merged).
-
-    Right: the left-right gap (|mean diff|, |median diff|, KS statistic) as a
-    function of delta on a log axis; all three shrink toward zero as delta -> 0,
-    i.e. as both spikes fall inside the finite-n critical window of width
-    ~ n^{-1/3}.
+    Near the threshold (small delta) the below- and above-distributions nearly
+    coincide, because the outlier location has barely left the edge. Far from the
+    threshold (large delta) the supercritical side has lifted away and the two
+    are clearly distinct. No edge rescaling: the horizontal axis is the
+    eigenvalue itself, so the merge is read directly off the raw distributions.
     """
     rng = np.random.default_rng(SEED + 6)
     y = 0.5
-    n, p = 600, 300
-    R = 400
+    n, p = 800, 400
+    R = 800
     thr = 1.0 + np.sqrt(y)
-    mu_np, sigma_np = _johnstone_constants(n, p)
+    lam_plus = mp_upper_edge(y)
 
-    delta_grid = np.array([1e-1, 1e-2, 1e-3, 1e-4])
-
-    def edge_scaled(alpha):
-        lam_vals = np.empty(R)
+    def lam_sample(alpha):
+        v = np.empty(R)
         for r in range(R):
-            lam_vals[r] = simulate_spiked_eigenvalues([alpha], p=p, n=n, rng=rng)[0]
-        return (lam_vals - mu_np) / sigma_np
+            v[r] = simulate_spiked_eigenvalues([alpha], p=p, n=n, rng=rng)[0]
+        return v
 
-    left_W = {d: edge_scaled(thr - d) for d in delta_grid}
-    right_W = {d: edge_scaled(thr + d) for d in delta_grid}
+    near, far = 0.05, 0.30
+    style = {
+        ("near", "below"): (thr - near, PALETTE["def"], "-",
+                            rf"$\alpha_c - {near:g}$ (below)"),
+        ("near", "above"): (thr + near, PALETTE["def"], "--",
+                            rf"$\alpha_c + {near:g}$ (above)"),
+        ("far", "below"): (thr - far, PALETTE["accent"], "-",
+                           rf"$\alpha_c - {far:g}$ (below)"),
+        ("far", "above"): (thr + far, PALETTE["accent"], "--",
+                           rf"$\alpha_c + {far:g}$ (above)"),
+    }
 
-    fig, (axL, axR) = plt.subplots(1, 2, figsize=(13, 5.2))
+    grid = np.linspace(2.70, 3.15, 400)
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    for (alpha, color, ls, lab) in style.values():
+        kde = stats.gaussian_kde(lam_sample(alpha))
+        ax.plot(grid, kde(grid), color=color, linestyle=ls, linewidth=1.8, label=lab)
 
-    # --- LEFT: density overlays at a large and a small delta ---
-    grid = np.linspace(-5, 4, 400)
-    pairs = [(1e-1, PALETTE["accent"]), (1e-3, PALETTE["def"])]
-    for d, color in pairs:
-        kde_l = stats.gaussian_kde(left_W[d])
-        kde_r = stats.gaussian_kde(right_W[d])
-        axL.plot(grid, kde_l(grid), color=color, linewidth=1.7, linestyle="-",
-                 label=rf"$\alpha_c - {d:g}$")
-        axL.plot(grid, kde_r(grid), color=color, linewidth=1.7, linestyle="--",
-                 label=rf"$\alpha_c + {d:g}$")
-    axL.axvline(0.0, color="black", linewidth=0.6)
-    axL.set_xlabel(r"Edge-scaled statistic $W = (\lambda_{\max} - \mu_{n,p})/\sigma_{n,p}$")
-    axL.set_ylabel("Estimated density")
-    axL.set_title(r"Just below vs just above $\alpha_c$")
-    axL.legend(loc="upper left", frameon=False, fontsize=9)
-    axL.grid(True, linestyle=":", alpha=0.35)
-
-    # --- RIGHT: left-right gap vs delta ---
-    mean_gap, med_gap, ks_gap = [], [], []
-    for d in delta_grid:
-        mean_gap.append(abs(right_W[d].mean() - left_W[d].mean()))
-        med_gap.append(abs(np.median(right_W[d]) - np.median(left_W[d])))
-        ks_gap.append(stats.ks_2samp(left_W[d], right_W[d]).statistic)
-
-    axR.plot(delta_grid, mean_gap, marker="o", color=PALETTE["def"], linewidth=1.4,
-             label="mean gap")
-    axR.plot(delta_grid, med_gap, marker="s", color=PALETTE["accent"], linewidth=1.4,
-             label="median gap")
-    axR.plot(delta_grid, ks_gap, marker="^", color=PALETTE["thm"], linewidth=1.4,
-             label="KS statistic")
-    axR.set_xscale("log")
-    axR.invert_xaxis()  # delta decreasing left -> right
-    axR.set_xlabel(r"Distance to threshold $\delta = |\alpha - \alpha_c|$")
-    axR.set_ylabel("Left--right distribution gap")
-    axR.set_title(r"Both sides merge as $\delta \to 0$")
-    axR.legend(loc="upper right", frameon=False, fontsize=9)
-    axR.grid(True, linestyle=":", alpha=0.35)
-
-    fig.suptitle(
-        rf"Edge-scaled top eigenvalue near $\alpha_c$ "
-        rf"($y = 1/2$, $n = {n}$, $p = {p}$, $R = {R}$)",
-        fontsize=11,
+    ax.axvline(lam_plus, color=PALETTE["thm"], linestyle=":", linewidth=1.0,
+               label=rf"MP edge $\lambda_+ \approx {lam_plus:.2f}$")
+    ax.set_xlabel(r"Top sample eigenvalue $\lambda_{\max}(\widehat{\Sigma}_n)$")
+    ax.set_ylabel("Estimated density")
+    ax.set_title(
+        rf"Just below vs just above $\alpha_c$, near ($\delta = {near:g}$) "
+        rf"and far ($\delta = {far:g}$) "
+        rf"($y = 1/2$, $n = {n}$, $p = {p}$, $R = {R}$)"
     )
+    ax.legend(loc="upper right", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
     fig.tight_layout()
-    path = FIGURES_DIR / "critical_window_merge.png"
+    path = FIGURES_DIR / "critical_merge_densities.png"
     fig.savefig(path)
     plt.close(fig)
     return path
@@ -786,8 +750,8 @@ if __name__ == "__main__":
                make_phase_transition_figure,
                make_top_eigenvalue_distributions_figure,
                make_spike_fluctuations_figure,
-               make_critical_boxplot_sweep_figure,
-               make_critical_window_merge_figure):
+               make_critical_violin_sweep_figure,
+               make_critical_merge_densities_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
