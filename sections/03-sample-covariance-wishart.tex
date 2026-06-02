@@ -10,13 +10,14 @@
 
 \section{Sample Covariance Matrices}\label{sec:scm}
 
-The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimension this empirical version behaves like a classical sample average. When the dimension grows with the sample size, its spectral behavior changes qualitatively, and both regimes are unpacked below.
+
+The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimensions, this empirical version behaves like a classical sample average \GDcomment{Meaning?}. When the dimension grows with the sample size -- \GD{the so-called \textit{high-dimensional regime}} --, its spectral behavior changes qualitatively, and both regimes are unpacked below.
 
 %====================================================================
 \subsection{Definition and Geometry of the Sample Covariance Matrix}\label{subsec:scm-foundations}
 
-\begin{definition}[Sample covariance matrix]\label{def:scm}
-Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid copies of a random vector \(\vect{X} \in \R^p\). In the \emph{mean-zero} case (\(\E[\vect{X}] = \vect{0}\) known), the \vocab{sample covariance matrix} is the \(p \times p\) matrix
+\begin{definition}[Sample covariance matrix \GD{(SCM)}]\label{def:scm}
+Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid copies of a random vector \(\vect{X} \in \R^p\). In the \emph{mean-zero} case (\(\E[\vect{X}] = \vect{0}\) known), the \vocab{sample covariance matrix} is the \(p \times p\) random matrix
 \begin{equation}
   \Sigmahat_n \;=\; \frac{1}{n} \sum_{i = 1}^n \vect{X}_i \vect{X}_i\transpose.
   \label{eq:scm-outer}
@@ -29,18 +30,18 @@ In the \emph{mean-unknown} case, the (unbiased) sample covariance matrix is
 
 We work in the mean-zero case throughout the rest of the report; the Gaussian models in Sections~\ref{sec:scm} and~\ref{sec:spiked} all have \(\vect{\mu} = \vect{0}\) by convention, and the matrix algebra is cleaner. The asymptotic results below carry over to the mean-unknown version with no substantive change.
 
-\paragraph{Each entry is a sample average.} Writing \(\vect{X}_i = (X_{i1}, \ldots, X_{ip})\transpose\), the \((j, k)\) entry of \(\Sigmahat_n\) is
-\begin{equation}
+\GD{Note that each entry of a SCM is a sample average. In fact,} writing \(\vect{X}_i = (X_{i1}, \ldots, X_{ip})\transpose\), the \((j, k)\) entry of \(\Sigmahat_n\) is
+\begin{equation}\label{e:SCM}
   (\Sigmahat_n)_{jk} \;=\; \frac{1}{n} \sum_{i = 1}^n X_{ij}\, X_{ik}, \qquad j, k = 1, \ldots, p.
   \label{eq:scm-entrywise}
 \end{equation}
-Each entry is therefore the sample average of the iid scalar products \(W_i^{(j,k)} = X_{ij} X_{ik}\), whose common mean (since \(\vect{X}_1\) has mean zero) is exactly
+Each entry \GD{of \eqref{e:SCM}} is therefore the sample average of the iid scalar products \(W_i^{(j,k)} = X_{ij} X_{ik}\), whose common mean (since \(\vect{X}_1\) has mean zero) is exactly
 \[
   \E\!\bigl[X_{1j}\, X_{1k}\bigr] \;=\; \Cov(X_j, X_k) \;=\; \Sigma_{jk}.
 \]
 By the strong law of large numbers (Theorem~\ref{thm:slln}), every entry converges almost surely to its population counterpart, \((\Sigmahat_n)_{jk} \convas \Sigma_{jk}\) as \(n \to \infty\). This entrywise LLN is the mechanism behind the matrix-level convergence proved in Section~\ref{subsec:scm-lowdim}. The diagonal entries \((\Sigmahat_n)_{jj} = n^{-1} \sum_i X_{ij}^2\) are sample variances of individual coordinates; the off-diagonal entries are sample covariances between pairs of coordinates.
 
-\paragraph{Matrix form.} The entrywise formula~\eqref{eq:scm-entrywise} can be repackaged as a single matrix identity. Stack the \(n\) observations as the columns of the \emph{data matrix}
+\GD{As it turns out, the entrywise formula~\eqref{eq:scm-entrywise} can be conveniently} repackaged as a single matrix identity. Stack the \(n\) observations as the columns of the \emph{data matrix}
 \[
   \mat{X} \;=\; (\vect{X}_1 \mid \vect{X}_2 \mid \cdots \mid \vect{X}_n) \;\in\; \R^{p \times n}.
 \]
@@ -53,10 +54,7 @@ Dividing by \(n\) recovers equation~\eqref{eq:scm-entrywise}, so we obtain the c
   \Sigmahat_n \;=\; \frac{1}{n}\, \mat{X} \mat{X}\transpose.
   \label{eq:scm-matrix-form}
 \end{equation}
-This is the working form of the sample covariance matrix used throughout the rest of the report.
-
-\paragraph{Symmetry and positive semidefiniteness.} The matrix form makes the structural properties of \(\Sigmahat_n\) immediate.
-
+This is the working form of the sample covariance matrix used throughout the rest of the report. \GD{Relation \eqref{eq:scm-matrix-form} is very useful in establishing the following proposition.} 
 \begin{proposition}[\(\Sigmahat_n\) is symmetric and PSD]\label{prop:scm-psd}
 The sample covariance matrix \(\Sigmahat_n\) is symmetric and positive semidefinite. All of its eigenvalues are therefore nonnegative (Theorem~\ref{thm:pd-psd-eigen}).
 \end{proposition}
@@ -329,7 +327,7 @@ Figure~\ref{fig:lowdim-qq} confirms this dichotomy with normal Q-Q plots from a 
 \]
 The general statement is in \citet[][Lem.~B.2]{DidierPipiras2012}.
 
-In the repeated case \(\Sigma = I_2\) there is no canonical limiting eigenbasis: every direction in \(\R^2\) is a population eigenvector. The sample eigenvectors do not converge, even though the sample matrix itself does, as the following deterministic counterexample makes vivid.
+In the repeated case \(\Sigma = I_2\) there is no canonical limiting eigenbasis: every direction in \(\R^2\) is a population eigenvector. The sample eigenvectors \GD{may not converge, even when the sample matrix itself does. This is illustrated in the following deterministic counterexampl.}
 
 \begin{example}[Sample eigenvectors can fail to converge under repeated eigenvalues]\label{ex:eigenvec-fail}
 Define a sequence of \(2 \times 2\) symmetric matrices
@@ -346,13 +344,18 @@ The lesson of Example~\ref{ex:eigenvec-fail} is that eigenvectors require \emph{
 %====================================================================
 \subsection{High Dimensions: Marchenko-Pastur Law and the Tracy-Widom Edge}\label{subsec:scm-highdim}
 
-The picture of Section~\ref{subsec:scm-lowdim} breaks down qualitatively when \(p\) is allowed to grow with \(n\). The basic phenomenon was already visible in Figure~\ref{fig:intro-regimes} of the introduction: with \(p = 500\) and \(n = 1000\), the sample eigenvalues spread across the interval \([0.086, 2.914]\) even when \(\Sigma = I_p\). They no longer converge to \(\lambda_i(\Sigma) = 1\). The relevant observable is no longer an individual eigenvalue but the entire eigenvalue distribution, and the natural framework is the \emph{empirical spectral distribution}.
+\GDcomment{I'm trying to streamline the text. }
 
-The setup throughout is the \vocab{high-dimensional regime}: \(p, n \to \infty\) with
+\GD{The \vocab{high-dimensional regime} is defined as the situation where the SCM parameters satisfy 
 \[
-  \frac{p}{n} \;\longrightarrow\; y \;\in\; (0, \infty).
+  \frac{p}{n} \;\longrightarrow\; y \;\in\; (0, \infty), \quad \textnormal{as } n \rightarrow \infty.
 \]
-The ratio \(y\) is the \emph{aspect ratio} of the data.
+The ratio \(y\) is called the \emph{aspect ratio} of the data.}
+
+\GD{In high dimensions, the picture of Section~\ref{subsec:scm-lowdim} breaks down qualitatively.} The basic phenomenon was already visible in Figure~\ref{fig:intro-regimes} of the introduction: with \(p = 500\) and \(n = 1000\), the sample eigenvalues spread across the interval \([0.086, 2.914]\) even when \(\Sigma = I_p\). \GD{In other words, by comparison to the low-dimensional regime, they no longer converge to \(\lambda_i(\Sigma) = 1\).} 
+
+\GD{In high dimensions, the relevant observable may no longer be an individual eigenvalue, but the entire range thereof -- also called \textit{the bulk}. In order to study the eigenvalues in the bulk, we now define the so-called \emph{empirical spectral distribution}.} \GDcomment{In fact, you might want to consider the distribution of an individual eigenvalue, such as the top eigenvalue.}
+
 
 \begin{definition}[Empirical spectral distribution]\label{def:esd}
 The \emph{empirical spectral distribution} (ESD) of a \(p \times p\) symmetric matrix \(A\) with eigenvalues \(\lambda_1, \ldots, \lambda_p\) is the probability measure
@@ -363,10 +366,10 @@ placing equal mass \(1/p\) at each eigenvalue.
 \end{definition}
 
 \paragraph{The Marchenko-Pastur law.}
-The fundamental high-dimensional fact is that the ESD of \(\Sigmahat_n\) has a non-trivial limit, even when \(\Sigma = I_p\). The shape of that limit depends only on the aspect ratio \(y\) of the data, and is the same across a wide range of entry distributions.
+The fundamental high-dimensional fact is that the ESD of \(\Sigmahat_n\) has a non-trivial limit, even when \(\Sigma = I_p\). \GDcomment{This is a repetition.} The shape of that limit depends only on the aspect ratio \(y\) of the data, and is the same across a wide range of entry distributions.
 
 \begin{theorem}[Marchenko-Pastur law \citep{MarchenkoPastur1967}]\label{thm:mp}
-Let \(\mat{X} \in \R^{p \times n}\) have iid entries with mean zero, unit variance, and finite fourth moment, and let \(\Sigmahat_n = (1/n)\, \mat{X} \mat{X}\transpose\). As \(p, n \to \infty\) with \(p / n \to y \in (0, \infty)\), the ESD \(F_{\Sigmahat_n}\) converges weakly almost surely to the \vocab{Marchenko-Pastur law} \(\MP_y\), the probability distribution on \([0, \infty)\) with density
+Let \(\mat{X} \in \R^{p \times n}\) have iid entries with mean zero, unit variance, and finite fourth moment, and let \(\Sigmahat_n = (1/n)\, \mat{X} \mat{X}\transpose\). As \(p, n \to \infty\) with \(p / n \to y \in (0, \infty)\), the ESD \(F_{\Sigmahat_n}\) converges weakly almost surely to the \vocab{Marchenko-Pastur law} \(\MP_y\). \GD{When $0 < y < 1$, this distribution is defined by the p.d.f.\ }
 \begin{equation}
   f_{\MP_y}(\lambda) \;=\; \frac{1}{2 \pi y \lambda}\, \sqrt{(\lambda_+ - \lambda)(\lambda - \lambda_-)}, \qquad \lambda \in [\lambda_-, \lambda_+],
   \label{eq:mp-density}
@@ -374,7 +377,7 @@ Let \(\mat{X} \in \R^{p \times n}\) have iid entries with mean zero, unit varian
 where \(\lambda_\pm = (1 \pm \sqrt{y})^2\). If \(y > 1\), the law carries an additional atom at zero of mass \(1 - 1/y\).
 \end{theorem}
 
-A complete proof passes through the Stieltjes transform of \(F_{\Sigmahat_n}\) and is beyond the scope of this report; see \citet[][Thm.~2.5]{YaoZhengBai2015} or \citet[][Thm.~3.6]{Vershynin2018}. The hypothesis covers Gaussian entries (the main case we simulate) and many other distributions with finite fourth moment; the form of the limit~\eqref{eq:mp-density} is the same.
+A complete proof passes through the Stieltjes transform of \(F_{\Sigmahat_n}\) and is beyond the scope of this report; see \citet[][Thm.~2.5]{YaoZhengBai2015} or \citet[][Thm.~3.6]{Vershynin2018}. The hypothesis covers Gaussian entries (the main case we simulate) and many other distributions with finite fourth moment. \GDcomment{``the form of the limit~\eqref{eq:mp-density} is the same." This is redundant.}
 
 Figure~\ref{fig:mp-varying-c} shows the law for four aspect ratios. The shape changes dramatically with \(y\): for \(y\) small the support is a narrow band around \(\lambda = 1\) (the low-dimensional regime is recovered as \(y \to 0\)); for \(y\) near one the density piles up at zero; for \(y > 1\) the matrix \(\Sigmahat_n\) becomes rank-deficient and \(F_{\Sigmahat_n}\) carries an explicit Dirac mass at zero on top of the continuous bulk. A high-resolution single-realization companion plot is included in Appendix~\ref{app:simulation}, Figure~\ref{fig:mp-bulk-single}.
 
@@ -387,22 +390,23 @@ Figure~\ref{fig:mp-varying-c} shows the law for four aspect ratios. The shape ch
 
 Three features of the MP law are worth recording.
 \begin{itemize}[leftmargin=*,itemsep=0.3em]
-  \item The support is the interval \([(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]\), of width \(4 \sqrt{y}\). As \(y \to 0\) the support collapses to the point \(\lambda = 1\), recovering the low-dimensional consistency of Section~\ref{subsec:scm-lowdim}.
-  \item Near the upper edge \(\lambda_+\), the density vanishes like a square root: \(f_{\MP_y}(\lambda) \sim C(\lambda_+ - \lambda)^{1/2}\). This square-root edge is the input to the Tracy-Widom heuristic below.
+  \item \GD{For $0 < y < 1$,} the support is the interval \([(1 - \sqrt{y})^2, (1 + \sqrt{y})^2]\), of width \(4 \sqrt{y}\). As \(y \to 0\) the support collapses to the point \(\lambda = 1\), recovering the low-dimensional consistency of Section~\ref{subsec:scm-lowdim}.
+  \item Near the upper edge \(\lambda_+\), the density vanishes like a square root: \(f_{\MP_y}(\lambda) \sim C(\lambda_+ - \lambda)^{1/2}\). This square-root edge is the input to the Tracy-Widom heuristic below. \GDcomment{Nice.}
   \item When \(y > 1\) the atom at zero has mass \(1 - 1/y\); the matrix \(\mat{X} \mat{X}\transpose\) has rank at most \(n < p\), so \(p - n\) of its eigenvalues are deterministically zero.
 \end{itemize}
 
-The largest sample eigenvalue exits the bulk at the upper edge.
+The largest sample eigenvalue exits \GDcomment{Exits?} the bulk at the upper edge.
 
+\GD{In the following theorem, we describe the convergence of the top eigenvalue of SCMs in the high-dimensional regime.}
 \begin{theorem}[Convergence of the top eigenvalue \citep{BaikSilverstein2006}]\label{thm:lambda-max-edge}
 Under the hypotheses of Theorem~\ref{thm:mp},
 \[
-  \lambda_{\max}(\Sigmahat_n) \;\convas\; \lambda_+ \;=\; (1 + \sqrt{y})^2.
+  \lambda_{\max}(\Sigmahat_n) \;\convas\; \lambda_+ \;=\; (1 + \sqrt{y})^2, \quad n \rightarrow \infty.
 \]
 \end{theorem}
 
-\paragraph{From the MP edge to a non-Gaussian limit.}
-Theorem~\ref{thm:lambda-max-edge} settles \emph{where} \(\lambda_{\max}(\Sigmahat_n)\) lives in the limit but not \emph{how} it fluctuates around \(\lambda_+\). The fluctuations cannot be Gaussian: the geometry on the two sides of \(\lambda_{\max}\) is fundamentally different.
+\GD{Its importance notwithstanding,Theorem~\ref{thm:lambda-max-edge} settles \emph{where} \(\lambda_{\max}(\Sigmahat_n)\) lives in the limit but not \emph{how} it fluctuates around \(\lambda_+\). Unlike in low dimensions, the fluctuations of $\lambda_{\max}(\Sigmahat_n)$ in high dimensions cannot be Gaussian. In fact, the geometry on the two sides of \(\lambda_{\max}\) is fundamentally different. This can be schematically explained as follows.}
+
 \begin{itemize}[leftmargin=*,itemsep=0.25em]
   \item \emph{To the left,} the other \(p - 1\) sample eigenvalues are densely packed and repel each other via the Vandermonde factor in~\eqref{eq:vandermonde}, exerting an upward ``pressure'' that resists \(\lambda_{\max}\) drifting back into the bulk.
   \item \emph{To the right,} the support of the MP density ends at \(\lambda_+\); past the edge there is nothing, so excursions above \(\lambda_+\) are unconstrained by neighbouring eigenvalues.
@@ -418,6 +422,7 @@ Figure~\ref{fig:edge-repulsion} makes this geometry tangible: across hundreds of
 
 Two regimes, two different restoring mechanisms: the limit is left-skewed, with mean \(\approx -1.207\) and standard deviation \(\approx 1.268\). It is the \emph{Tracy-Widom Type 1 distribution}, discovered by \citet{TracyWidom1996} as the top-eigenvalue limit of the GOE; \citet{Wolchover2014} is an accessible non-technical introduction.
 
+\GD{The technical definition of the Tracy-Widom Type 1 distribution is provided next.}
 \begin{definition}[Tracy-Widom Type 1 distribution]\label{def:tw1}
 The \vocab{Tracy-Widom Type 1} law \(\mathrm{TW}_1\) is the probability distribution on \(\R\) with cumulative distribution function
 \begin{equation}
@@ -433,10 +438,10 @@ where \(q\) is the unique \emph{Hastings-McLeod solution} \citep{HastingsMcLeod1
 with \(\mathrm{Ai}\) the Airy function.
 \end{definition}
 
-\(\mathrm{TW}_1\) has no closed-form density: the CDF~\eqref{eq:tw1-cdf} is defined indirectly through the Painlev\'e II ODE, and the Hastings-McLeod boundary condition pins down the unique solution that decays correctly at \(+\infty\). The same distribution arises in problems far from random matrices, the longest increasing subsequence of a random permutation \citep{BaikDeiftJohansson1999} being the canonical example. This universality is what gives the family its name. We use \(\mathrm{TW}_1\) here only through its name and its empirical density, plotted in Figure~\ref{fig:tw-universality}.
+\(\mathrm{TW}_1\) has no closed-form density: the CDF~\eqref{eq:tw1-cdf} is defined indirectly through the Painlev\'e II ODE, and the Hastings-McLeod boundary condition pins down the unique solution that decays correctly at \(+\infty\). The same distribution arises in problems far from random matrices, the longest increasing subsequence of a random permutation \citep{BaikDeiftJohansson1999} being the canonical example. This universality is what gives the family its name. \GDcomment{I don't understand the previous sentence.} We use \(\mathrm{TW}_1\) here only through its name and its empirical density, plotted in Figure~\ref{fig:tw-universality}.
 
 \smallskip
-\noindent\emph{Heuristic for the \(p^{-2/3}\) edge scale.} A short calculation using only the square-root edge of the MP density makes the exponent plausible. Near the upper edge,
+\noindent\emph{Heuristic for the \(p^{-2/3}\) edge scale.} A short calculation using only the square-root edge of the MP density makes the exponent plausible. \GDcomment{At this point, we have not said anything about exponents.} Near the upper edge,
 \[
   f_{\MP_y}(\lambda) \;\sim\; C\,(\lambda_+ - \lambda)^{1/2} \qquad (\lambda \uparrow \lambda_+).
 \]
@@ -447,7 +452,7 @@ The largest of \(p\) iid draws from this density sits, heuristically, where the 
 so \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\). The exponent \(3/2\) in the integrated square-root density inverts to the exponent \(2/3\) in the fluctuation scale.
 
 \paragraph{The Johnstone (2001) edge theorem.}
-The heuristic above predicts the right \emph{scale} of the fluctuations, but not their precise centering. To compare \(\lambda_{\max}\) to a definite distribution we need explicit finite-sample constants \(\mu_{n p}\) (which pins the centering to the edge) and \(\sigma_{n p}\) (which sets the \(p^{-2/3}\) scale). \citet{Johnstone2001} supplied both.
+The heuristic above predicts the right \emph{scale} of the fluctuations, but not their precise centering. To compare \(\lambda_{\max}\) to a definite distribution we need explicit finite-sample constants \(\mu_{n p}\) (which pins the centering to the edge) and \(\sigma_{n p}\) (which sets the \(p^{-2/3}\) scale). \citet{Johnstone2001} supplied both. \GDcomment{Not only the normalization sequences -- I believe Johnstone (and Johansson) provided the first proof of TW limits for SCMs}
 
 \begin{theorem}[Tracy-Widom edge for the null sample covariance, \citealp{Johnstone2001}]\label{thm:tw}
 Under the hypotheses of Theorem~\ref{thm:mp}, define
