@@ -717,6 +717,12 @@ def make_critical_merge_densities_figure() -> Path:
 
     grid = np.linspace(2.70, 3.15, 400)
     fig, ax = plt.subplots(figsize=(9, 5.2))
+
+    # Exactly-critical distribution, drawn first (underneath) as the reference.
+    kde_c = stats.gaussian_kde(lam_sample(thr))
+    ax.plot(grid, kde_c(grid), color=PALETTE["thm"], linestyle="-", linewidth=2.6,
+            alpha=0.9, label=r"$\alpha_c$ (critical)")
+
     for (alpha, color, ls, lab) in style.values():
         kde = stats.gaussian_kde(lam_sample(alpha))
         ax.plot(grid, kde(grid), color=color, linestyle=ls, linewidth=1.8, label=lab)
