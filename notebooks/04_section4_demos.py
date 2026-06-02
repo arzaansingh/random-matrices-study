@@ -746,6 +746,141 @@ def make_critical_merge_densities_figure() -> Path:
     return path
 
 
+# ============================================================================
+# Figure 7: eigenvector alignment (Section 4.4). Yao-Zheng-Bai Thm 11.5 /
+# Cor 11.6: the squared overlap |<u_1, e_1>|^2 of the top sample eigenvector
+# with the population spike direction converges to rho(alpha, y), zero below
+# the threshold. Two figures: (a) alignment turning on as alpha grows at fixed
+# y; (b) the effect of the aspect ratio y (larger y needs a larger alpha to
+# reach the same alignment).
+# ============================================================================
+
+def rho_overlap(alpha, y):
+    """Limiting squared overlap |<u_1, e_1>|^2 = d^2 = alpha*Psi'(alpha)/Psi(alpha)
+    for a simple Johnstone spike (YZB Cor. 11.6):
+
+        rho = (1 - y/(alpha-1)^2) / (1 + y/(alpha-1)),   alpha > 1 + sqrt(y),
+
+    and 0 at or below the threshold.
+    """
+    alpha = np.asarray(alpha, dtype=float)
+    thr = 1.0 + np.sqrt(y)
+    r = (1.0 - y / (alpha - 1.0) ** 2) / (1.0 + y / (alpha - 1.0))
+    return np.where(alpha > thr, np.maximum(r, 0.0), 0.0)
+
+
+def simulate_top_overlap(alpha, p, n, rng, R):
+    """R replications of |<u_1, e_1>|^2 for Sigma = diag(alpha, 1, ..., 1).
+    Since e_1 is the first coordinate axis, the overlap is the square of the
+    first entry of the top sample eigenvector."""
+    sqrt_diag = np.ones(p)
+    sqrt_diag[0] = np.sqrt(alpha)
+    out = np.empty(R)
+    for r in range(R):
+        Z = rng.standard_normal((p, n))
+        X = sqrt_diag[:, None] * Z
+        S = (X @ X.T) / n
+        w, V = np.linalg.eigh(S)
+        out[r] = V[0, np.argmax(w)] ** 2
+    return out
+
+
+def make_eigenvector_alignment_figure() -> Path:
+    """Mean squared overlap |<u_1, e_1>|^2 against the spike alpha at y = 1/2,
+    with the theoretical rho(alpha, y) curve and the threshold. Below the
+    threshold the overlap is ~0 (the top eigenvector is noise); above it the
+    overlap turns on and climbs toward 1."""
+    rng = np.random.default_rng(SEED + 7)
+    y = 0.5
+    n, p = 800, 400
+    R = 250
+    thr = 1.0 + np.sqrt(y)
+
+    alpha_grid = np.unique(np.round(np.concatenate([
+        np.linspace(1.10, thr - 0.02, 6),
+        np.linspace(thr + 0.02, 3.5, 11),
+    ]), 4))
+
+    means = np.empty(len(alpha_grid))
+    sds = np.empty(len(alpha_grid))
+    for i, alpha in enumerate(alpha_grid):
+        ov = simulate_top_overlap(float(alpha), p=p, n=n, rng=rng, R=R)
+        means[i] = ov.mean()
+        sds[i] = ov.std(ddof=1)
+
+    alpha_fine = np.linspace(1.02, 3.6, 500)
+
+    fig, ax = plt.subplots(figsize=(9, 5.4))
+    ax.plot(alpha_fine, rho_overlap(alpha_fine, y), color=PALETTE["thm"],
+            linewidth=1.8, label=r"Theory $\rho(\alpha, y) = \alpha\Psi'(\alpha)/\Psi(\alpha)$")
+    ax.errorbar(alpha_grid, means, yerr=sds, fmt="o", markersize=4,
+                color=PALETTE["def"], capsize=3, linewidth=1.0,
+                label=rf"Simulation mean $\pm$ sd ($R = {R}$)")
+    ax.axvline(thr, color=PALETTE["accent"], linestyle="--", linewidth=1.0,
+               label=rf"Threshold $\alpha_c = 1+\sqrt{{y}} \approx {thr:.2f}$")
+    ax.axhline(1.0, color=PALETTE["accent"], linestyle=":", linewidth=0.9)
+
+    ax.set_xlim(1.0, 3.55)
+    ax.set_ylim(-0.03, 1.03)
+    ax.set_xlabel(r"Population spike $\alpha$")
+    ax.set_ylabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    ax.set_title(rf"Eigenvector alignment turns on at the threshold "
+                 rf"($y = 1/2$, $n = {n}$, $p = {p}$)")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "eigenvector_alignment.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+def make_eigenvector_dimension_effect_figure() -> Path:
+    """Squared overlap against alpha for several aspect ratios y. Theory curves
+    (dense) with simulation means (sparse points) overlaid. A horizontal target
+    line shows the compensation question: to reach a fixed alignment, a larger y
+    requires a larger alpha."""
+    rng = np.random.default_rng(SEED + 8)
+    n = 700
+    R = 150
+    y_values = [0.25, 0.5, 0.75, 1.0]
+    colors = [PALETTE["def"], PALETTE["link"], PALETTE["accent"], PALETTE["thm"]]
+    markers = ["o", "s", "^", "D"]
+
+    alpha_fine = np.linspace(1.05, 4.0, 500)
+    alpha_pts = np.linspace(1.2, 3.9, 8)
+    target = 0.5
+
+    fig, ax = plt.subplots(figsize=(9, 5.4))
+    for y, color, mk in zip(y_values, colors, markers):
+        p = int(round(y * n))
+        ax.plot(alpha_fine, rho_overlap(alpha_fine, y), color=color,
+                linewidth=1.7, label=rf"$y = {y}$")
+        pts = np.empty(len(alpha_pts))
+        for i, alpha in enumerate(alpha_pts):
+            pts[i] = simulate_top_overlap(float(alpha), p=p, n=n, rng=rng, R=R).mean()
+        ax.scatter(alpha_pts, pts, color=color, marker=mk, s=22, zorder=5)
+
+    ax.axhline(target, color="black", linestyle=":", linewidth=1.0,
+               label=rf"target alignment $= {target}$")
+
+    ax.set_xlim(1.0, 4.0)
+    ax.set_ylim(-0.03, 1.03)
+    ax.set_xlabel(r"Population spike $\alpha$")
+    ax.set_ylabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    ax.set_title(rf"Larger aspect ratio $y$ needs a larger spike "
+                 rf"for the same alignment ($n = {n}$, $R = {R}$)")
+    ax.legend(loc="lower right", frameon=False, fontsize=9, ncol=2)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "eigenvector_dimension_effect.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
     # NOTE: make_fluctuation_phase_transition_figure() is defined above but
@@ -757,7 +892,9 @@ if __name__ == "__main__":
                make_top_eigenvalue_distributions_figure,
                make_spike_fluctuations_figure,
                make_critical_violin_sweep_figure,
-               make_critical_merge_densities_figure):
+               make_critical_merge_densities_figure,
+               make_eigenvector_alignment_figure,
+               make_eigenvector_dimension_effect_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")

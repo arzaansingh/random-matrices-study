@@ -210,24 +210,67 @@ The location result of Theorem~\ref{thm:bbp} and the fluctuation result of Theor
 
 \subsection{Eigenvector Alignment Beyond the Threshold}\label{subsec:eigenvector}
 
-\todo{Content to fill in (from v5 + Yao-Zheng-Bai Thm 11.5/Cor 11.6):
-- Set-up: in the one-spike model, the population spike direction is
-  \(\vect e_1\). Let \(\widehat{\vect u}_1\) be the top sample eigenvector.
-  The squared overlap \(|\inner{\widehat{\vect u}_1}{\vect e_1}|^2 =
-  \cos^2 \theta\) removes the sign ambiguity.
-- Qualitative theorem (Yao-Zheng-Bai Thm.~11.5, Cor.~11.6):
-  strong spike \(\Rightarrow\) overlap converges to a positive constant;
-  weak spike \(\Rightarrow\) overlap converges to zero.
-- The one-spike Johnstone overlap formula:
-  \[
-    \rho(\alpha, y) = \frac{1 - \dfrac{y}{(\alpha - 1)^2}}
-                           {1 + \dfrac{y}{\alpha - 1}}.
-  \]
-  Positive precisely when \(\alpha > 1 + \sqrt{y}\).
-- Simulation (figure already in v5/figures/):
-  \texttt{eigenvector\_overlap\_distribution\_n1200.png} shows strong-spike
-  overlaps clustered around 0.55--0.65 and weak-spike overlaps near 0.
-  Include and discuss.}
+Theorem~\ref{thm:bbp} tells us \emph{that} a fundamental spike is visible in the sample spectrum, and Theorem~\ref{thm:fund-fluct} how its eigenvalue fluctuates. Neither says whether the corresponding sample \emph{eigenvector} points anywhere near the true population spike direction. In the one-spike model that direction is \(\vect e_1 = (1, 0, \dots, 0)\transpose\), the axis carrying the inflated variance \(\alpha\). Writing \(\widehat{\vect u}_1\) for the unit eigenvector of the top sample eigenvalue, we measure how well it recovers \(\vect e_1\) by the \vocab{squared alignment}
+\[
+  \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \;=\; \cos^2 \theta \;\in\; [0, 1],
+\]
+where \(\theta\) is the angle between the two directions; squaring removes the harmless sign ambiguity in \(\widehat{\vect u}_1\). A value near \(1\) means near-perfect recovery; a value near \(0\) means the sample eigenvector is essentially noise.
+
+\citet{YaoZhengBai2015} answer this by splitting the sample eigenvector into the coordinates that carry signal and those that carry only noise.
+
+\begin{theorem}[Signal-block length, {\citealp[Thm.~11.5]{YaoZhengBai2015}}]\label{thm:eigvec-general}
+Let \(\alpha_j\) be a fundamental spike (\(\Psi'(\alpha_j) > 0\)), and let \(\widehat{\vect u}\) be a unit sample eigenvector whose eigenvalue converges to \(\Psi(\alpha_j)\). Split its coordinates as \(\widehat{\vect u} = (\widehat{\vect u}_{(1)}, \widehat{\vect u}_{(2)})\), with \(\widehat{\vect u}_{(1)}\) the \(m\) spike directions and \(\widehat{\vect u}_{(2)}\) the \(p - m\) baseline directions. Then \(\widehat{\vect u}_{(1)}\) converges almost surely to a population spike eigenvector for \(\alpha_j\) (the direction \(\vect e_1\) when the spike is simple), and the two blocks have squared lengths
+\begin{equation}
+  \norm{\widehat{\vect u}_{(1)}}^2 \;\convas\; d^2 \;=\; \frac{\alpha_j\, \Psi'(\alpha_j)}{\Psi(\alpha_j)}, \qquad \norm{\widehat{\vect u}_{(2)}}^2 \;\convas\; 1 - d^2.
+  \label{eq:signal-block}
+\end{equation}
+\end{theorem}
+
+In words: of the unit length of \(\widehat{\vect u}\), a fraction \(d^2\) lands on the true spike directions and the remaining \(1 - d^2\) leaks into noise. Specialising to Johnstone's model makes the fraction explicit.
+
+\begin{corollary}[Johnstone model, {\citealp[Cor.~11.6]{YaoZhengBai2015}}]\label{cor:eigvec-johnstone}
+For \(\Sigma = \diag(\alpha, 1, \dots, 1)\) and a fundamental spike \(\alpha > 1 + \sqrt{y}\),
+\begin{equation}
+  d^2 \;=\; \frac{(\alpha - 1)^2 - y}{(\alpha - 1)(\alpha - 1 + y)}.
+  \label{eq:johnstone-d2}
+\end{equation}
+\end{corollary}
+
+For a \emph{simple} spike (\(m = 1\)) the signal block is the single coordinate \(\vect e_1\), so \(\norm{\widehat{\vect u}_{(1)}}^2 = \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) and~\eqref{eq:johnstone-d2} is a formula for the squared alignment itself. Calling it \(\rho(\alpha, y)\),
+\begin{equation}
+  \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \;\convas\;
+  \rho(\alpha, y) \;=\; \frac{1 - \dfrac{y}{(\alpha - 1)^2}}{1 + \dfrac{y}{\alpha - 1}}
+  \quad (\alpha > 1 + \sqrt{y}), \qquad \text{and} \;\convas\; 0 \quad (1 < \alpha \le 1 + \sqrt{y}).
+  \label{eq:rho-overlap}
+\end{equation}
+
+The two expressions~\eqref{eq:signal-block} and~\eqref{eq:rho-overlap} are the same quantity: with \(\Psi(\alpha) = \alpha\bigl(1 + y/(\alpha - 1)\bigr)\) and \(\Psi'(\alpha) = 1 - y/(\alpha - 1)^2\),
+\[
+  \frac{\alpha\, \Psi'(\alpha)}{\Psi(\alpha)} \;=\; \frac{1 - y/(\alpha - 1)^2}{1 + y/(\alpha - 1)} \;=\; \rho(\alpha, y).
+\]
+This ties the two phase transitions together exactly: the alignment carries the same factor \(\Psi'(\alpha)\) that sets the eigenvalue fluctuations in Theorem~\ref{thm:fund-fluct}, so the eigenvalue and the eigenvector become informative at the very same threshold. At \(\alpha = 1 + \sqrt{y}\) we have \(\Psi'(\alpha) = 0\) and the alignment is \(0\); as \(\alpha \to \infty\), \(\rho \to 1\) and the recovery becomes perfect.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/eigenvector_alignment.png}
+  \caption{Squared alignment \(\abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) against the spike \(\alpha\) at \(y = 1/2\), \(n = 800\), \(p = 400\) (\(R = 250\) replications per point). Below the threshold \(\alpha_c \approx 1.71\) the top eigenvector is essentially noise (alignment \(\approx 0\)); above it the alignment turns on and climbs toward \(1\), tracking the prediction \(\rho(\alpha, y)\) of~\eqref{eq:rho-overlap}. Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \label{fig:eigenvector-alignment}
+\end{figure}
+
+Figure~\ref{fig:eigenvector-alignment} confirms~\eqref{eq:rho-overlap} at \(y = 1/2\): the simulated alignment stays at zero until the threshold and then rises along \(\rho(\alpha, y)\), reaching \(\rho(2.5, 1/2) \approx 0.58\) at \(\alpha = 2.5\) and approaching \(1\) for large spikes. Detecting a spike and recovering its direction thus share one threshold, but the eigenvector recovers the direction only partially unless the spike is well above it.
+
+The aspect ratio \(y\) sets how far above is ``well above''. Because the threshold \(1 + \sqrt{y}\) grows with \(y\), a higher-dimensional problem (larger \(y = p/n\)) needs a stronger spike to reach the same alignment. Figure~\ref{fig:eigenvector-dimension} shows this directly.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/eigenvector_dimension_effect.png}
+  \caption{Squared alignment against \(\alpha\) for four aspect ratios \(y\) (theory curves of~\eqref{eq:rho-overlap}, with simulation means at \(n = 700\), \(R = 150\) overlaid). As \(y\) grows the curve shifts to the right: to reach a fixed alignment, say \(0.5\) (dotted line), a larger \(y\) requires a larger \(\alpha\). Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \label{fig:eigenvector-dimension}
+\end{figure}
+
+Reading off the target line in Figure~\ref{fig:eigenvector-dimension} answers the practical question: to hold the alignment at \(0.5\), a problem at \(y = 1/4\) needs only a modest spike, whereas at \(y = 1\) the required spike is substantially larger. In high dimensions a signal must be proportionally stronger to be not merely detectable but \emph{recoverable}.
+
+Sections~\ref{subsec:johnstone}--\ref{subsec:eigenvector} now give a complete account of a single spike: when it is detectable (\(\alpha > 1 + \sqrt{y}\)), where its eigenvalue settles (\(\Psi(\alpha)\)), how that eigenvalue fluctuates (Gaussian, on the \(n^{-1/2}\) scale), and how well its eigenvector is recovered (\(\rho(\alpha, y)\)). The same signal-versus-noise threshold reappears, in a slightly different guise, when one moves from covariance matrices to the similarity matrices used for clustering, the subject of the final subsection.
 
 \subsection{Sketch of the Connection to Spectral Clustering}\label{subsec:clustering}
 
