@@ -17,8 +17,40 @@
 
 \usepackage{color}
 
+%% G. Didier's review markup (Overleaf). Kept defined so future synced
+%% comments still compile; blue = his inline edits, red = his comments.
 \newcommand{\GD}[1]{{\textcolor{blue}{#1}}}
 \newcommand{\GDcomment}[1]{{\textcolor{red}{#1}}}
+
+%% ===========================================================================
+%% PREPRINT-ONLY revision tracking. Every place where a Didier review comment
+%% was incorporated carries a small green star \gdmark{key} that hyperlinks to
+%% a matching entry in the "Revision Log" at the end of the document, and the
+%% log entry links back. Flip the switch below to \preprintfalse for the final
+%% version: all stars and the entire log vanish, with no other change to text.
+%% ===========================================================================
+\newif\ifpreprint
+\preprinttrue   % <<< set to \preprintfalse for the final / submission version
+
+\definecolor{thesisRev}{HTML}{2E7D32}  % preprint-only: "comment incorporated"
+
+\newcounter{gdrevcount}
+% Inline marker dropped at an incorporated comment. Preprint: green star +
+% running number, linked to the log, with a return anchor. Final: nothing.
+\newcommand{\gdmark}[1]{%
+  \ifpreprint
+    \refstepcounter{gdrevcount}%
+    \label{gdrev:#1}%
+    \raisebox{0.7ex}{\footnotesize\textcolor{thesisRev}{%
+      \hypertarget{gdtext:#1}{}\hyperlink{gdlog:#1}{$\star$\thegdrevcount}}}%
+  \fi
+}
+% One Revision-Log row: #1 key (matches \gdmark), #2 location, #3 Didier's
+% words, #4 what we changed. Used inside an itemize in the log section.
+\newcommand{\gdlogitem}[4]{%
+  \item[\textcolor{thesisRev}{$\star$\,\ref{gdrev:#1}}]\hypertarget{gdlog:#1}{}%
+  \textbf{#2.}\enspace\emph{Didier:}~#3\enspace\emph{Incorporated:}~#4%
+  \enspace\hyperlink{gdtext:#1}{\textcolor{thesisLink}{$\hookrightarrow$ text}}}
 
 
 \begin{document}
@@ -62,5 +94,74 @@
 \input{appendix/C-code-listings}
 
 \bibliography{refs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Revision log (PREPRINT ONLY -- removed automatically when \preprintfalse)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ifpreprint
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Revision Log (Preprint Only)}
+\section*{Revision Log: Response to G.\ Didier's Comments}
+
+\noindent\emph{This log appears in the preprint only and is suppressed in the final
+version (set \texttt{\textbackslash preprintfalse} in \texttt{main.tex}). Each
+green star \textcolor{thesisRev}{$\star$} in the body marks a point where a review
+comment was incorporated and links to the matching entry below; each entry links
+back to its place in the text.}
+
+\medskip
+\begin{itemize}[leftmargin=2.4em,itemsep=0.45em]
+\gdlogitem{meaning}{\S\ref{sec:scm}, opening}{``Meaning?'', on ``behaves like a classical sample average''.}{Spelled out that the SCM converges entry by entry to the true covariance by the law of large numbers, exactly as a scalar sample mean converges to its expectation.}
+
+\gdlogitem{hdr-name}{\S\ref{sec:scm}, opening}{Named the growing-dimension setting ``the so-called high-dimensional regime''.}{Adopted the phrase as a parenthetical on first mention.}
+
+\gdlogitem{scm-abbr}{Definition~\ref{def:scm}}{Introduce the abbreviation ``(SCM)'' and call $\Sigmahat_n$ a \emph{random} matrix.}{Both adopted; ``SCM'' is now used throughout.}
+
+\gdlogitem{each-entry}{after Definition~\ref{def:scm}}{Rephrase as flowing prose: ``Note that each entry of a SCM is a sample average. In fact,\,\dots''}{Replaced the run-in \texttt{paragraph} heading with his sentence.}
+
+\gdlogitem{eqref}{equation~\eqref{eq:scm-entrywise}}{Cross-reference the entrywise formula explicitly.}{Added ``of~\eqref{eq:scm-entrywise}'' and removed a duplicate \texttt{label} on the equation that was breaking compilation.}
+
+\gdlogitem{matrix-form}{before equation~\eqref{eq:scm-matrix-form}}{``As it turns out, the entrywise formula\,\dots can be conveniently repackaged\,\dots''}{Replaced the ``Matrix form'' heading with his sentence.}
+
+\gdlogitem{psd-leadin}{before Proposition~\ref{prop:scm-psd}}{``Relation~\eqref{eq:scm-matrix-form} is very useful in establishing the following proposition.''}{Replaced the ``Symmetry and PSD'' heading with his lead-in.}
+
+\gdlogitem{eigvec-mayfail}{\S\ref{subsec:scm-lowdim}, before Example~\ref{ex:eigenvec-fail}}{Soften to ``may not converge\,\dots illustrated in the following counterexample''.}{Adopted; also fixed the ``counterexampl'' typo.}
+
+\gdlogitem{streamline}{\S\ref{subsec:scm-highdim}, opening}{``I'm trying to streamline the text.''}{Restructured the subsection opening along the lines of his subsequent edits.}
+
+\gdlogitem{hdr-def}{\S\ref{subsec:scm-highdim}}{Define the high-dimensional regime up front via $p/n \to y$.}{Moved the formal definition to the front of the subsection.}
+
+\gdlogitem{breakdown}{\S\ref{subsec:scm-highdim}}{``In high dimensions, the picture\,\dots breaks down\,\dots they no longer converge to $\lambda_i(\Sigma)=1$.''}{Adopted the rewording.}
+
+\gdlogitem{bulk}{\S\ref{subsec:scm-highdim}}{Introduce the term ``the bulk'' for the range of eigenvalues.}{Defined \emph{bulk} on first use (comma, no dash).}
+
+\gdlogitem{individual-eig}{\S\ref{subsec:scm-highdim}}{``You might want to consider the distribution of an individual eigenvalue, such as the top eigenvalue.''}{Added a sentence noting that $\lambda_{\max}(\Sigmahat_n)$ is the focus of the rest of the section, so individual eigenvalues do remain of interest.}
+
+\gdlogitem{mp-repeat}{before Theorem~\ref{thm:mp}}{``This is a repetition.''}{Deleted the repeated clause about a non-trivial limit when $\Sigma = I_p$.}
+
+\gdlogitem{mp-pdf-range}{Theorem~\ref{thm:mp}}{State the density only for $0 < y < 1$.}{Qualified the p.d.f.\ with ``When $0 < y < 1$\,\dots''.}
+
+\gdlogitem{mp-redundant}{after Theorem~\ref{thm:mp}}{``\,`the form of the limit\,\dots is the same' \,'' is redundant.}{Removed the redundant clause.}
+
+\gdlogitem{support-range}{features list}{Prepend ``For $0 < y < 1$'' to the support description.}{Adopted.}
+
+\gdlogitem{nice}{features list}{``Nice.'' (on the square-root edge).}{No change required; positive feedback noted.}
+
+\gdlogitem{exits}{before Theorem~\ref{thm:lambda-max-edge}}{``Exits?'', questioning ``the largest sample eigenvalue exits the bulk''.}{Reworded to ``converges to the upper edge of the bulk'', since at the null it settles at the boundary rather than leaving it.}
+
+\gdlogitem{topeig-leadin}{before Theorem~\ref{thm:lambda-max-edge}}{Add a sentence announcing the top-eigenvalue convergence theorem.}{Adopted.}
+
+\gdlogitem{where-how}{after Theorem~\ref{thm:lambda-max-edge}}{Rewrite the ``where vs.\ how'' passage, adding ``Unlike in low dimensions\,\dots cannot be Gaussian.''}{Adopted; also fixed the ``notwithstanding,Theorem'' spacing.}
+
+\gdlogitem{tw1-leadin}{before Definition~\ref{def:tw1}}{Add a lead-in to the $\mathrm{TW}_1$ definition.}{Adopted.}
+
+\gdlogitem{universality}{after Definition~\ref{def:tw1}}{``I don't understand the previous sentence'' (``\,\dots universality is what gives the family its name'').}{Rewrote it: the recurrence of one law across unrelated models is an instance of \emph{universality} (the name itself is after Tracy and Widom).}
+
+\gdlogitem{exponent}{$p^{-2/3}$ heuristic}{``At this point, we have not said anything about exponents.''}{Replaced ``the exponent'' with the explicit ``$p^{-2/3}$ scaling''.}
+
+\gdlogitem{johnstone-attr}{before Theorem~\ref{thm:tw}}{Johnstone (and Johansson) gave the first \emph{proof} of TW limits for SCMs, not only the normalization sequences.}{Credited the first proof and added \citet{Johansson2000}.}
+\end{itemize}
+\fi
 
 \end{document}
