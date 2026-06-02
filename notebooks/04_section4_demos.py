@@ -836,31 +836,117 @@ def make_eigenvector_alignment_figure() -> Path:
     return path
 
 
+def make_eigenvector_overlap_histogram_figure() -> Path:
+    """Histogram of the squared alignment for a weak (subcritical) and a strong
+    (supercritical) spike at one large n. The two cases land in cleanly distinct
+    places: the weak-spike eigenvector is noise (alignment ~0), the strong-spike
+    eigenvector recovers a definite fraction (~rho). Motivating entry point,
+    mirroring Exercise 7."""
+    rng = np.random.default_rng(SEED + 9)
+    y = 0.5
+    n, p = 1200, 600
+    R = 300
+    alpha_weak, alpha_strong = 1.4, 2.5
+    rho_w = float(rho_overlap(alpha_weak, y))
+    rho_s = float(rho_overlap(alpha_strong, y))
+
+    ov_w = simulate_top_overlap(alpha_weak, p=p, n=n, rng=rng, R=R)
+    ov_s = simulate_top_overlap(alpha_strong, p=p, n=n, rng=rng, R=R)
+
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    ax.hist(ov_w, bins=30, density=True, color=PALETTE["accent"], alpha=0.65,
+            edgecolor="white", linewidth=0.3,
+            label=rf"weak spike $\alpha = {alpha_weak}$ (subcritical)")
+    ax.hist(ov_s, bins=30, density=True, color=PALETTE["def"], alpha=0.65,
+            edgecolor="white", linewidth=0.3,
+            label=rf"strong spike $\alpha = {alpha_strong}$ (fundamental)")
+    ax.axvline(rho_w, color=PALETTE["accent"], linestyle="--", linewidth=1.4,
+               label=rf"$\rho = {rho_w:.0f}$ (weak)")
+    ax.axvline(rho_s, color=PALETTE["def"], linestyle="--", linewidth=1.4,
+               label=rf"$\rho \approx {rho_s:.2f}$ (strong)")
+
+    ax.set_xlabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    ax.set_ylabel("Density")
+    ax.set_title(rf"Weak vs strong spike: two distinct regimes "
+                 rf"($y = 1/2$, $n = {n}$, $R = {R}$)")
+    ax.legend(loc="upper center", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "eigenvector_overlap_histogram.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+def make_eigenvector_overlap_violin_figure() -> Path:
+    """Violins of the squared alignment at several spike values, from below the
+    threshold to well above it. Shows how the whole distribution changes:
+    pinned at 0 below the threshold, broad and skewed just above it, then
+    tightening into a narrow blob as alpha grows and recovery becomes reliable."""
+    rng = np.random.default_rng(SEED + 10)
+    y = 0.5
+    n, p = 800, 400
+    R = 400
+    thr = 1.0 + np.sqrt(y)
+
+    alpha_list = [1.30, round(thr, 3), 2.00, 2.50, 3.00, 3.50]
+    data = [simulate_top_overlap(a, p=p, n=n, rng=rng, R=R) for a in alpha_list]
+
+    fig, ax = plt.subplots(figsize=(10, 5.4))
+    parts = ax.violinplot(data, positions=alpha_list, widths=0.18,
+                          showmedians=True, showextrema=False)
+    for body in parts["bodies"]:
+        body.set(facecolor=PALETTE["def"], edgecolor=PALETTE["def"], alpha=0.45)
+    parts["cmedians"].set(color=PALETTE["accent"], linewidth=1.2)
+
+    ax.axvline(thr, color=PALETTE["thm"], linestyle=":", linewidth=1.0,
+               label=rf"Threshold $\alpha_c \approx {thr:.2f}$")
+
+    ax.set_xlim(1.1, 3.7)
+    ax.set_ylim(-0.03, 0.9)
+    ax.set_xlabel(r"Population spike $\alpha$")
+    ax.set_ylabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    ax.set_title(rf"How the alignment distribution changes as $\alpha$ grows "
+                 rf"($y = 1/2$, $n = {n}$, $R = {R}$)")
+    ax.legend(loc="upper left", frameon=False, fontsize=9)
+    ax.grid(True, axis="y", linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "eigenvector_overlap_violin.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 def make_eigenvector_dimension_effect_figure() -> Path:
-    """Squared overlap against alpha for several aspect ratios y. Theory curves
-    (dense) with simulation means (sparse points) overlaid. A horizontal target
-    line shows the compensation question: to reach a fixed alignment, a larger y
-    requires a larger alpha."""
+    """Squared overlap against alpha for several aspect ratios y, showing the
+    SIMULATED PATH (connected simulation means) as in Exercise 7, with the
+    theory rho(alpha, y) dashed underneath. A horizontal target line shows the
+    compensation question: to reach a fixed alignment, a larger y requires a
+    larger alpha."""
     rng = np.random.default_rng(SEED + 8)
-    n = 700
-    R = 150
+    n = 600
+    R = 120
     y_values = [0.25, 0.5, 0.75, 1.0]
     colors = [PALETTE["def"], PALETTE["link"], PALETTE["accent"], PALETTE["thm"]]
     markers = ["o", "s", "^", "D"]
 
     alpha_fine = np.linspace(1.05, 4.0, 500)
-    alpha_pts = np.linspace(1.2, 3.9, 8)
+    alpha_pts = np.linspace(1.1, 4.0, 16)
     target = 0.5
 
     fig, ax = plt.subplots(figsize=(9, 5.4))
     for y, color, mk in zip(y_values, colors, markers):
         p = int(round(y * n))
+        # Theory curve (dashed, underneath).
         ax.plot(alpha_fine, rho_overlap(alpha_fine, y), color=color,
-                linewidth=1.7, label=rf"$y = {y}$")
-        pts = np.empty(len(alpha_pts))
-        for i, alpha in enumerate(alpha_pts):
-            pts[i] = simulate_top_overlap(float(alpha), p=p, n=n, rng=rng, R=R).mean()
-        ax.scatter(alpha_pts, pts, color=color, marker=mk, s=22, zorder=5)
+                linestyle="--", linewidth=1.0, alpha=0.8)
+        # Simulated path: connected means.
+        sim = np.array([simulate_top_overlap(float(a), p=p, n=n, rng=rng, R=R).mean()
+                        for a in alpha_pts])
+        ax.plot(alpha_pts, sim, color=color, marker=mk, markersize=4,
+                linewidth=1.5, label=rf"$y = {y}$")
 
     ax.axhline(target, color="black", linestyle=":", linewidth=1.0,
                label=rf"target alignment $= {target}$")
@@ -893,7 +979,9 @@ if __name__ == "__main__":
                make_spike_fluctuations_figure,
                make_critical_violin_sweep_figure,
                make_critical_merge_densities_figure,
+               make_eigenvector_overlap_histogram_figure,
                make_eigenvector_alignment_figure,
+               make_eigenvector_overlap_violin_figure,
                make_eigenvector_dimension_effect_figure):
         path = fn()
         print(f"  Saved: {path.name}")
