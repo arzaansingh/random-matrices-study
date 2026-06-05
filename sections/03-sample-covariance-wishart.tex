@@ -162,7 +162,7 @@ For \(\Sigma = I_2\), the joint distribution of the two ordered eigenvalues \(0 
   f(\lambda_1, \lambda_2) \;=\; C\, (\lambda_1 \lambda_2)^{(n - 3)/2}\, e^{-(\lambda_1 + \lambda_2) / 2}\, (\lambda_2 - \lambda_1)\, \indic_{\{0 \le \lambda_1 \le \lambda_2\}},
   \label{eq:wishart-2d-density}
 \end{equation}
-where \(C > 0\) is a normalizing constant; a derivation via a Jacobian computation on the spectral decomposition \(\mat{S} = \mat{Q} \diag(\lambda_1, \lambda_2) \mat{Q}\transpose\) is given in \citet[][Ch.~3]{YaoZhengBai2015}. The key feature of~\eqref{eq:wishart-2d-density} is the factor \((\lambda_2 - \lambda_1)\), which forces the joint density to vanish on the diagonal \(\lambda_1 = \lambda_2\). This is the simplest case of \vocab{eigenvalue repulsion}: the two eigenvalues of a random symmetric matrix avoid each other. Figure~\ref{fig:wishart-2d} confirms repulsion in simulation.
+where \(C > 0\) is a normalizing constant; a derivation via a Jacobian computation on the spectral decomposition \(\mat{S} = \mat{Q} \diag(\lambda_1, \lambda_2) \mat{Q}\transpose\) is given in \citet[][Ch.~3]{YaoZhengBai2015}. The key feature of~\eqref{eq:wishart-2d-density} is the factor \((\lambda_2 - \lambda_1)\), which forces the joint density to vanish on the diagonal \(\lambda_1 = \lambda_2\). This is the simplest case of \vocab{eigenvalue repulsion}: the two eigenvalues of a random symmetric matrix avoid each other. Because the density is zero when \(\lambda_1 = \lambda_2\) and small when they are close, an outcome with the two eigenvalues nearly equal is very unlikely, so in repeated draws the pair tends to stay apart. Figure~\ref{fig:wishart-2d} confirms repulsion in simulation.
 
 \begin{figure}[H]
   \centering
@@ -219,7 +219,7 @@ is said to belong to the \vocab{Gaussian Orthogonal Ensemble} (\(\GOE_2\)) if it
 and the three entries are mutually independent. More generally, a \(p \times p\) GOE matrix has independent Gaussian entries on and above the diagonal with diagonal variance \(2\) and off-diagonal variance \(1\).
 \end{definition}
 
-The variances \(2\) on the diagonal and \(1\) off the diagonal are chosen exactly so that the matrix is invariant in distribution under orthogonal conjugation \(\mat{G} \mapsto \mat{O} \mat{G} \mat{O}\transpose\); this is the eponymous orthogonal invariance. The top eigenvalue of \(\GOE_2\) is a non-Gaussian random variable, with a density slightly right-skewed by the repulsion that mirrors~\eqref{eq:wishart-2d-density}.
+The variances \(2\) on the diagonal and \(1\) off the diagonal are chosen exactly so that the matrix looks statistically the same in every orthonormal basis: for any orthogonal matrix \(\mat{O}\), the conjugate \(\mat{O} \mat{G} \mat{O}\transpose\) has the same distribution as \(\mat{G}\). This rotation-invariance is what the word ``orthogonal'' in the name refers to. The top eigenvalue of \(\GOE_2\) is a non-Gaussian random variable, with a density slightly right-skewed by the repulsion that mirrors~\eqref{eq:wishart-2d-density}.
 
 The multivariate CLT applied entry-by-entry to \(\sqrt{n}(\Sigmahat_n - \Sigma)\) yields the matrix-valued statement. In the null case the limit is exactly the GOE just defined.
 
@@ -348,7 +348,7 @@ The lesson of Example~\ref{ex:eigenvec-fail} is that eigenvectors require \emph{
 \[
   \frac{p}{n} \;\longrightarrow\; y \;\in\; (0, \infty), \qquad \text{as } n \to \infty.
 \]
-The ratio \(y\) is called the \emph{aspect ratio} of the data.\gdmark{hdr-def}
+The ratio \(y\) is called the \emph{aspect ratio} of the data; roughly, it is the number of features per observation, held fixed instead of becoming negligible. (Since \(n \to \infty\) and \(p/n \to y > 0\), the dimension \(p\) grows along with \(n\).)\gdmark{hdr-def}
 
 In high dimensions, the picture of Section~\ref{subsec:scm-lowdim} breaks down qualitatively. The basic phenomenon was already visible in Figure~\ref{fig:intro-regimes} of the introduction: with \(p = 500\) and \(n = 1000\), the sample eigenvalues spread across the interval \([0.086, 2.914]\) even when \(\Sigma = I_p\). In other words, by comparison to the low-dimensional regime, they no longer converge to \(\lambda_i(\Sigma) = 1\).\gdmark{breakdown}
 
@@ -367,12 +367,12 @@ placing equal mass \(1/p\) at each eigenvalue.
 The shape of the limiting ESD depends only on the aspect ratio \(y\) of the data, and is the same across a wide range of entry distributions.\gdmark{mp-repeat}
 
 \begin{theorem}[Marchenko-Pastur law \citep{MarchenkoPastur1967}]\label{thm:mp}
-Let \(\mat{X} \in \R^{p \times n}\) have iid entries with mean zero, unit variance, and finite fourth moment, and let \(\Sigmahat_n = (1/n)\, \mat{X} \mat{X}\transpose\). As \(p, n \to \infty\) with \(p / n \to y \in (0, \infty)\), the ESD \(F_{\Sigmahat_n}\) converges weakly almost surely to the \vocab{Marchenko-Pastur law} \(\MP_y\). When \(0 < y < 1\), this distribution is defined by the p.d.f.
+Let \(\mat{X} \in \R^{p \times n}\) have iid entries with mean zero, unit variance, and finite fourth moment, and let \(\Sigmahat_n = (1/n)\, \mat{X} \mat{X}\transpose\). As \(p, n \to \infty\) with \(p / n \to y \in (0, \infty)\), the random eigenvalue histogram \(F_{\Sigmahat_n}\) settles down to a fixed deterministic shape, the \vocab{Marchenko-Pastur law} \(\MP_y\): for essentially every realization, the histogram matches \(\MP_y\) as \(p, n\) grow. When \(0 < y < 1\), this distribution is given by the p.d.f.
 \begin{equation}
   f_{\MP_y}(\lambda) \;=\; \frac{1}{2 \pi y \lambda}\, \sqrt{(\lambda_+ - \lambda)(\lambda - \lambda_-)}, \qquad \lambda \in [\lambda_-, \lambda_+],
   \label{eq:mp-density}
 \end{equation}
-where \(\lambda_\pm = (1 \pm \sqrt{y})^2\). If \(y > 1\), the law carries an additional atom at zero of mass \(1 - 1/y\).\gdmark{mp-pdf-range}
+where \(\lambda_\pm = (1 \pm \sqrt{y})^2\). If \(y > 1\), the continuous part still follows~\eqref{eq:mp-density} on \([\lambda_-, \lambda_+]\) with the same \(\lambda_\pm\); the only change is an extra point mass \(1 - 1/y\) at \(\lambda = 0\), from the forced zero eigenvalues.\gdmark{mp-pdf-range}
 \end{theorem}
 
 A complete proof passes through the Stieltjes transform of \(F_{\Sigmahat_n}\) and is beyond the scope of this report; see \citet[][Thm.~2.5]{YaoZhengBai2015} or \citet[][Thm.~3.6]{Vershynin2018}. The hypothesis covers Gaussian entries (the main case we simulate) and many other distributions with finite fourth moment.\gdmark{mp-redundant}
@@ -416,9 +416,9 @@ Figure~\ref{fig:edge-repulsion} makes this geometry tangible: across hundreds of
   \label{fig:edge-repulsion}
 \end{figure}
 
-Two regimes, two different restoring mechanisms: the limit is right-skewed, with mean \(\approx -1.207\) and standard deviation \(\approx 1.268\). It is the \emph{Tracy-Widom Type 1 distribution}, discovered by \citet{TracyWidom1996} as the top-eigenvalue limit of the GOE; \citet{Wolchover2014} is an accessible non-technical introduction.
+Two regimes, two different restoring mechanisms: the limit is right-skewed, with mean \(\approx -1.207\) and standard deviation \(\approx 1.268\). It is the \emph{Tracy-Widom Type 1 distribution}, discovered by \citet{TracyWidom1996} as the top-eigenvalue limit of the GOE; \citet{Wolchover2014} is an accessible non-technical introduction. The mean is negative, not zero, because the standardized top eigenvalue usually sits a little \emph{below} the centering \(\mu_{n p}\): the bulk pushes \(\lambda_{\max}\) up toward the edge from one side only, so it typically lands just inside the edge, and the right skew comes from the rarer excursions past it.
 
-The technical definition of the Tracy-Widom Type 1 distribution is provided next.\gdmark{tw1-leadin}
+We record the formal definition for completeness.\gdmark{tw1-leadin} It is not needed to follow anything below: the reader can treat \(\mathrm{TW}_1\) as a named distribution whose shape is the one plotted in Figure~\ref{fig:tw-universality}, and read on.
 \begin{definition}[Tracy-Widom Type 1 distribution]\label{def:tw1}
 The \vocab{Tracy-Widom Type 1} law \(\mathrm{TW}_1\) is the probability distribution on \(\R\) with cumulative distribution function
 \begin{equation}
@@ -456,7 +456,7 @@ The two constants have transparent limits: \(\mu_{n p} \to (1 + \sqrt{y})^2 = \l
   n^{2/3}\,\frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\tilde\sigma} \;\convd\; \mathrm{TW}_1, \qquad \tilde\sigma \to (1 + \sqrt{y})\bigl(1 + 1/\sqrt{y}\bigr)^{1/3},
   \label{e:Genzer2025_lambda-max}
 \end{equation}
-and the two forms~\eqref{e:lambda-max_Johnstone_TW1} and~\eqref{e:Genzer2025_lambda-max} are algebraically identical. These constants, and the first proof that the largest eigenvalue of a null sample covariance matrix has a Tracy-Widom limit, are due to \citet{Johnstone2001} (together with \citealp{Johansson2000}).\gdmark{johnstone-attr} We use Theorem~\ref{thm:tw} as a black box here; the same constants reappear in Section~\ref{sec:spiked}, where we ask which population eigenvalues exceed this null \(\mathrm{TW}_1\) baseline.
+and the two forms~\eqref{e:lambda-max_Johnstone_TW1} and~\eqref{e:Genzer2025_lambda-max} are algebraically identical: the only difference is bookkeeping, with Genzer pulling the \(n^{2/3}\) rate out in front while Johnstone folds it into \(\sigma_{n p}\). Both say the same thing, that \(\lambda_{\max}\) fluctuates on the \(n^{-2/3}\) scale with a \(\mathrm{TW}_1\) shape. These constants, and the first proof that the largest eigenvalue of a null sample covariance matrix has a Tracy-Widom limit, are due to \citet{Johnstone2001} (together with \citealp{Johansson2000}).\gdmark{johnstone-attr} We use Theorem~\ref{thm:tw} as a black box here; the same constants reappear in Section~\ref{sec:spiked}, where we ask which population eigenvalues exceed this null \(\mathrm{TW}_1\) baseline.
 
 \paragraph{Where the edge scale comes from.}
 The proof of Theorem~\ref{thm:tw} is technical, but a short heuristic recovers the \(n^{-2/3}\) scale from the square-root shape of the MP density alone.\gdmark{exponent} Near the upper edge the density vanishes like a square root,
@@ -464,16 +464,12 @@ The proof of Theorem~\ref{thm:tw} is technical, but a short heuristic recovers t
   f_{\MP_y}(\lambda) \;\sim\; C\,(\lambda_+ - \lambda)^{1/2}, \qquad \lambda \uparrow \lambda_+.
   \label{e:f-MP_near_edge}
 \end{equation}
-Treat the \(p\) eigenvalues as \(p\) independent draws from the MP law. Exactly one of them, \(\lambda_{\max}\) itself, lies in the interval \([\lambda_{\max}, \lambda_+]\), so that interval carries about a \(1/p\) share of the total mass:
+Pretend for a moment that the \(p\) eigenvalues are \(p\) independent draws from the MP law. They are not independent (we saw above that they repel), but this crude picture gets the scale right. Then \(\lambda_{\max}\) is the largest of the \(p\) draws, and on average just one of them lands in the top interval \([\lambda_{\max}, \lambda_+]\), so that interval should hold about a \(1/p\) share of the total mass:
 \begin{equation}
   \frac{1}{p} \;\sim\; \int_{\lambda_{\max}}^{\lambda_+} f_{\MP_y}(\lambda)\, d\lambda \;\sim\; \tfrac{2 C}{3}\, (\lambda_+ - \lambda_{\max})^{3/2},
   \label{e:f-MP-near_edge_scaling}
 \end{equation}
-where the second estimate uses~\eqref{e:f-MP_near_edge}. Solving for the gap gives
-\[
-  \lambda_+ - \lambda_{\max} \;\sim\; p^{-2/3}.
-\]
-Integrating the square-root edge raises the exponent to \(3/2\); inverting it to solve for the gap produces the \(2/3\) exponent, the \(p^{-2/3} \approx n^{-2/3}\) edge scale that \(\sigma_{n p}\) carries in~\eqref{eq:tw-constants}.
+where the second estimate uses~\eqref{e:f-MP_near_edge}. Solving for the gap gives \(\lambda_+ - \lambda_{\max} \sim p^{-2/3}\): the \(3/2\) power from integrating the square-root edge inverts to the \(2/3\) in the gap. Since \(p / n \to y\) is a fixed positive constant, \(p\) and \(n\) grow in lockstep, so this is the same \(n^{-2/3}\) edge scale that \(\sigma_{n p}\) carries in~\eqref{eq:tw-constants}.
 
 
 \paragraph{Simulation.}

@@ -1017,6 +1017,122 @@ def make_eigenvector_samplesize_figure() -> Path:
     return path
 
 
+# ============================================================================
+# Figures 8-9: two spikes (Section 4.5). Distinct spikes (alpha_1 > alpha_2):
+# each sample eigenvector locks onto its own population direction. Equal spikes
+# (alpha_1 = alpha_2): only the 2-D spike subspace is identifiable; the
+# individual directions inside it are not. (Exercise 7, restyled.)
+# ============================================================================
+
+def simulate_two_spikes(alpha1, alpha2, p, n, rng, R):
+    """R trials for Sigma = diag(alpha1, alpha2, 1, ..., 1). Returns the four
+    squared overlaps |u_i . e_j|^2 (i, j in {1,2}) of the top two sample
+    eigenvectors with e_1, e_2, plus the subspace alignment
+    (1/2) ||U^T E||_F^2 where U = [u_1, u_2] and E = [e_1, e_2]."""
+    sd = np.ones(p)
+    sd[0] = np.sqrt(alpha1)
+    sd[1] = np.sqrt(alpha2)
+    keys = ("u1e1", "u1e2", "u2e1", "u2e2", "subspace")
+    out = {k: np.empty(R) for k in keys}
+    for r in range(R):
+        Z = rng.standard_normal((p, n))
+        X = sd[:, None] * Z
+        S = (X @ X.T) / n
+        w, V = np.linalg.eigh(S)
+        idx = np.argsort(w)[::-1][:2]
+        U = V[:, idx]
+        out["u1e1"][r] = U[0, 0] ** 2
+        out["u1e2"][r] = U[1, 0] ** 2
+        out["u2e1"][r] = U[0, 1] ** 2
+        out["u2e2"][r] = U[1, 1] ** 2
+        out["subspace"][r] = np.sum(U[:2, :] ** 2) / 2.0
+    return out
+
+
+def make_two_spikes_distinct_figure() -> Path:
+    """Distinct spikes: boxplots of the four overlaps. The top eigenvector locks
+    onto e_1 (overlap rho(alpha_1)), the second onto e_2 (overlap rho(alpha_2)),
+    and the cross overlaps are ~0 -- each direction is individually recovered."""
+    rng = np.random.default_rng(SEED + 12)
+    y = 0.5
+    n, p = 800, 400
+    R = 400
+    a1, a2 = 3.0, 2.2
+    d = simulate_two_spikes(a1, a2, p, n, rng, R)
+    rho1, rho2 = float(rho_overlap(a1, y)), float(rho_overlap(a2, y))
+
+    data = [d["u1e1"], d["u1e2"], d["u2e1"], d["u2e2"]]
+    labels = [r"$|\widehat{u}_1\!\cdot\! e_1|^2$", r"$|\widehat{u}_1\!\cdot\! e_2|^2$",
+              r"$|\widehat{u}_2\!\cdot\! e_1|^2$", r"$|\widehat{u}_2\!\cdot\! e_2|^2$"]
+    pos = [1, 2, 3, 4]
+
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    bp = ax.boxplot(data, positions=pos, showfliers=False, widths=0.5,
+                    patch_artist=True)
+    for box in bp["boxes"]:
+        box.set(facecolor=PALETTE["def"], alpha=0.35, edgecolor=PALETTE["def"])
+    for med in bp["medians"]:
+        med.set(color=PALETTE["accent"], linewidth=1.4)
+    for part in ("whiskers", "caps"):
+        for ln in bp[part]:
+            ln.set(color=PALETTE["def"], linewidth=1.0)
+
+    ax.axhline(rho1, color=PALETTE["def"], linestyle="--", linewidth=1.1,
+               label=rf"$\rho(\alpha_1, y) \approx {rho1:.2f}$")
+    ax.axhline(rho2, color=PALETTE["thm"], linestyle=":", linewidth=1.1,
+               label=rf"$\rho(\alpha_2, y) \approx {rho2:.2f}$")
+    ax.set_xticks(pos)
+    ax.set_xticklabels(labels)
+    ax.set_ylim(-0.03, 0.85)
+    ax.set_ylabel("Squared overlap")
+    ax.set_title(rf"Distinct spikes $\alpha_1 = {a1} > \alpha_2 = {a2}$: each "
+                 rf"eigenvector locks on ($y = 1/2$, $n = {n}$, $R = {R}$)")
+    ax.legend(loc="upper right", frameon=False, fontsize=9)
+    ax.grid(True, axis="y", linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "two_spikes_distinct.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+def make_two_spikes_equal_figure() -> Path:
+    """Equal spikes: the subspace alignment is concentrated near rho (the plane
+    is recovered) while an individual overlap is spread out over [0, ~rho] (the
+    direction within the plane is not identifiable)."""
+    rng = np.random.default_rng(SEED + 13)
+    y = 0.5
+    n, p = 800, 400
+    R = 600
+    a = 2.5
+    d = simulate_two_spikes(a, a, p, n, rng, R)
+    rho = float(rho_overlap(a, y))
+
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    ax.hist(d["subspace"], bins=30, density=True, color=PALETTE["def"], alpha=0.65,
+            edgecolor="white", linewidth=0.3,
+            label=r"subspace alignment $\frac{1}{2}\|\widehat{U}^{\top} E\|_F^2$")
+    ax.hist(d["u1e1"], bins=30, density=True, color=PALETTE["accent"], alpha=0.65,
+            edgecolor="white", linewidth=0.3,
+            label=r"individual overlap $|\widehat{u}_1\!\cdot\! e_1|^2$")
+    ax.axvline(rho, color=PALETTE["thm"], linestyle="--", linewidth=1.3,
+               label=rf"$\rho(\alpha, y) \approx {rho:.2f}$")
+
+    ax.set_xlabel("Squared overlap")
+    ax.set_ylabel("Density")
+    ax.set_title(rf"Equal spikes $\alpha_1 = \alpha_2 = {a}$: the plane is "
+                 rf"recovered, the direction in it is not ($y = 1/2$, $n = {n}$)")
+    ax.legend(loc="upper center", frameon=False, fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "two_spikes_equal.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
     # NOTE: make_fluctuation_phase_transition_figure() is defined above but
@@ -1033,7 +1149,9 @@ if __name__ == "__main__":
                make_eigenvector_alignment_figure,
                make_eigenvector_overlap_violin_figure,
                make_eigenvector_dimension_effect_figure,
-               make_eigenvector_samplesize_figure):
+               make_eigenvector_samplesize_figure,
+               make_two_spikes_distinct_figure,
+               make_two_spikes_equal_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
