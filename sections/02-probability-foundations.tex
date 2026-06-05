@@ -11,7 +11,7 @@ The main objects of this report are eigenvalues and eigenvectors of random covar
 %====================================================================
 \subsection{Random Variables and Distributions}\label{subsec:rvs}
 
-Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is a collection of events, and \(\Prob\) assigns each event a number in \([0, 1]\). The full development imposes some technical regularity on \(\mathcal{F}\) and \(\Prob\) (the language of \(\sigma\)-algebras and measures, developed in measure-theoretic probability); we will not need to engage with it directly. We work with this triple in the background; the foreground objects are real-valued functions of the outcome.
+Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is the collection of events we can assign probabilities to, and \(\Prob\) assigns each event a number in \([0, 1]\). We treat these as given and work directly with the objects built on top of them, namely real-valued functions of the outcome.
 
 \begin{definition}[Random variable]\label{def:rv}
 A \emph{random variable} is a function \(X: \Omega \to \R\). Strictly, \(X\) is required to satisfy the technical condition \(\{\omega : X(\omega) \le x\} \in \mathcal{F}\) for every \(x \in \R\), so that \(\Prob(X \le x)\) is well defined; this is called \emph{measurability}, holds for every random variable we will encounter, and we will not verify it explicitly. The distribution of \(X\) is captured by the \vocab{cumulative distribution function} (CDF)
