@@ -451,29 +451,29 @@ Then
 where \(\mathrm{TW}_1\) is the distribution of Definition~\ref{def:tw1}.
 \end{theorem}
 
-The constants line up with the heuristic \GDcomment{Adjust this.}: \(\mu_{n p} \to (1 + \sqrt{y})^2 = \lambda_+\), so the centering picks out the MP upper edge in the limit, and \(\sigma_{n p}\) is of order \(n^{-2/3}\), so the scaling absorbs the \(p^{-2/3}\) edge scale derived just above. The same theorem can be written with the rate factored out. For example, in \citet[][Prop.~3.9]{Genzer2025}, it is claimed that
+The two constants have transparent limits: \(\mu_{n p} \to (1 + \sqrt{y})^2 = \lambda_+\), so the centering locks onto the MP upper edge, while \(\sigma_{n p}\) is of order \(n^{-2/3}\), the edge scale explained heuristically below.\gdmark{heuristic-reorder} The same limit can be written with the rate factored out, as in \citet[][Prop.~3.9]{Genzer2025}:
 \begin{equation}
-n^{2/3}(\lambda_{\max}(\Sigmahat_n) - \mu_{n p})/\tilde\sigma \convd \mathrm{TW}_1 \label{e:Genzer2025_lambda-max},
+  n^{2/3}\,\frac{\lambda_{\max}(\Sigmahat_n) - \mu_{n p}}{\tilde\sigma} \;\convd\; \mathrm{TW}_1, \qquad \tilde\sigma \to (1 + \sqrt{y})\bigl(1 + 1/\sqrt{y}\bigr)^{1/3},
+  \label{e:Genzer2025_lambda-max}
 \end{equation}
-with \(\tilde\sigma \to (1+\sqrt{y})(1+1/\sqrt{y})^{1/3}\). Algebraically, the two forms \eqref{e:lambda-max_Johnstone_TW1} and \eqref{e:Genzer2025_lambda-max} are identical. We use Theorem~\ref{thm:tw} as a black box here; the same constants will be reused in Section~\ref{sec:spiked} when we ask which population eigenvalues exceed this null TW\(_1\) baseline.
+and the two forms~\eqref{e:lambda-max_Johnstone_TW1} and~\eqref{e:Genzer2025_lambda-max} are algebraically identical. These constants, and the first proof that the largest eigenvalue of a null sample covariance matrix has a Tracy-Widom limit, are due to \citet{Johnstone2001} (together with \citealp{Johansson2000}).\gdmark{johnstone-attr} We use Theorem~\ref{thm:tw} as a black box here; the same constants reappear in Section~\ref{sec:spiked}, where we ask which population eigenvalues exceed this null \(\mathrm{TW}_1\) baseline.
 
-The proof of Theorem \ref{thm:tw} is quite technical. Nevertheless, we can provide a very enlightening heuristic for the scaling involved. As it turns out, the scaling $p^{2/3}$ stems directly from the behavior of the MP density around $\lambda_{+}$. In fact, near the upper edge,
-%\noindent\emph{Heuristic for the \(p^{-2/3}\) edge scale.} A short calculation using only the square-root edge of the MP density makes this \(p^{-2/3}\) scaling plausible.\gdmark{exponent} 
-\begin{equation}\label{e:f-MP_near_edge}
-  f_{\MP_y}(\lambda) \;\sim\; C\,(\lambda_+ - \lambda)^{1/2}, \qquad \lambda \uparrow \lambda_+.
-\end{equation}
-%The largest of \(p\) iid draws from this density sits, heuristically, where the mass beyond it equals \(1/p\):
-Between $\lambda_{\max}$ (inclusive) and $\lambda_+$, there is a single eigenvalue -- namely, $\lambda_{\max}$ itself. Therefore, by integrating over the MP density, we obtain
+\paragraph{Where the edge scale comes from.}
+The proof of Theorem~\ref{thm:tw} is technical, but a short heuristic recovers the \(n^{-2/3}\) scale from the square-root shape of the MP density alone.\gdmark{exponent} Near the upper edge the density vanishes like a square root,
 \begin{equation}
-  \frac{1}{p} \;\sim\; \int_{\lambda_{\max}}^{\lambda_+} f_{\MP_y}(\lambda)\, d\lambda \;\sim\; \tfrac{2 C}{3}\, (\lambda_+ - \lambda_{\max})^{3/2}.
+  f_{\MP_y}(\lambda) \;\sim\; C\,(\lambda_+ - \lambda)^{1/2}, \qquad \lambda \uparrow \lambda_+.
+  \label{e:f-MP_near_edge}
+\end{equation}
+Treat the \(p\) eigenvalues as \(p\) independent draws from the MP law. Exactly one of them, \(\lambda_{\max}\) itself, lies in the interval \([\lambda_{\max}, \lambda_+]\), so that interval carries about a \(1/p\) share of the total mass:
+\begin{equation}
+  \frac{1}{p} \;\sim\; \int_{\lambda_{\max}}^{\lambda_+} f_{\MP_y}(\lambda)\, d\lambda \;\sim\; \tfrac{2 C}{3}\, (\lambda_+ - \lambda_{\max})^{3/2},
   \label{e:f-MP-near_edge_scaling}
 \end{equation}
-In \eqref{e:f-MP-near_edge_scaling}, 
-the second asymptotic equivalence stems from \eqref{e:f-MP_near_edge}. In other words, 
-\[\lambda_+ - \lambda_{\max} \sim p^{-2/3}.\] In summary, the exponent \(3/2\) in the integrated square-root density inverts to the exponent \(2/3\) in the fluctuation scale.
-
-\paragraph{The Johnstone (2001) edge theorem.}
-The heuristic above predicts the right \emph{scale} of the fluctuations, but not their precise centering. To compare \(\lambda_{\max}\) to a definite distribution we need explicit finite-sample constants \(\mu_{n p}\) (which pins the centering to the edge) and \(\sigma_{n p}\) (which sets the \(p^{-2/3}\) scale). \citet{Johnstone2001} supplied both, in the work that, alongside that of \citet{Johansson2000}, gave the first proof that the largest eigenvalue of a null sample covariance matrix has a Tracy-Widom limit.\gdmark{johnstone-attr}
+where the second estimate uses~\eqref{e:f-MP_near_edge}. Solving for the gap gives
+\[
+  \lambda_+ - \lambda_{\max} \;\sim\; p^{-2/3}.
+\]
+Integrating the square-root edge raises the exponent to \(3/2\); inverting it to solve for the gap produces the \(2/3\) exponent, the \(p^{-2/3} \approx n^{-2/3}\) edge scale that \(\sigma_{n p}\) carries in~\eqref{eq:tw-constants}.
 
 
 \paragraph{Simulation.}

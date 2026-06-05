@@ -13,11 +13,11 @@
 
 \section{Spiked Covariance Matrices and the Spike Phase Transition}\label{sec:spiked}
 
-The Marchenko-Pastur and Tracy-Widom results of Section~\ref{subsec:scm-highdim} describe the sample spectrum under the null hypothesis \(\Sigma = I_p\). Real datasets \GD{often carry structure: a small number of distinguished directions may account for most of the variance. This is the case, for example,} in regulatory pathways in single-cell genomics, market factors in finance, edge orientations in image processing. The simplest model that captures this picture, introduced by \citet{Johnstone2001} and developed systematically by \citet[][Ch.~11]{YaoZhengBai2015}, allows a small number of population eigenvalues to exceed the noise baseline of \(1\). The questions this section asks are when such a \emph{spike} produces a detectable outlier in the sample spectrum (Section~\ref{subsec:johnstone}--\ref{subsec:bbp}), what the corresponding fluctuations look like (Section~\ref{subsec:fluctuations}), and what the sample eigenvector reveals about the population spike direction (Section~\ref{subsec:eigenvector}). The answer is a clean phase transition with an explicit threshold determined by the aspect ratio \(y\) \citep{BaikBenArousPeche2005, BaikSilverstein2006}.
+The Marchenko-Pastur and Tracy-Widom results of Section~\ref{subsec:scm-highdim} describe the sample spectrum under the null hypothesis \(\Sigma = I_p\). Real datasets often carry structure: a small number of distinguished directions may account for most of the variance (regulatory pathways in single-cell genomics, market factors in finance, edge orientations in image processing). The simplest model that captures this picture, introduced by \citet{Johnstone2001} and developed systematically by \citet[][Ch.~11]{YaoZhengBai2015}, allows a small number of population eigenvalues to exceed the noise baseline of \(1\). The questions this section asks are when such a \emph{spike} produces a detectable outlier in the sample spectrum (Section~\ref{subsec:johnstone}--\ref{subsec:bbp}), what the corresponding fluctuations look like (Section~\ref{subsec:fluctuations}), and what the sample eigenvector reveals about the population spike direction (Section~\ref{subsec:eigenvector}). The answer is a clean phase transition with an explicit threshold determined by the aspect ratio \(y\) \citep{BaikBenArousPeche2005, BaikSilverstein2006}.
 
 \subsection{Johnstone's Spiked Model and the Spike-Location Map}\label{subsec:johnstone}
 
-We fix the model first. \GD{Throughout this section, \(\vect{X}_1, \dots, \vect{X}_n\) are iid \(\Normal{\vect{0}, \Sigma}\) and \(\Sigmahat_n = (1/n)\sum_i \vect{X}_i \vect{X}_i\transpose\) is the sample covariance, with \(p, n \to \infty\), \(p/n \to y \in (0, 1)\), and \(m\) fixed.}
+We fix the model first. Throughout this section, \(\vect{X}_1, \dots, \vect{X}_n\) are iid \(\Normal{\vect{0}, \Sigma}\) and \(\Sigmahat_n = (1/n)\sum_i \vect{X}_i \vect{X}_i\transpose\) is the sample covariance, with \(p, n \to \infty\), \(p/n \to y \in (0, 1)\), and \(m\) fixed.
 
 
 \begin{definition}[Johnstone's spiked covariance model]\label{def:spiked-model}
@@ -32,19 +32,18 @@ The \vocab{Johnstone spiked covariance} of dimension \(p \ge m + 1\) is given by
 \end{equation}
 \end{definition}
 
-\GD{The model \eqref{eq:spiked-sigma}} is the simplest case of the \emph{generalised spiked population model} of \citet[][\S~11.2]{YaoZhengBai2015}, in which the population and sample covariances inherit the block structure
+The model~\eqref{eq:spiked-sigma} is the simplest case of the \emph{generalised spiked population model} of \citet[][\S~11.2]{YaoZhengBai2015}, in which the population and sample covariances inherit the block structure
 \begin{equation}\label{eq:generalized_spiked}
   \Sigma \;=\; \begin{pmatrix} \Lambda & 0 \\ 0 & \mat{V}_p \end{pmatrix}, \qquad
   \Sigmahat_n \;=\; \begin{pmatrix} S_{11} & S_{12} \\ S_{21} & S_{22} \end{pmatrix}.
 \end{equation}
-\GD{In \eqref{eq:generalized_spiked}, the fixed-size block \(\Lambda = \diag(\alpha_1, \dots, \alpha_m)\) carries the spikes. In turn,} the \((p - m) \times (p - m)\) baseline block \(\mat{V}_p\) has empirical spectral distribution converging to a limit \(H\). \GD{We say} an eigenvalue of \(\Lambda\) is a \emph{spike} when it lies outside the support of \(H\) \citep[][Def.~11.2]{YaoZhengBai2015}. The sample blocks \(S_{ij}\) arise from the partition \(\vect{X}_i = \Sigma^{1/2} \vect{Y}_i\), \(\vect{Y}_i \sim \Normal{\vect{0}, I_p}\) \citep[][Eqs.~(11.6)--(11.8)]{YaoZhengBai2015}. 
+In~\eqref{eq:generalized_spiked}, the fixed-size block \(\Lambda = \diag(\alpha_1, \dots, \alpha_m)\) carries the spikes, while the \((p - m) \times (p - m)\) baseline block \(\mat{V}_p\) has empirical spectral distribution converging to a limit \(H\). An eigenvalue of \(\Lambda\) is a \emph{spike} when it lies outside the support of \(H\) \citep[][Def.~11.2]{YaoZhengBai2015}. The sample blocks \(S_{ij}\) arise from the partition \(\vect{X}_i = \Sigma^{1/2} \vect{Y}_i\), \(\vect{Y}_i \sim \Normal{\vect{0}, I_p}\) \citep[][Eqs.~(11.6)--(11.8)]{YaoZhengBai2015}.
 
-\GD{\begin{example}
-Johnstone's model (\S~11.2.1) is the specialisation \(\mat{V}_p = I_{p - m}\). In this case, \(H = \delta_1\) and the ``spike'' reduces to \(\alpha_j \ne 1\). Spikes split into \emph{large} (\(\alpha_j > 1\)) and \emph{small} (\(\alpha_j < 1\))
-\end{example}}
-%; we focus on the large case throughout.
+\begin{example}[Johnstone's model]\label{ex:johnstone-special}
+Johnstone's model (\S~11.2.1) is the specialisation \(\mat{V}_p = I_{p - m}\). Then \(H = \delta_1\), and a ``spike'' reduces to \(\alpha_j \ne 1\); the spikes split into \vocab{large} \((\alpha_j > 1)\) and \vocab{small} \((\alpha_j < 1)\) ones. We focus on the large case throughout.\gdmark{johnstone-example}
+\end{example}
 
-The structural question is whether a large spike produces an outlier in the sample spectrum. Figure~\ref{fig:spiked-spectrum} shows the answer empirically. \GD{Namely,} at \(y = 1/2\) and \(n = 1000\), a spike \(\alpha = 2.5\) lifts \(\lambda_{\max}(\Sigmahat_n)\) to \(\approx 3.42\), \GD{which lies} well above the MP edge \(\lambda_+ \approx 2.91\). \GD{On the other hand,} a spike \(\alpha = 1.4\) leaves \(\lambda_{\max}\) at \(\approx 2.90\), indistinguishable from the edge. \GD{In summary,} both spikes exceed \(1\), yet only one is detectable. \GDcomment{``The dividing threshold depends on \(y\) in a precise way." This is only explained below. I would delete this sentence.}
+The structural question is whether a large spike produces an outlier in the sample spectrum. Figure~\ref{fig:spiked-spectrum} shows the answer empirically: at \(y = 1/2\) and \(n = 1000\), a spike \(\alpha = 2.5\) lifts \(\lambda_{\max}(\Sigmahat_n)\) to \(\approx 3.42\), well above the MP edge \(\lambda_+ \approx 2.91\), while a spike \(\alpha = 1.4\) leaves \(\lambda_{\max}\) at \(\approx 2.90\), indistinguishable from the edge. Both spikes exceed \(1\), yet only one is detectable.\gdmark{delete-threshold}
 
 \begin{figure}[H]
   \centering
@@ -53,10 +52,10 @@ The structural question is whether a large spike produces an outlier in the samp
   \label{fig:spiked-spectrum}
 \end{figure}
 
-The threshold is encoded in a single algebraic object: the value at which a separated sample eigenvalue would have to sit so that the perturbed bulk still matches the MP shape. The derivation passes through the Stieltjes transform and is the \(H = \delta_1\) specialisation of \citet[][Eq.~(11.15)]{YaoZhengBai2015}. We take it as given.
+From here on we work in Johnstone's model (Example~\ref{ex:johnstone-special}), so \(\mat{V}_p = I\) and \(H = \delta_1\). The threshold is then encoded in a single algebraic object: the value at which a separated sample eigenvalue would have to sit so that the perturbed bulk still matches the MP shape. The derivation passes through the Stieltjes transform and is the \(H = \delta_1\) specialisation of \citet[][Eq.~(11.15)]{YaoZhengBai2015}. We take it as given.\gdmark{johnstone-focus}
 
 \begin{definition}[Spike-location map]\label{def:psi}
-\GDcomment{It seems like we are focusing on Johnstone's model. That's fine, but that was not clear from the narrative.} For \(\alpha > 1\) and aspect ratio \(y \in (0, 1)\),
+For \(\alpha > 1\) and aspect ratio \(y \in (0, 1)\),
 \begin{equation}
   \Psi(\alpha) \;=\; \alpha \;+\; \frac{y\, \alpha}{\alpha - 1}.
   \label{eq:psi}
@@ -115,16 +114,11 @@ Under the assumptions of Definition~\ref{def:spiked-model}, fix a large populati
 \end{enumerate}
 \end{theorem}
 
-\noindent{\sc Sketch of the proof}: \GD{The argument for proving Theorem \ref{thm:bbp} passes through the Stieltjes transform of the unspiked bulk. An outlier sample eigenvalue is the unique solution \(\lambda\) of \(s_F(\lambda) = -1/\alpha_j\) outside the support of \(F_y\). Substituting the explicit Stieltjes transform of the Marchenko-Pastur law recovers \(\lambda = \Psi(\alpha_j)\). When \(\Psi'(\alpha_j) > 0\) (i.e.\ \(\alpha_j > 1 + \sqrt{y}\), by Proposition~\ref{prop:psi}) such a \(\lambda\) exists outside the bulk and case~(1) applies. Otherwise, the equation has no outside-the-bulk solution and the associated sample eigenvalue snaps to the upper edge \(\lambda_+\), giving case~(2). $\Box$}
+\noindent{\sc Sketch of the proof.}\enspace The argument passes through the Stieltjes transform of the unspiked bulk. An outlier sample eigenvalue is the unique solution \(\lambda\) of \(s_F(\lambda) = -1/\alpha_j\) outside the support of \(F_y\). Substituting the explicit Stieltjes transform of the Marchenko-Pastur law recovers \(\lambda = \Psi(\alpha_j)\). When \(\Psi'(\alpha_j) > 0\) (i.e.\ \(\alpha_j > 1 + \sqrt{y}\), by Proposition~\ref{prop:psi}) such a \(\lambda\) exists outside the bulk and case~(1) applies. Otherwise the equation has no outside-the-bulk solution and the associated sample eigenvalue snaps to the upper edge \(\lambda_+\), giving case~(2). \(\Box\)\gdmark{proof-sketch}
 
-
-
-\GD{\begin{remark} The original results for sample covariance matrices are due to \citet{BaikBenArousPeche2005, BaikSilverstein2006}.
-Theorem \ref{thm:bbp} is the Johnstone specialisation of \citet[][Cor.~11.4]{YaoZhengBai2015}, itself a consequence of the general phase-transition theorem \citep[][Thm.~11.3]{YaoZhengBai2015}.  
-\end{remark}}
-
-
-%We use Theorem~\ref{thm:bbp} as a black box.
+\begin{remark}
+The original results for sample covariance matrices are due to \citet{BaikBenArousPeche2005, BaikSilverstein2006}. Theorem~\ref{thm:bbp} is the Johnstone specialisation of \citet[][Cor.~11.4]{YaoZhengBai2015}, itself a consequence of the general phase-transition theorem \citep[][Thm.~11.3]{YaoZhengBai2015}.
+\end{remark}
 
 \begin{example}[Numerical predictions at \(y = 1/2\)]\label{ex:bbp-numbers}
 With \(y = 1/2\), the threshold is \(1 + \sqrt{1/2} \approx 1.71\) and the upper edge is \(\lambda_+ \approx 2.91\). For \(\alpha = 2.5\) (fundamental),
@@ -218,9 +212,7 @@ Figure~\ref{fig:critical-merge} looks at this coincidence head-on, overlaying th
   \label{fig:critical-merge}
 \end{figure}
 
-So the transition is not the Tracy-Widom shape below the threshold slowly bending into the Gaussian shape above it. Instead, close to \(\alpha_c\) both sides look like a single in-between shape, and the two different behaviours appear only once the spike is well away from the threshold. That in-between shape is a single bump rather than two, and was studied by \citet{BaikBenArousPeche2005}; our simulations only illustrate it, and we do not work it out here.
-
-\GDcomment{ARZAAN comment: reword this to imply how this shape is a consequence of the simulations and not what is implied. It needs to be clear that as we increase n and p, the densities for the spikes from the left (subcritical) and right (supercritical) will converge to their respective densities, it is just the closer you get, the larger your n and p need to be to compensate}
+It is important to read this merging as a finite-sample effect, not as a statement about the limits. For any \emph{fixed} spike off the threshold the two regimes have genuinely different limits: a subcritical spike (\(\alpha < \alpha_c\)) gives the Tracy-Widom edge law, a supercritical one (\(\alpha > \alpha_c\)) the Gaussian law of Theorem~\ref{thm:fund-fluct}. As \(n\) and \(p\) grow with \(\delta = \abs{\alpha - \alpha_c}\) held fixed, the just-below and just-above distributions pull apart and settle onto those two distinct limits. The only subtlety is resolution: the closer the spike sits to \(\alpha_c\), the larger \(n\) and \(p\) must be before the separation becomes visible. At the fixed sample size of Figure~\ref{fig:critical-merge}, a small \(\delta\) is simply below that resolution, so the two sides look identical even though their limits differ.\gdmark{critical-finite-n}
 
 The location result of Theorem~\ref{thm:bbp} and the fluctuation result of Theorem~\ref{thm:fund-fluct} together tell us \emph{where} a detectable spike lives in the sample spectrum and \emph{how} it fluctuates there; they say nothing yet about whether the corresponding sample \emph{eigenvector} carries information about the population spike direction. The next subsection takes up that question.
 
@@ -231,8 +223,6 @@ Theorem~\ref{thm:bbp} tells us \emph{that} a fundamental spike is visible in the
   \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \;=\; \cos^2 \theta \;\in\; [0, 1],
 \]
 where \(\theta\) is the angle between the two directions; squaring removes the harmless sign ambiguity in \(\widehat{\vect u}_1\). A value near \(1\) means near-perfect recovery; a value near \(0\) means the sample eigenvector is essentially noise.
-
-\GDcomment{ARZAAN Comment: add graph about increasing sample size for eigenvector alignment (fundamental and nonfundamental spike) and try to find a reference explaining eigenvector delocolization for the non fundamental spike and how it scales with N.}
 
 A simulation makes the question concrete before any theory. Figure~\ref{fig:eigenvector-histogram} histograms the squared alignment over many trials for a weak spike (\(\alpha = 1.4\), below the threshold) and a strong spike (\(\alpha = 2.5\), above it), at \(y = 1/2\) and \(n = 1200\). The two land in cleanly separated places: the weak-spike alignment piles up near \(0\), so the eigenvector is essentially noise, while the strong-spike alignment concentrates around \(0.58\), so the eigenvector recovers a definite fraction of the true direction. The rest of this subsection explains where these two clusters sit and why a threshold separates them.
 
@@ -305,6 +295,15 @@ The aspect ratio \(y\) sets how far above is ``well above''. Because the thresho
 \end{figure}
 
 Reading off the target line in Figure~\ref{fig:eigenvector-dimension} answers the practical question: to hold the alignment at \(0.5\), a problem at \(y = 1/4\) needs only a modest spike, whereas at \(y = 1\) the required spike is substantially larger. In high dimensions a signal must be proportionally stronger to be not merely detectable but \emph{recoverable}.
+
+Finally, fix the spike and let the sample grow. Figure~\ref{fig:eigenvector-samplesize} tracks the mean alignment as \(n\) increases, for a fundamental and a non-fundamental spike. Above the threshold the alignment converges to the positive constant \(\rho(\alpha, y)\); below the threshold it decays to \(0\), and the \emph{rate} of that decay is what is informative. A subcritical top eigenvector is \vocab{delocalized}: it spreads its mass over all \(\sim p\) coordinates with no preferred direction, so its overlap with any fixed axis such as \(\vect e_1\) is of order \(1/p \approx 1/n\), the same order as the overlap a uniformly random unit vector would have \citep{BloemendalKnowlesYauYin2016}. The non-fundamental points in Figure~\ref{fig:eigenvector-samplesize} fall at this \(1/p\) rate, parallel to the random-vector baseline (a residual bias keeps them a constant factor above it, since the spike still exceeds \(1\)). Detection and recovery therefore fail together below the threshold: there is no outlier eigenvalue, and the eigenvector points nowhere in particular.\gdmark{delocalization}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/eigenvector_samplesize.png}
+  \caption{Mean squared alignment \(\abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) against sample size \(n\) at \(y = 1/2\) (log-log axes, \(R = 150\) replications per point). The fundamental spike (\(\alpha = 2.5\)) converges to \(\rho(\alpha, y) \approx 0.58\) (dashed); the non-fundamental spike (\(\alpha = 1.4\)) decays at the \(1/p\) rate, parallel to the delocalization baseline \(1/p\) (dotted, the overlap of a uniformly random unit vector with a fixed axis). Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \label{fig:eigenvector-samplesize}
+\end{figure}
 
 Sections~\ref{subsec:johnstone}--\ref{subsec:eigenvector} now give a complete account of a single spike: when it is detectable (\(\alpha > 1 + \sqrt{y}\)), where its eigenvalue settles (\(\Psi(\alpha)\)), how that eigenvalue fluctuates (Gaussian, on the \(n^{-1/2}\) scale), and how well its eigenvector is recovered (\(\rho(\alpha, y)\)). The same signal-versus-noise threshold reappears, in a slightly different guise, when one moves from covariance matrices to the similarity matrices used for clustering, the subject of the final subsection.
 

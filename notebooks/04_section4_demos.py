@@ -967,6 +967,56 @@ def make_eigenvector_dimension_effect_figure() -> Path:
     return path
 
 
+def make_eigenvector_samplesize_figure() -> Path:
+    """Mean squared alignment against sample size n for a fundamental (alpha=2.5)
+    and a non-fundamental (alpha=1.4) spike at y = 1/2, on log-log axes. The
+    fundamental case converges to rho(alpha, y) > 0; the non-fundamental case
+    decays to 0 along the 1/p delocalization baseline (the overlap of a
+    uniformly random unit vector with a fixed axis), illustrating that the
+    subcritical top eigenvector delocalizes with overlap of order 1/p ~ 1/n
+    (Bloemendal-Knowles-Yau-Yin 2016)."""
+    rng = np.random.default_rng(SEED + 11)
+    y = 0.5
+    n_values = [100, 200, 400, 800, 1600, 3200]
+    R = 150
+    a_fund, a_non = 2.5, 1.4
+    rho_f = float(rho_overlap(a_fund, y))
+
+    fund_means, non_means, inv_p = [], [], []
+    for n in n_values:
+        p = int(round(y * n))
+        fund_means.append(simulate_top_overlap(a_fund, p=p, n=n, rng=rng, R=R).mean())
+        non_means.append(simulate_top_overlap(a_non, p=p, n=n, rng=rng, R=R).mean())
+        inv_p.append(1.0 / p)
+    nv = np.array(n_values, dtype=float)
+
+    fig, ax = plt.subplots(figsize=(9, 5.4))
+    ax.plot(nv, fund_means, marker="o", markersize=5, color=PALETTE["def"],
+            linewidth=1.5, label=rf"Fundamental spike $\alpha = {a_fund}$")
+    ax.axhline(rho_f, color=PALETTE["def"], linestyle="--", linewidth=1.0,
+               label=rf"$\rho(\alpha, y) \approx {rho_f:.2f}$")
+    ax.plot(nv, non_means, marker="s", markersize=5, color=PALETTE["accent"],
+            linewidth=1.5, label=rf"Non-fundamental spike $\alpha = {a_non}$")
+    ax.plot(nv, inv_p, color=PALETTE["thm"], linestyle=":", linewidth=1.3,
+            label=r"delocalization baseline $1/p$")
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xticks(n_values)
+    ax.set_xticklabels([str(n) for n in n_values])
+    ax.set_xlabel(r"Sample size $n$ (log scale, $p = n/2$)")
+    ax.set_ylabel(r"Mean squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    ax.set_title(rf"Eigenvector alignment vs sample size ($y = 1/2$, $R = {R}$)")
+    ax.legend(loc="lower left", frameon=False, fontsize=9)
+    ax.grid(True, which="both", linestyle=":", alpha=0.35)
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "eigenvector_samplesize.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating Section 4 figures...")
     # NOTE: make_fluctuation_phase_transition_figure() is defined above but
@@ -982,7 +1032,8 @@ if __name__ == "__main__":
                make_eigenvector_overlap_histogram_figure,
                make_eigenvector_alignment_figure,
                make_eigenvector_overlap_violin_figure,
-               make_eigenvector_dimension_effect_figure):
+               make_eigenvector_dimension_effect_figure,
+               make_eigenvector_samplesize_figure):
         path = fn()
         print(f"  Saved: {path.name}")
     print("Done.")
