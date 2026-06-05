@@ -296,6 +296,7 @@ where \(\mat{G} \sim \GOE_2\). The right side is the top eigenvalue of a \(\GOE_
 \[
   \lambda_2(\Sigmahat_n) - 2 \;=\; (\Sigmahat_n)_{22} - 2 \;+\; O_p(\norm{\Sigmahat_n - \Sigma}^2).
 \]
+Here \(O_p(a_n)\) denotes a random quantity bounded in probability by \(a_n\), and \(o_p(1)\) one that tends to \(0\) in probability; they read like the ordinary \(O\) and \(o\), but ``with high probability''.
 Multiplying by \(\sqrt{n}\) and using \((\Sigmahat_n - \Sigma)_{22} = O_p(n^{-1/2})\) (so the quadratic remainder is \(O_p(n^{-1/2})\) and vanishes in the limit),
 \begin{equation}
   \sqrt{n}\,(\lambda_2(\Sigmahat_n) - 2) \;=\; \sqrt{n}\,((\Sigmahat_n)_{22} - 2) \;+\; o_p(1).
@@ -404,7 +405,7 @@ Under the hypotheses of Theorem~\ref{thm:mp},
 Its importance notwithstanding, Theorem~\ref{thm:lambda-max-edge} settles \emph{where} \(\lambda_{\max}(\Sigmahat_n)\) lives in the limit but not \emph{how} it fluctuates around \(\lambda_+\). Unlike in low dimensions, the fluctuations of \(\lambda_{\max}(\Sigmahat_n)\) in high dimensions cannot be Gaussian. In fact, the geometry on the two sides of \(\lambda_{\max}\) is fundamentally different, which can be explained schematically as follows.\gdmark{where-how}
 
 \begin{itemize}[leftmargin=*,itemsep=0.25em]
-  \item \emph{To the left,} the other \(p - 1\) sample eigenvalues are densely packed and repel each other via the Vandermonde factor in~\eqref{eq:vandermonde}, exerting an upward ``pressure'' that resists \(\lambda_{\max}\) drifting back into the bulk.
+  \item \emph{To the left,} the other \(p - 1\) sample eigenvalues are densely packed and repel each other (in the Gaussian case through the Vandermonde factor of~\eqref{eq:vandermonde}; the same crowding holds more generally), exerting an upward ``pressure'' that resists \(\lambda_{\max}\) drifting back into the bulk.
   \item \emph{To the right,} the support of the MP density ends at \(\lambda_+\); past the edge there is nothing, so excursions above \(\lambda_+\) are unconstrained by neighbouring eigenvalues.
 \end{itemize}
 Figure~\ref{fig:edge-repulsion} makes this geometry tangible: across hundreds of realizations, the second- and third-largest eigenvalues sit packed tightly against \(\lambda_+\) from below, while \(\lambda_{\max}\) itself scatters substantially on both sides of the edge. The increasing width of the rows as we move from \(\lambda_{\max-5}\) up to \(\lambda_{\max}\) is the Vandermonde repulsion in action, holding consecutive eigenvalues apart while pushing the top one outward.

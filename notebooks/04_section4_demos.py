@@ -836,44 +836,77 @@ def make_eigenvector_alignment_figure() -> Path:
     return path
 
 
-def make_eigenvector_overlap_histogram_figure() -> Path:
-    """Histogram of the squared alignment for a weak (subcritical) and a strong
-    (supercritical) spike at one large n. The two cases land in cleanly distinct
-    places: the weak-spike eigenvector is noise (alignment ~0), the strong-spike
-    eigenvector recovers a definite fraction (~rho). Motivating entry point,
-    mirroring Exercise 7."""
+def make_eigenvector_overview_figure() -> Path:
+    """Two side-by-side panels for the weak (alpha=1.4) vs strong (alpha=2.5)
+    spike at y = 1/2.
+
+    LEFT: mean squared alignment against sample size n, with error bars and the
+    theoretical rho lines -- shows HOW the alignment settles as n grows (strong
+    toward rho, weak toward 0).
+
+    RIGHT: the distribution of the alignment at n = 1200 -- the ENDPOINT, two
+    cleanly separated regimes. (Mirrors Exercise 6/7.)"""
     rng = np.random.default_rng(SEED + 9)
     y = 0.5
-    n, p = 1200, 600
-    R = 300
     alpha_weak, alpha_strong = 1.4, 2.5
     rho_w = float(rho_overlap(alpha_weak, y))
     rho_s = float(rho_overlap(alpha_strong, y))
 
-    ov_w = simulate_top_overlap(alpha_weak, p=p, n=n, rng=rng, R=R)
-    ov_s = simulate_top_overlap(alpha_strong, p=p, n=n, rng=rng, R=R)
+    # LEFT: convergence over a sequence of sample sizes.
+    n_values = [100, 200, 400, 800, 1200]
+    R_conv = 250
+    mean_w, sd_w, mean_s, sd_s = [], [], [], []
+    for n in n_values:
+        p = int(round(y * n))
+        ow = simulate_top_overlap(alpha_weak, p=p, n=n, rng=rng, R=R_conv)
+        os_ = simulate_top_overlap(alpha_strong, p=p, n=n, rng=rng, R=R_conv)
+        mean_w.append(ow.mean()); sd_w.append(ow.std(ddof=1))
+        mean_s.append(os_.mean()); sd_s.append(os_.std(ddof=1))
 
-    fig, ax = plt.subplots(figsize=(9, 5.2))
-    ax.hist(ov_w, bins=30, density=True, color=PALETTE["accent"], alpha=0.65,
-            edgecolor="white", linewidth=0.3,
-            label=rf"weak spike $\alpha = {alpha_weak}$ (subcritical)")
-    ax.hist(ov_s, bins=30, density=True, color=PALETTE["def"], alpha=0.65,
-            edgecolor="white", linewidth=0.3,
-            label=rf"strong spike $\alpha = {alpha_strong}$ (fundamental)")
-    ax.axvline(rho_w, color=PALETTE["accent"], linestyle="--", linewidth=1.4,
-               label=rf"$\rho = {rho_w:.0f}$ (weak)")
-    ax.axvline(rho_s, color=PALETTE["def"], linestyle="--", linewidth=1.4,
-               label=rf"$\rho \approx {rho_s:.2f}$ (strong)")
+    # RIGHT: distribution at one large n.
+    n_h, p_h, R_h = 1200, 600, 300
+    ov_w = simulate_top_overlap(alpha_weak, p=p_h, n=n_h, rng=rng, R=R_h)
+    ov_s = simulate_top_overlap(alpha_strong, p=p_h, n=n_h, rng=rng, R=R_h)
 
-    ax.set_xlabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
-    ax.set_ylabel("Density")
-    ax.set_title(rf"Weak vs strong spike: two distinct regimes "
-                 rf"($y = 1/2$, $n = {n}$, $R = {R}$)")
-    ax.legend(loc="upper center", frameon=False, fontsize=9)
-    ax.grid(True, linestyle=":", alpha=0.35)
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(13, 5.0))
 
+    # --- LEFT panel: alignment vs n ---
+    axL.errorbar(n_values, mean_s, yerr=sd_s, marker="s", markersize=5,
+                 color=PALETTE["def"], capsize=3, linewidth=1.4,
+                 label=rf"strong spike $\alpha = {alpha_strong}$")
+    axL.errorbar(n_values, mean_w, yerr=sd_w, marker="o", markersize=5,
+                 color=PALETTE["accent"], capsize=3, linewidth=1.4,
+                 label=rf"weak spike $\alpha = {alpha_weak}$")
+    axL.axhline(rho_s, color=PALETTE["def"], linestyle="--", linewidth=1.0,
+                label=rf"$\rho \approx {rho_s:.2f}$ (strong)")
+    axL.axhline(rho_w, color=PALETTE["accent"], linestyle="--", linewidth=1.0,
+                label=r"$\rho = 0$ (weak)")
+    axL.set_xlabel(r"Sample size $n$ ($p = n/2$)")
+    axL.set_ylabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    axL.set_ylim(-0.03, 0.78)
+    axL.set_title(r"How the alignment settles as $n$ grows")
+    axL.legend(loc="center right", frameon=False, fontsize=8.5)
+    axL.grid(True, linestyle=":", alpha=0.35)
+
+    # --- RIGHT panel: distribution at n = 1200 ---
+    axR.hist(ov_w, bins=30, density=True, color=PALETTE["accent"], alpha=0.65,
+             edgecolor="white", linewidth=0.3,
+             label=rf"weak $\alpha = {alpha_weak}$")
+    axR.hist(ov_s, bins=30, density=True, color=PALETTE["def"], alpha=0.65,
+             edgecolor="white", linewidth=0.3,
+             label=rf"strong $\alpha = {alpha_strong}$")
+    axR.axvline(rho_w, color=PALETTE["accent"], linestyle="--", linewidth=1.3)
+    axR.axvline(rho_s, color=PALETTE["def"], linestyle="--", linewidth=1.3)
+    axR.set_xlabel(r"Squared alignment $|\langle \widehat{u}_1, e_1\rangle|^2$")
+    axR.set_ylabel("Density")
+    axR.set_title(rf"Distribution at $n = {n_h}$")
+    axR.legend(loc="upper center", frameon=False, fontsize=9)
+    axR.grid(True, linestyle=":", alpha=0.35)
+
+    fig.suptitle(r"Eigenvector alignment, weak vs strong spike ($y = 1/2$)",
+                 fontsize=11)
     fig.tight_layout()
-    path = FIGURES_DIR / "eigenvector_overlap_histogram.png"
+    path = FIGURES_DIR / "eigenvector_overview.png"
     fig.savefig(path)
     plt.close(fig)
     return path
@@ -1145,11 +1178,10 @@ if __name__ == "__main__":
                make_spike_fluctuations_figure,
                make_critical_violin_sweep_figure,
                make_critical_merge_densities_figure,
-               make_eigenvector_overlap_histogram_figure,
+               make_eigenvector_overview_figure,
                make_eigenvector_alignment_figure,
                make_eigenvector_overlap_violin_figure,
                make_eigenvector_dimension_effect_figure,
-               make_eigenvector_samplesize_figure,
                make_two_spikes_distinct_figure,
                make_two_spikes_equal_figure):
         path = fn()

@@ -32,10 +32,11 @@ The CDF of any random variable satisfies:
 Conversely, any \(F: \R \to [0,1]\) satisfying (F1)--(F3) is the CDF of some random variable \citep[][\S 1.5]{Casella2002}.
 \end{proposition}
 
-Random variables come in two main flavors. \emph{Discrete} random variables take values in a countable set \(\{x_1, x_2, \ldots\}\), and their distribution is described by the \vocab{probability mass function} (PMF) \(p_X(x_i) = \Prob(X = x_i)\). \emph{Absolutely continuous} random variables admit a nonnegative \vocab{probability density function} (PDF) \(f_X\) with
+Random variables come in two main flavors. \emph{Discrete} random variables take values in a countable set \(\{x_1, x_2, \ldots\}\), and their distribution is described by the \vocab{probability mass function} (PMF) \(p_X(x_i) = \Prob(X = x_i)\). \emph{Continuous} random variables are described by a nonnegative \vocab{probability density function} (PDF) \(f_X\), whose integral gives the distribution:
 \[
   F_X(x) \;=\; \int_{-\infty}^x f_X(t)\, dt.
 \]
+Informally, \(f_X(t)\,dt\) is the probability of landing in a tiny interval of width \(dt\) around \(t\). (The precise name for this class is \emph{absolutely continuous}; we will not need the distinction.)
 
 Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all intervals \(A, B \subseteq \R\). (More generally one asks the identity to hold on all events; the version on intervals suffices for real-valued random variables.)
 
@@ -54,11 +55,11 @@ Their shapes are shown in Figure~\ref{fig:distribution-shapes}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{figures/distribution_shapes.png}
-  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are absolutely continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but very different tails: the Cauchy density decays only like \(1/x^2\), so values far from zero remain plausible. This tail behavior is what breaks the moment generating function and motivates the characteristic function below.}
+  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but very different tails: the Cauchy density decays only like \(1/x^2\), so values far from zero remain plausible. This tail behavior is what breaks the moment generating function and motivates the characteristic function below.}
   \label{fig:distribution-shapes}
 \end{figure}
 
-The Cauchy distribution will be a recurring foil: its heavy tails make some standard tools break, motivating sharper tools that do not.
+The Cauchy distribution will be a recurring counterexample. By the \emph{tails} of a distribution we mean the probability it places far from its center; it has \vocab{heavy tails} when that probability decays slowly, so extreme values stay relatively likely. The Cauchy density decays only like \(1/x^2\), heavy enough that some standard tools break on it, which forces us toward sharper tools that still work.
 
 %====================================================================
 \subsection{Moments and Transform Methods}\label{subsec:transforms}
@@ -91,7 +92,7 @@ If \(M_X(t)\) is finite for \(t \in (-h, h)\), then \(M_X\) is infinitely differ
 \end{theorem}
 
 \begin{proof}
-We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. The hypothesis that \(M_X\) is finite on an open interval around zero is the standard regularity condition that justifies differentiating under the integral sign in the calculation that follows; see \citet[][Thm.~2.3.7]{Casella2002}. Therefore,
+We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. When \(M_X\) is finite on an interval \((-h, h)\) around zero, the integrand \(e^{tx} f_X(x)\) and its \(t\)-derivative are controlled by an integrable bound on a slightly smaller interval, which is exactly the condition that lets us move the derivative inside the integral (\citealp[][Thm.~2.3.7]{Casella2002}). Granting this,
 \[
   \frac{d}{dt} M_X(t)
   \;=\; \frac{d}{dt} \int_{-\infty}^\infty e^{tx} f_X(x)\, dx
@@ -438,7 +439,7 @@ The proof has four steps: standardize, expand the characteristic function near z
 \[
   e^{i t Y_1} \;=\; 1 \;+\; i t Y_1 \;-\; \tfrac{1}{2} t^2 Y_1^2 \;+\; o(t^2 Y_1^2).
 \]
-The finite-variance assumption \(\Var(X_1) = \sigma^2 < \infty\) is what makes this second-order expansion legitimate after taking expectations: it ensures that the remainder integrates correctly under \(\E\). Using \(\E[Y_1] = 0\) and \(\E[Y_1^2] = 1\),
+Taking expectations term by term and using \(\E[Y_1] = 0\) and \(\E[Y_1^2] = 1\) gives the expansion below. The step is legitimate precisely because the second moment \(\E[Y_1^2] = 1\) is finite: it bounds the remainder so that, after the expectation, the error is genuinely of order \(o(t^2)\) (a careful justification of this exchange is standard, \citealp[][Sec.~26]{Billingsley1995}). Thus
 \[
   \varphi(t) \;=\; 1 \;-\; \tfrac{1}{2} t^2 \;+\; o(t^2) \qquad (t \to 0).
 \]
@@ -505,7 +506,7 @@ The joint CDF \(F_{\vect{X}}: \R^p \to [0, 1]\) satisfies:
 Moreover, \(X_1, \ldots, X_p\) are independent if and only if \(F_{\vect{X}}(\vect{x}) = \prod_{i=1}^p F_{X_i}(x_i)\) for every \(\vect{x} \in \R^p\).
 \end{proposition}
 
-The discrete and absolutely continuous cases admit joint PMFs and joint densities, defined exactly as in the scalar case.
+The discrete and continuous cases admit joint PMFs and joint densities, defined exactly as in the scalar case.
 
 \paragraph{Three examples of joint distributions.}
 The next three examples illustrate the spectrum from full independence to maximal dependence to a smooth Gaussian dependence. They also show the difference between the \emph{support} of a random vector (where it lives) and its \emph{distribution} (how its mass is spread on its support).
@@ -526,7 +527,7 @@ Let \(X_1 \sim \mathrm{Exponential}(\lambda)\) and set \(X_2 = X_1\) almost sure
   &\;=\; \Prob(X_1 \le \min\{x_1, x_2\})
   \;=\; F_X(\min\{x_1, x_2\}).
 \end{align*}
-The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all its mass is concentrated on a set of Lebesgue area zero. We will see shortly that it is the prototypical case of a covariance matrix that is positive semidefinite but \emph{not} positive definite.
+The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all of its probability sits on a single line, and a line has zero area in the plane (any honest density would have to be infinite on the line and zero off it). We will see shortly that it is the prototypical case of a covariance matrix that is positive semidefinite but \emph{not} positive definite.
 \end{example}
 
 \begin{example}[Bivariate normal density]\label{ex:bvn-density}
@@ -623,7 +624,7 @@ The identity
 \[
   \vect{v}\transpose \Sigma \vect{v} \;=\; \Var(\vect{v}\transpose \vect{X})
 \]
-is the key identity of this section. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections, and vice versa.
+is the \emph{bridge identity} of this section. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections, and vice versa.
 
 \paragraph{The multivariate normal distribution.} The multivariate normal distribution is the vector analogue of the ordinary normal. It is the natural model for vector observations because it is closed under linear operations and is characterized completely by its mean vector and covariance matrix. The cleanest definition uses the characteristic function.
 
@@ -688,7 +689,7 @@ Let \(\vect{X}_1, \vect{X}_2, \ldots\) be iid random vectors in \(\R^p\) with me
 \end{theorem}
 
 \begin{proof}[Proof sketch]
-The argument is the \emph{Cram\'er-Wold device}: a sequence of random vectors converges in distribution if and only if every fixed linear projection of the sequence converges in distribution to the corresponding projection of the limit. Fix \(\vect{t} \in \R^p\) and project:
+The argument is the \emph{Cram\'er-Wold device}: a random vector is pinned down by all of its one-dimensional shadows \(\vect{t}\transpose \vect{X}\), so to prove that a sequence of vectors converges in distribution it is enough to prove that every fixed projection converges to the matching projection of the limit (\citealp[][\S29]{Billingsley1995}). That reduces the vector statement to a scalar one we already know how to handle. Fix \(\vect{t} \in \R^p\) and project:
 \[
   \vect{t}\transpose\, \sqrt{n}\,(\bar{\vect{X}}_n - \vect{\mu}) \;=\; \sqrt{n}\left(\frac{1}{n}\sum_{i=1}^n \vect{t}\transpose \vect{X}_i \;-\; \vect{t}\transpose \vect{\mu}\right).
 \]
