@@ -218,13 +218,15 @@ The location result of Theorem~\ref{thm:bbp} and the fluctuation result of Theor
 
 \subsection{Eigenvector Alignment Beyond the Threshold}\label{subsec:eigenvector}
 
-Theorem~\ref{thm:bbp} tells us \emph{that} a fundamental spike is visible in the sample spectrum, and Theorem~\ref{thm:fund-fluct} how its eigenvalue fluctuates. Neither says whether the corresponding sample \emph{eigenvector} points anywhere near the true population spike direction. In the one-spike model that direction is \(\vect e_1 = (1, 0, \dots, 0)\transpose\), the axis carrying the inflated variance \(\alpha\). Writing \(\widehat{\vect u}_1\) for the unit eigenvector of the top sample eigenvalue, we measure how well it recovers \(\vect e_1\) by the \vocab{squared alignment}
+% tells us that a fundamental spike is visible
+
+\GD{To recap, Theorem~\ref{thm:bbp} establishes conditions under which a spike is visible in the sample spectrum, whereas Theorem~\ref{thm:fund-fluct} how its eigenvalue fluctuates. Nevertheless, neither result} says whether the corresponding sample \emph{eigenvector} points anywhere near the true population spike direction. In the one-spike model that direction is \(\vect e_1 = (1, 0, \dots, 0)\transpose\), the axis carrying the inflated variance \(\alpha\). Writing \(\widehat{\vect u}_1\) for the unit eigenvector of the top sample eigenvalue, we measure how well it recovers \(\vect e_1\) by the \vocab{squared alignment}
 \[
   \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \;=\; \cos^2 \theta \;\in\; [0, 1],
 \]
-where \(\theta\) is the angle between the two directions; squaring removes the harmless sign ambiguity in \(\widehat{\vect u}_1\). A value near \(1\) means near-perfect recovery; a value near \(0\) means the sample eigenvector is essentially noise.
+where \(\theta\) is the angle between the two directions. \GD{Note that} squaring removes the harmless sign ambiguity in \(\widehat{\vect u}_1\). A value near \(1\) means near-perfect recovery; a value near \(0\) means the sample eigenvector is essentially noise.
 
-A simulation makes the question concrete before any theory. Figure~\ref{fig:eigenvector-overview} shows two views of the alignment for a weak spike (\(\alpha = 1.4\), below the threshold) and a strong spike (\(\alpha = 2.5\), above it) at \(y = 1/2\). The right panel is the endpoint: at \(n = 1200\) the two land in cleanly separated places, the weak alignment piling up near \(0\) (the eigenvector is essentially noise) and the strong alignment concentrating around \(0.58\) (the eigenvector recovers a definite fraction of the true direction). The left panel shows how they get there: as \(n\) grows the strong alignment settles onto a positive value, while the weak one drifts toward \(0\). The rest of this subsection explains where these two limits sit and why a threshold separates them.
+A simulation makes the question concrete before any theory. Figure~\ref{fig:eigenvector-overview} shows two views of the alignment for a weak spike (\(\alpha = 1.4\), below the threshold) and a strong spike (\(\alpha = 2.5\), above it) at \(y = 1/2\). The right panel is the endpoint: at \(n = 1200\) the two land in cleanly separated places, the weak alignment piling up near \(0\) (the eigenvector is essentially noise) and the strong alignment concentrating around \(0.58\) (the eigenvector recovers a definite fraction of the true direction). The left panel shows how they get there: as \(n\) grows the strong alignment settles onto a positive value, while the weak one drifts toward \(0\) \GDcomment{Do we have a theorem for nonfundamental spikes? If $\alpha = 1$ in Johnstone's model, the convergence to zero you detected can be explained, for sure.}. The rest of this subsection explains where these two limits sit and why a threshold separates them.
 
 \begin{figure}[H]
   \centering
@@ -243,7 +245,7 @@ Let \(\alpha_j\) be a fundamental spike (\(\Psi'(\alpha_j) > 0\)), and let \(\wi
 \end{equation}
 \end{theorem}
 
-In words: of the unit length of \(\widehat{\vect u}\), a fraction \(d^2\) lands on the true spike directions and the remaining \(1 - d^2\) leaks into noise. Specialising to Johnstone's model makes the fraction explicit.
+In words: \GD{a fraction \(d^2\) of the unit length of \(\widehat{\vect u}\) lands on the true spike directions, whereas} the remaining \(1 - d^2\) leaks into noise. Specialising to Johnstone's model makes that fraction explicit.
 
 \begin{corollary}[Johnstone model, {\citealp[Cor.~11.6]{YaoZhengBai2015}}]\label{cor:eigvec-johnstone}
 For \(\Sigma = \diag(\alpha, 1, \dots, 1)\) and a fundamental spike \(\alpha > 1 + \sqrt{y}\),
@@ -253,19 +255,19 @@ For \(\Sigma = \diag(\alpha, 1, \dots, 1)\) and a fundamental spike \(\alpha > 1
 \end{equation}
 \end{corollary}
 
-For a \emph{simple} spike (\(m = 1\)) the signal block is the single coordinate \(\vect e_1\), so \(\norm{\widehat{\vect u}_{(1)}}^2 = \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) and~\eqref{eq:johnstone-d2} is a formula for the squared alignment itself. Calling it \(\rho(\alpha, y)\),
+\GD{For a \emph{simple} spike (\(m = 1\)), the signal block is the single coordinate \(\vect e_1\). In this case,} \(\norm{\widehat{\vect u}_{(1)}}^2 = \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) and~\eqref{eq:johnstone-d2} is a formula for the squared alignment itself. Calling it \GDcomment{What is ``ìt"?} \(\rho(\alpha, y)\),
 \begin{equation}
   \abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \;\convas\;
   \rho(\alpha, y) \;=\; \frac{1 - \dfrac{y}{(\alpha - 1)^2}}{1 + \dfrac{y}{\alpha - 1}}
   \quad (\alpha > 1 + \sqrt{y}), \qquad \text{and} \;\convas\; 0 \quad (1 < \alpha \le 1 + \sqrt{y}).
   \label{eq:rho-overlap}
 \end{equation}
-
-The two expressions~\eqref{eq:signal-block} and~\eqref{eq:rho-overlap} are the same quantity: with \(\Psi(\alpha) = \alpha\bigl(1 + y/(\alpha - 1)\bigr)\) and \(\Psi'(\alpha) = 1 - y/(\alpha - 1)^2\),
+\GDcomment{In the expression above, it is more visually pleasant to display the two limits to the right of a left curly brace symbol -- if you understand what I mean.}
+The two expressions~\eqref{eq:signal-block} and~\eqref{eq:rho-overlap} are the same quantity \GDcomment{So, why are they displayed separately?}: with \(\Psi(\alpha) = \alpha\bigl(1 + y/(\alpha - 1)\bigr)\) and \(\Psi'(\alpha) = 1 - y/(\alpha - 1)^2\),
 \[
   \frac{\alpha\, \Psi'(\alpha)}{\Psi(\alpha)} \;=\; \frac{1 - y/(\alpha - 1)^2}{1 + y/(\alpha - 1)} \;=\; \rho(\alpha, y).
 \]
-This ties the two phase transitions together exactly: the alignment carries the same factor \(\Psi'(\alpha)\) that sets the eigenvalue fluctuations in Theorem~\ref{thm:fund-fluct}, so the eigenvalue and the eigenvector become informative at the very same threshold. At \(\alpha = 1 + \sqrt{y}\) we have \(\Psi'(\alpha) = 0\) and the alignment is \(0\); as \(\alpha \to \infty\), \(\rho \to 1\) and the recovery becomes perfect.
+This \GDcomment{This?} ties the two phase transitions \GDcomment{What two phase transitions? I'm being picky so that the text can be improved.} together exactly: the alignment carries the same factor \(\Psi'(\alpha)\) that sets the eigenvalue fluctuations in Theorem~\ref{thm:fund-fluct}, so the eigenvalue and the eigenvector become informative at the very same threshold. At \(\alpha = 1 + \sqrt{y}\) we have \(\Psi'(\alpha) = 0\) and the alignment is \(0\); as \(\alpha \to \infty\), \(\rho \to 1\) and the recovery becomes perfect.
 
 \begin{figure}[H]
   \centering
@@ -276,12 +278,12 @@ This ties the two phase transitions together exactly: the alignment carries the 
 
 Figure~\ref{fig:eigenvector-alignment} confirms~\eqref{eq:rho-overlap} at \(y = 1/2\): the simulated alignment stays at zero until the threshold and then rises along \(\rho(\alpha, y)\), reaching \(\rho(2.5, 1/2) \approx 0.58\) at \(\alpha = 2.5\) and approaching \(1\) for large spikes. Detecting a spike and recovering its direction thus share one threshold, but the eigenvector recovers the direction only partially unless the spike is well above it.
 
-The mean is only part of the story. Figure~\ref{fig:eigenvector-violin} shows the whole distribution as the spike grows: it is squeezed against \(0\) below the threshold, broad and skewed upward just above it (the recovery is genuine but highly variable there), and tightens into a narrow band as \(\alpha\) grows and recovery becomes reliable. The points of Figure~\ref{fig:eigenvector-alignment} are the centres of these violins.
+The mean \GDcomment{Of what?} is only part of the story. Figure~\ref{fig:eigenvector-violin} shows \GD{the distribution of squared alignment as the spike grows. Below the threshold, the distribution is squeezed against \(0\). By contrast, it is broad and skewed upward just above it (the recovery is genuine but highly variable there). Eventually, it} tightens into a narrow band as \(\alpha\) grows and recovery becomes reliable \GDcomment{I don't think we have been talking about the ``reliability of recovery", so to speak. That sounds like a statistical pursuit.}. The points of Figure~\ref{fig:eigenvector-alignment} are the centres of these violins.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/eigenvector_overlap_violin.png}
-  \caption{Distribution of the squared alignment at six spike values, from below the threshold (\(\alpha = 1.3\)) to well above it (\(\alpha = 3.5\)), at \(y = 1/2\), \(n = 800\), \(R = 400\) (each violin is a kernel-density estimate; the bar is the median). The distribution is pinned at \(0\) below \(\alpha_c \approx 1.71\), broad and skewed just above it, and tight for large \(\alpha\). Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \caption{Distribution of the squared alignment at six spike values, from below the threshold (\(\alpha = 1.3\)) to well above it (\(\alpha = 3.5\)), at \(y = 1/2\), \(n = 800\), \(R = 400\) (each violin is a kernel-density estimate; the bar is the median). The distribution is pinned at \(0\) below \(\alpha_c \approx 1.71\), broad and skewed just above it, and tight for large \(\alpha\). Generated by \texttt{notebooks/04\_section4\_demos.py}. \GDcomment{This plot is interesting, but most likely we cannot get a clear sense of the asymptotic distribution based on plotting the squared alignment by itself. Typically, we need to renormalize the random variables in question. }}
   \label{fig:eigenvector-violin}
 \end{figure}
 
@@ -290,13 +292,13 @@ The aspect ratio \(y\) sets how far above is ``well above''. Because the thresho
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{figures/eigenvector_dimension_effect.png}
-  \caption{Squared alignment against \(\alpha\) for four aspect ratios \(y\), at \(n = 600\), \(R = 120\). Solid lines with markers are the simulated means, the path traced as \(\alpha\) grows; dashed lines are the theory \(\rho(\alpha, y)\) of~\eqref{eq:rho-overlap}. As \(y\) grows the path shifts to the right: to reach a fixed alignment, say \(0.5\) (dotted line), a larger \(y\) requires a larger \(\alpha\). Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \caption{Squared alignment against \(\alpha\) for four aspect ratios \(y\), at \(n = 600\), \(R = 120\). Solid lines with markers are the simulated means \GDcomment{Means of what?}, the path traced as \(\alpha\) grows; dashed lines are the theory \(\rho(\alpha, y)\) of~\eqref{eq:rho-overlap}. As \(y\) grows the path shifts to the right: to reach a fixed alignment, say \(0.5\) (dotted line), a larger \(y\) requires a larger \(\alpha\). Generated by \texttt{notebooks/04\_section4\_demos.py}.}
   \label{fig:eigenvector-dimension}
 \end{figure}
 
-Reading off the target line in Figure~\ref{fig:eigenvector-dimension} answers the practical question: to hold the alignment at \(0.5\), a problem at \(y = 1/4\) needs only a modest spike, whereas at \(y = 1\) the required spike is substantially larger. In high dimensions a signal must be proportionally stronger to be not merely detectable but \emph{recoverable}.
+Reading off the target line in Figure~\ref{fig:eigenvector-dimension} answers the practical question: to hold the alignment at \(0.5\), a problem at \(y = 1/4\) needs only a modest spike, whereas at \(y = 1\) the required spike is substantially larger. In high dimensions, a signal must be proportionally stronger to be not merely detectable but \emph{recoverable} \GDcomment{What do we mean by ``signal", in this case?}.
 
-One last observation closes the loop, and it opens a door to a different corner of the subject. Below the threshold the top sample eigenvector is \vocab{delocalized}: instead of concentrating on the true direction \(\vect e_1\), it spreads its weight roughly evenly over all \(p\) coordinates, with no single one standing out. The clean mental picture is a uniformly random unit vector in \(\R^p\): its squared coordinates each sit at about \(1/p\), so its overlap with any one fixed axis is only about \(1/p\), which shrinks to \(0\) as the dimension grows. A subcritical eigenvector behaves the same way. Figure~\ref{fig:eigenvector-samplesize} shows it directly: on log-log axes the weak-spike alignment decays parallel to the line \(1/p\) (the random-direction rate), while the strong-spike alignment flattens out at the constant \(\rho(\alpha, y)\).
+One last observation closes the loop, and it opens a door to a different corner of the subject. Below the threshold the top sample eigenvector is \vocab{delocalized}: instead of concentrating on the true direction \(\vect e_1\), it spreads its weight roughly evenly over all \(p\) coordinates, with no single one standing out \GDcomment{This is as important statement -- do we have theory (a reference) to back it up? In the case of Johnstone's model with $\alpha = 1$, we can prove it. Perhaps the paper by Bloemendal et al.?}. The clean mental picture is a uniformly random unit vector in \(\R^p\): its squared coordinates each sit at about \(1/p\), so its overlap with any one fixed axis is only about \(1/p\), which shrinks to \(0\) as the dimension grows. A subcritical eigenvector behaves the same way. Figure~\ref{fig:eigenvector-samplesize} shows it directly: on log-log axes the weak-spike alignment decays parallel to the line \(1/p\) (the random-direction rate), while the strong-spike alignment flattens out at the constant \(\rho(\alpha, y)\).
 
 \begin{figure}[H]
   \centering
@@ -311,14 +313,18 @@ Sections~\ref{subsec:johnstone}--\ref{subsec:eigenvector} now give a complete ac
 
 \subsection{Two Spikes: When Can We Tell the Directions Apart?}\label{subsec:two-spikes}
 
-So far each spike has stood alone. Suppose now there are two large spikes, \(\Sigma = \diag(\alpha_1, \alpha_2, 1, \dots, 1)\) with \(\alpha_1 \ge \alpha_2 > 1 + \sqrt{y}\). The eigenvalue side needs nothing new: Theorem~\ref{thm:bbp} applies to each spike on its own, so each lifts its own outlier, at \(\Psi(\alpha_1)\) and \(\Psi(\alpha_2)\). The eigenvector side is where something new appears, and to describe it we need one piece of vocabulary.
+So far, each spike has stood alone. Suppose now there are two large spikes, \GD{namely, suppose we can write
+$$
+\Sigma = \diag(\alpha_1, \alpha_2, 1, \dots, 1)
+$$
+with} \(\alpha_1 \ge \alpha_2 > 1 + \sqrt{y}\). The eigenvalue side needs nothing new: Theorem~\ref{thm:bbp} applies to each spike on its own, so each lifts its own outlier, at \(\Psi(\alpha_1)\) and \(\Psi(\alpha_2)\). The eigenvector side is where something new appears, and to describe it we need one piece of vocabulary.
 
 The two population directions \(\vect e_1\) and \(\vect e_2\) together span a two-dimensional plane inside \(\R^p\), namely the set of all combinations \(c_1 \vect e_1 + c_2 \vect e_2\). Such a plane is called a \vocab{subspace}; we call this one the spike subspace. There are now two different things we might hope to recover from the data: the spike subspace itself (the plane the signal lives in), or the two individual directions \(\vect e_1, \vect e_2\) inside it. These are different goals, and whether the second is reachable turns out to depend on whether the two spikes are \emph{distinct} or \emph{equal}.
 
 \paragraph{Distinct spikes.}
 Take \(\alpha_1 > \alpha_2\). Then the two outliers are themselves separated, \(\Psi(\alpha_1) > \Psi(\alpha_2)\), so the top two sample eigenvalues sit at clearly different heights. The right panel of Figure~\ref{fig:two-spikes-distinct} shows this directly: over many trials the largest eigenvalue \(\lambda_1\) clusters at \(\Psi(\alpha_1) \approx 3.75\) and the second \(\lambda_2\) at \(\Psi(\alpha_2) \approx 3.12\), both well clear of the bulk edge \(\lambda_+ \approx 2.91\). Two spikes produce two separate outliers, just as Theorem~\ref{thm:bbp} predicts for each one.
 
-That gap between the eigenvalues is exactly what lets the data tell the two directions apart. The left panel measures the four squared overlaps between the top two sample eigenvectors \(\widehat{\vect u}_1, \widehat{\vect u}_2\) and the two true directions \(\vect e_1, \vect e_2\). The two \emph{matched} overlaps land on the single-spike values, \(\abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \approx \rho(\alpha_1, y) \approx 0.70\) and \(\abs{\inner{\widehat{\vect u}_2}{\vect e_2}}^2 \approx \rho(\alpha_2, y) \approx 0.46\), while the two \emph{crossed} overlaps, \(\abs{\inner{\widehat{\vect u}_1}{\vect e_2}}^2\) and \(\abs{\inner{\widehat{\vect u}_2}{\vect e_1}}^2\), sit at \(0\). Read in plain terms: the top eigenvector recovers the first direction, the second eigenvector recovers the second, and neither leaks into the other. Two distinct spikes behave like two independent single spikes.
+That gap between the eigenvalues is exactly what lets the data tell the two directions apart. The left panel measures the four squared overlaps between the top two sample eigenvectors \(\widehat{\vect u}_1, \widehat{\vect u}_2\) and the two true directions \(\vect e_1, \vect e_2\). The two \emph{matched} overlaps land on the single-spike values, \(\abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2 \approx \rho(\alpha_1, y) \approx 0.70\) and \(\abs{\inner{\widehat{\vect u}_2}{\vect e_2}}^2 \approx \rho(\alpha_2, y) \approx 0.46\), while the two \emph{crossed} overlaps, \(\abs{\inner{\widehat{\vect u}_1}{\vect e_2}}^2\) and \(\abs{\inner{\widehat{\vect u}_2}{\vect e_1}}^2\), sit at \(0\). Read in plain terms: the top eigenvector recovers the first direction, the second eigenvector recovers the second, and neither leaks into the other. Two distinct spikes behave like two independent single spikes. \GDcomment{Why can we claim that they are independent?}
 
 \begin{figure}[H]
   \centering
@@ -337,7 +343,7 @@ The right panel makes the same point in one image. It is the \(2 \times 2\) tabl
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/two_spikes_equal.png}
-  \caption{Equal spikes \(\alpha_1 = \alpha_2 = 2.5\) at \(y = 1/2\), \(n = 800\), \(R = 600\). \emph{Left:} the subspace alignment (blue) concentrates near \(\rho(\alpha, y) \approx 0.58\), so the spike plane is recovered, while one individual overlap \(\abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) (grey) is spread across \([0, \rho]\), so the direction in the plane is not. \emph{Right:} the \(2 \times 2\) table of average squared overlaps \(\abs{\inner{\widehat{\vect u}_i}{\vect e_j}}^2\); every entry is near \(\rho/2\), so the table is flat, with no diagonal, the fingerprint of two scrambled directions. (For distinct spikes this table would instead be diagonal.) Generated by \texttt{notebooks/04\_section4\_demos.py}.}
+  \caption{Equal spikes \(\alpha_1 = \alpha_2 = 2.5\) at \(y = 1/2\), \(n = 800\), \(R = 600\). \emph{Left:} the subspace alignment (blue) concentrates near \(\rho(\alpha, y) \approx 0.58\), so the spike plane is recovered \GDcomment{If I understand you aright, how can the spike plane be recovered? I explain: for a single spike, we don't have perfect asymptotic alignment between the random and deterministic eigenvectors involved. Hence, we don't ``recover" the (one-dimensional) plane. For a multiplicity 2 spike, we seem to be claiming that we can recover the associated plane.}, while one individual overlap \(\abs{\inner{\widehat{\vect u}_1}{\vect e_1}}^2\) (grey) is spread across \([0, \rho]\), so the direction in the plane is not. \emph{Right:} the \(2 \times 2\) table of average squared overlaps \(\abs{\inner{\widehat{\vect u}_i}{\vect e_j}}^2\); every entry is near \(\rho/2\), so the table is flat, with no diagonal, the fingerprint of two scrambled directions. (For distinct spikes this table would instead be diagonal.) Generated by \texttt{notebooks/04\_section4\_demos.py}.}
   \label{fig:two-spikes-equal}
 \end{figure}
 
