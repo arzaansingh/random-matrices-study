@@ -1,38 +1,136 @@
 %% appendix/C-code-listings.tex
 %% Appendix C: Selected Code Listings
-%% Pulls out the most important code snippets from the eight notebooks for
-%% the reader who wants to see the experiments in one place. Modeled on
-%% Joseph Genzer's Appendix B (Code).
-%%
-%% Once the notebooks are written, the four placeholder listings below will
-%% be replaced with the real code, formatted via the thesisPython lstlisting
-%% style defined in style/thesis.sty.
+%% The mathematical core of the six figure scripts, verbatim. Formatted via
+%% the thesisPython lstlisting style defined in style/thesis.sty.
 
 \section{Selected Code Listings}\label{app:code}
 
-\todo{Include 4 to 6 of the most informative snippets from the notebooks
-(not full notebooks). Each listing should be self-contained at the function
-level, captioned, and referenced from the main text where the corresponding
-figure appears.
+The six scripts in \texttt{notebooks/} run to a few thousand lines, but most of that is plotting. The mathematics lives in a handful of short functions, reproduced verbatim below: every random-matrix simulation in Sections~\ref{sec:scm} and~\ref{sec:spiked} funnels through one of these five listings or a close variant of it. Together with the conventions of Appendix~\ref{app:simulation}, they are enough to re-create any experiment from scratch.
 
-Suggested listings to include here:
-\begin{itemize}
-  \item C.1 One-spike Johnstone simulation
-        (driving function for Section~\ref{subsec:bbp}).
-        Source: \texttt{notebooks/04\_section4\_demos.py}.
-  \item C.2 Eigenvector overlap simulation
-        (Section~\ref{subsec:eigenvector}).
-        Source: \texttt{notebooks/07\_eigenvector\_overlap.ipynb}.
-  \item C.3 Strong-spike fluctuation simulation
-        (Section~\ref{subsec:fluctuations}).
-        Source: \texttt{notebooks/06\_fluctuation\_qq\_plots.ipynb}.
-  \item C.4 Marchenko-Pastur bulk simulation
-        (Section~\ref{subsec:scm-highdim}).
-        Source: \texttt{notebooks/04\_marchenko\_pastur\_tracy\_widom.ipynb}.
-\end{itemize}
+\medskip
 
-Each listing will be wrapped in a \texttt{lstlisting} environment using the
-\texttt{thesisPython} style defined in \texttt{style/thesis.sty}, with a
-caption and a \texttt{label} for cross-referencing from the main text.}
+The first listing is the null model of Sections~\ref{sec:introduction} and~\ref{subsec:scm-highdim}: one draw of the sample covariance matrix with \(\Sigma = I_p\), and the Marchenko-Pastur density it is compared against.
+
+\begin{lstlisting}[caption={Null-model eigenvalues and the Marchenko-Pastur density (from \texttt{00\_intro\_lowdim\_vs\_highdim.py}; reused throughout Section~\ref{sec:scm}).}, label={lst:mp-bulk}]
+def sample_covariance_eigenvalues(p: int, n: int, rng: np.random.Generator) -> np.ndarray:
+    """Return the p eigenvalues of (1/n) X X^T for X ~ N(0, I_p)^{otimes n}."""
+    X = rng.normal(size=(p, n))
+    S = (X @ X.T) / n
+    return np.linalg.eigvalsh(S)
+
+
+def marchenko_pastur_density(x: np.ndarray, y: float) -> np.ndarray:
+    """Marchenko-Pastur density at x for aspect ratio y in (0, 1], assuming
+    population covariance Sigma = I (so the variance scale is 1)."""
+    lam_minus = (1.0 - np.sqrt(y)) ** 2
+    lam_plus = (1.0 + np.sqrt(y)) ** 2
+    out = np.zeros_like(x, dtype=float)
+    inside = (x >= lam_minus) & (x <= lam_plus)
+    xi = x[inside]
+    out[inside] = np.sqrt((lam_plus - xi) * (xi - lam_minus)) / (2.0 * np.pi * y * xi)
+    return out
+\end{lstlisting}
+
+The second listing adds the spikes of Section~\ref{sec:spiked}: the population covariance becomes \(\diag(\alpha_1, \dots, \alpha_m, 1, \dots, 1)\), and one realization of the sample spectrum is returned.
+
+\begin{lstlisting}[caption={One realization of the spiked sample spectrum (from \texttt{04\_section4\_demos.py}; drives the figures of Sections~\ref{subsec:johnstone} to~\ref{subsec:fluctuations}).}, label={lst:spiked-sim}]
+def simulate_spiked_eigenvalues(spikes, p, n, rng):
+    """One realization of Sigmahat_n = (1/n) X X^T for X = Sigma^{1/2} Z,
+    Z standard Gaussian, with Sigma = diag(spikes_1,...,spikes_m, 1, ..., 1).
+
+    Returns eigenvalues in DESCENDING order.
+    """
+    spikes = np.asarray(spikes, dtype=float)
+    m = len(spikes)
+    if m >= p:
+        raise ValueError("Need m < p.")
+    sigma_diag = np.ones(p)
+    sigma_diag[:m] = spikes
+    Z = rng.standard_normal((p, n))
+    X = np.sqrt(sigma_diag)[:, None] * Z
+    S = (X @ X.T) / n
+    return np.linalg.eigvalsh(S)[::-1]
+\end{lstlisting}
+
+The third listing is the eigenvector side of Section~\ref{subsec:eigenvector}: the limiting overlap formula \(\rho(\alpha, y)\) and the Monte Carlo experiment that tests it. Because the population spike direction is the first coordinate axis, the squared overlap is simply the squared first entry of the top sample eigenvector.
+
+\begin{lstlisting}[caption={Eigenvector overlap: theory and simulation (from \texttt{04\_section4\_demos.py}; drives the figures of Section~\ref{subsec:eigenvector}).}, label={lst:overlap-sim}]
+def rho_overlap(alpha, y):
+    """Limiting squared overlap |<u_1, e_1>|^2 = d^2 = alpha*Psi'(alpha)/Psi(alpha)
+    for a simple Johnstone spike (YZB Cor. 11.6):
+
+        rho = (1 - y/(alpha-1)^2) / (1 + y/(alpha-1)),   alpha > 1 + sqrt(y),
+
+    and 0 at or below the threshold.
+    """
+    alpha = np.asarray(alpha, dtype=float)
+    thr = 1.0 + np.sqrt(y)
+    r = (1.0 - y / (alpha - 1.0) ** 2) / (1.0 + y / (alpha - 1.0))
+    return np.where(alpha > thr, np.maximum(r, 0.0), 0.0)
+
+
+def simulate_top_overlap(alpha, p, n, rng, R):
+    """R replications of |<u_1, e_1>|^2 for Sigma = diag(alpha, 1, ..., 1).
+    Since e_1 is the first coordinate axis, the overlap is the square of the
+    first entry of the top sample eigenvector."""
+    sqrt_diag = np.ones(p)
+    sqrt_diag[0] = np.sqrt(alpha)
+    out = np.empty(R)
+    for r in range(R):
+        Z = rng.standard_normal((p, n))
+        X = sqrt_diag[:, None] * Z
+        S = (X @ X.T) / n
+        w, V = np.linalg.eigh(S)
+        out[r] = V[0, np.argmax(w)] ** 2
+    return out
+\end{lstlisting}
+
+The fourth listing is the clustering theory of Section~\ref{subsec:clustering} in code: the spike location \(\xi\), the alignment \(\zeta\), and the sign-rule accuracy \(\Phi\bigl(\sqrt{\zeta/(1-\zeta)}\bigr)\). The first two switch to their below-threshold values when the signal-to-noise ratio \(\ell\) fails to clear \(\sqrt{y}\); the accuracy inherits the switch through \(\zeta = 0\), which gives the coin-flip value \(\tfrac12\).
+
+\begin{lstlisting}[caption={The three clustering formulas of Section~\ref{subsec:clustering} (from \texttt{05\_clustering\_demos.py}).}, label={lst:clustering-theory}]
+def zeta_theory(ell, y):
+    """Limiting squared alignment |<v_k, vhat_k>|^2 (LCC Thm 1)."""
+    ell = np.asarray(ell, dtype=float)
+    z = 1.0 - (ell + y) / (ell * (ell + 1.0))
+    return np.where(ell > np.sqrt(y), np.maximum(z, 0.0), 0.0)
+
+
+def xi_theory(ell, y):
+    """Limiting location of the isolated Gram eigenvalue (LCC Thm 1)."""
+    ell = np.asarray(ell, dtype=float)
+    edge = (1.0 + 1.0 / np.sqrt(y)) ** 2
+    return np.where(ell > np.sqrt(y), (ell + y) * (ell + 1.0) / (y * ell), edge)
+
+
+def accuracy_theory(zeta):
+    """Two-class sign-rule accuracy Phi(sqrt(zeta/(1-zeta))) (LCC Sec. IV)."""
+    zeta = np.asarray(zeta, dtype=float)
+    return stats.norm.cdf(np.sqrt(zeta / np.maximum(1.0 - zeta, 1e-12)))
+\end{lstlisting}
+
+The final listing is the complete MNIST pipeline of Section~\ref{subsec:mnist} for one pair of digits: extract the top eigenvector of the Gram matrix (via singular vectors, without forming the matrix), center it, renormalize, and fix the sign. Everything reported in Figures~\ref{fig:mnist-zero-one} and~\ref{fig:mnist-pairs} is computed from the vector this function returns.
+
+\begin{lstlisting}[caption={The two-digit MNIST pipeline (from \texttt{05\_clustering\_demos.py}; drives Section~\ref{subsec:mnist}).}, label={lst:mnist-pipeline}]
+def pair_spike(X_full, labels, k1, k2, per_class, rng):
+    """Top Gram eigenvector for the two-digit subproblem (k1 vs k2), with
+    per_class samples of each digit. Mirrors the LCC pipeline: top right
+    singular vector of X/sqrt(p), centered, renormalized, sign-fixed by the
+    true labels. Returns (vhat, ytrue) with ytrue = +/- 1/sqrt(n)."""
+    from scipy.sparse.linalg import svds
+    cols1 = np.where(labels == k1)[0]
+    cols2 = np.where(labels == k2)[0]
+    cols1 = rng.choice(cols1, size=per_class, replace=False)
+    cols2 = rng.choice(cols2, size=per_class, replace=False)
+    X = X_full[:, np.concatenate([np.sort(cols1), np.sort(cols2)])]
+    p, n = X.shape
+    ytrue = np.ones(n) / np.sqrt(n)
+    ytrue[:per_class] *= -1.0
+    _, _, Vt = svds(X / np.sqrt(p), k=1, which="LM")
+    v = Vt[0] - Vt[0].mean()
+    v /= np.linalg.norm(v)
+    if v @ ytrue < 0:
+        v = -v
+    return v, ytrue
+\end{lstlisting}
 
 \clearpage

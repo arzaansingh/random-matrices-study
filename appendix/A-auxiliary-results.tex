@@ -1,38 +1,78 @@
 %% appendix/A-auxiliary-results.tex
 %% Appendix A: Auxiliary Results
-%% Hosts results we cite in the main text but do not want to prove inline.
-%% Modeled on Joseph Genzer's Appendix A.
+%% Hosts classical results used in the main text but not proved inline.
+%% Characteristic functions, the Levy continuity theorem, and the CLT proof
+%% are NOT repeated here: they are developed in full in Section 2.
 
 \section{Auxiliary Results}\label{app:auxiliary}
 
-\todo{Content to fill in:
+This appendix records three classical facts that the body of the report uses but whose proofs would have interrupted the narrative. Each is stated in the form in which it is used: the Borel-Cantelli lemmas come with complete elementary proofs, the continuous mapping theorem with a reference, and Slutsky's theorem with a proof sketch and a reference.
 
-A.1 Borel-Cantelli Lemmas.
-- First Borel-Cantelli: if \(\sum_n \Prob(A_n) < \infty\), then
-  \(\Prob(A_n \text{ i.o.}) = 0\).
-- Second Borel-Cantelli (independence version): if events are independent
-  and \(\sum_n \Prob(A_n) = \infty\), then \(\Prob(A_n \text{ i.o.}) = 1\).
-- Used in Section~\ref{subsec:limit-theorems} for the convergence-in-probability
-  but not-almost-surely counterexample.
+\subsection{The Borel-Cantelli Lemmas}\label{app:borel-cantelli}
 
-A.2 Slutsky's theorem.
-- Statement and a one-paragraph proof or reference to
-  \citet[Thm.~5.5.17]{Casella2002}.
+Both lemmas concern a sequence of events \(A_1, A_2, \dots\) and the statement that \emph{infinitely many of them occur}. That phrase has a concrete meaning: no matter how far down the sequence we look, there is always a later event that occurs. Equivalently, for every starting index \(N\) at least one event \(A_n\) with \(n \ge N\) occurs. The two lemmas say that whether this happens is decided, in the cleanest cases, by the convergence or divergence of the series \(\sum_n \Prob(A_n)\).
 
-A.3 Continuous mapping theorem.
-- Statement: if \(X_n \convd X\) and \(g\) is continuous on a set of
-  \(\Prob_X\)-probability one, then \(g(X_n) \convd g(X)\).
+\begin{lemma}[First Borel-Cantelli lemma]\label{lem:bc1}
+If \(\sum_{n=1}^\infty \Prob(A_n) < \infty\), then
+\(\Prob(\text{infinitely many } A_n \text{ occur}) = 0\).
+\end{lemma}
 
-A.4 Multivariate delta method.
-- Statement and reference; used in Sections~\ref{subsec:scm-lowdim}
-  and~\ref{subsec:fluctuations}.
+\begin{proof}
+Fix a starting index \(N\). If infinitely many events occur, then in particular some event at or beyond \(N\) occurs, so
+\[
+  \Prob(\text{infinitely many } A_n \text{ occur})
+  \;\le\; \Prob\Bigl(\,\bigcup_{n \ge N} A_n\Bigr)
+  \;\le\; \sum_{n = N}^\infty \Prob(A_n),
+\]
+where the second step bounds the probability of a union by the sum of the probabilities. The right-hand side is the tail of a convergent series, so it tends to \(0\) as \(N \to \infty\). The left-hand side does not depend on \(N\), so it must equal \(0\).
+\end{proof}
 
-A.5 Characteristic functions and the L\'evy continuity theorem.
-\label{app:characteristic-functions}
-- Definition: \(\varphi_X(t) = \E[e^{itX}]\); always exists.
-- Examples: \(\Normal{0, 1}\) gives \(e^{-t^2/2}\), Cauchy gives \(e^{-|t|}\).
-- L\'evy: \(X_n \convd X \iff \varphi_{X_n}(t) \to \varphi_X(t)\) pointwise,
-  with continuity at 0 sufficient for the converse.
-- Proof of the classical CLT via \((1 + t/n)^n \to e^t\) expansion.}
+\begin{lemma}[Second Borel-Cantelli lemma]\label{lem:bc2}
+If the events \(A_1, A_2, \dots\) are independent and \(\sum_{n=1}^\infty \Prob(A_n) = \infty\), then
+\(\Prob(\text{infinitely many } A_n \text{ occur}) = 1\).
+\end{lemma}
+
+\begin{proof}
+Fix \(N\) and consider the event that \emph{none} of \(A_N, A_{N+1}, \dots, A_M\) occurs. Complements of independent events are independent, so this event has probability
+\[
+  \prod_{n = N}^{M} \bigl(1 - \Prob(A_n)\bigr)
+  \;\le\; \prod_{n = N}^{M} e^{-\Prob(A_n)}
+  \;=\; \exp\Bigl(-\sum_{n = N}^{M} \Prob(A_n)\Bigr),
+\]
+using the inequality \(1 - x \le e^{-x}\). As \(M \to \infty\) the exponent tends to \(-\infty\) because the series diverges, so the bound tends to \(0\). The event that no \(A_n\) with \(n \ge N\) \emph{ever} occurs is contained in each of these finite-\(M\) events, so its probability is \(0\). There are only countably many starting indices \(N\), so the union bound from the first proof applies to these failure events: with probability \(1\), for every \(N\) at least one event at or beyond \(N\) occurs, which is exactly the statement that infinitely many occur.
+\end{proof}
+
+Section~\ref{subsec:limit-theorems} uses Lemma~\ref{lem:bc2} with \(\Prob(A_n) = 1/n\): the harmonic series diverges, so the independent events of the counterexample keep occurring forever, which is what destroys almost-sure convergence there while leaving convergence in probability intact. A general treatment of both lemmas is given in \citet[\S 4]{Billingsley1995}.
+
+\subsection{The Continuous Mapping Theorem for Vectors}\label{app:cmt-vectors}
+
+Proposition~\ref{prop:cmt} stated the continuous mapping theorem for a scalar sequence and a function continuous everywhere. The version used implicitly when we manipulate several limiting quantities at once allows vectors and permits discontinuities, as long as the limit never lands on them.
+
+\begin{theorem}[Continuous mapping theorem, general form]\label{thm:cmt-general}
+Let \(\vect{X}_n, \vect{X}\) be random vectors in \(\R^k\) with \(\vect{X}_n \convd \vect{X}\), and let \(g: \R^k \to \R^m\) be continuous at every point of a set \(C\) with \(\Prob(\vect{X} \in C) = 1\). Then \(g(\vect{X}_n) \convd g(\vect{X})\). The same statement holds with \(\convd\) replaced by \(\convp\) or by \(\convas\).
+\end{theorem}
+
+See \citet[\S\S 25 and 29]{Billingsley1995} for the proof. The point of the refinement is flexibility: functions like \((x, y) \mapsto x/y\) are not continuous everywhere, but they are continuous wherever the limit actually lives (here, wherever \(y \ne 0\)), and that is all the theorem requires.
+
+\subsection{Slutsky's Theorem}\label{app:slutsky}
+
+Slutsky's theorem is the workhorse that combines one sequence converging in distribution with another converging to a constant. It is promised in Section~\ref{subsec:limit-theorems} and used, mostly silently, whenever a limit statement survives the replacement of an unknown constant by a consistent estimate of it.
+
+\begin{theorem}[Slutsky's theorem]\label{thm:slutsky}
+Let \(X_n \convd X\) and \(Y_n \convp c\) for a constant \(c\). Then
+\[
+  X_n + Y_n \;\convd\; X + c,
+  \qquad
+  Y_n X_n \;\convd\; c X,
+  \qquad
+  \frac{X_n}{Y_n} \;\convd\; \frac{X}{c} \quad (c \ne 0).
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The pair \((X_n, Y_n)\) converges in distribution to \((X, c)\): joint convergence, which in general requires more than convergence of each coordinate, is automatic here because the second limit is a constant. Theorem~\ref{thm:cmt-general} applied to the maps \((x, y) \mapsto x + y\), \((x, y) \mapsto xy\), and \((x, y) \mapsto x/y\) then gives all three statements; the division map is continuous wherever \(y \ne 0\), and in the third claim the limit \((X, c)\) lives on that set because \(c \ne 0\). A textbook proof is \citet[Thm.~5.5.17]{Casella2002}.
+\end{proof}
+
+A concrete use in this report: the Kolmogorov-Smirnov comparison in Section~\ref{subsec:scm-highdim} standardizes simulated top eigenvalues by their sample mean and sample standard deviation. Those estimates converge in probability to the true centering and scale, so Slutsky's theorem (with \(Y_n\) the ratio of true to estimated scale, which converges to \(1\)) guarantees that the empirically standardized statistic has the same limit law as the exactly standardized one.
 
 \clearpage

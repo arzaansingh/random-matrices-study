@@ -409,23 +409,21 @@ def make_mp_bulk_figure() -> Path:
     rng = np.random.default_rng(SEED)
     n, y_target = 1000, 0.5
     p = int(round(y_target * n))
-    # Pool enough realizations to accumulate ~10,000 eigenvalues.
-    n_real = 10000 // p + 1
-    eigs_list = []
-    for _ in range(n_real):
-        X = rng.normal(size=(p, n))
-        S = (X @ X.T) / n
-        eigs_list.append(np.linalg.eigvalsh(S))
-    eigs = np.concatenate(eigs_list)
+    # A SINGLE realization: the point of this Appendix B companion figure is
+    # that one draw already matches the limiting density (the varying-y figure
+    # in Section 3 is the pooled, sharpened version).
+    X = rng.normal(size=(p, n))
+    S = (X @ X.T) / n
+    eigs = np.linalg.eigvalsh(S)
 
     y = p / n
     lam_minus = (1 - np.sqrt(y)) ** 2
     lam_plus = (1 + np.sqrt(y)) ** 2
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.hist(eigs, bins=80, density=True, color=PALETTE["def"], alpha=0.7,
+    ax.hist(eigs, bins=40, density=True, color=PALETTE["def"], alpha=0.7,
             edgecolor="white", linewidth=0.4,
-            label=f"Empirical histogram ({eigs.size:,} eigenvalues)")
+            label=f"Empirical histogram ({eigs.size:,} eigenvalues, one draw)")
 
     x_grid = np.linspace(0.001, lam_plus * 1.05, 600)
     ax.plot(x_grid, _mp_density(x_grid, y), color=PALETTE["thm"], linewidth=1.7,

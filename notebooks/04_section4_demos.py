@@ -270,7 +270,7 @@ def make_phase_transition_figure() -> Path:
     ax.plot(n_values, strong_mean, marker="o", color=PALETTE["def"], linewidth=1.4,
             label=rf"Fundamental spike $\alpha = {alpha_strong}$ (mean over $R = {R}$)")
     ax.fill_between(n_values, strong_q10, strong_q90, color=PALETTE["def"],
-                    alpha=0.18, label=r"10--90\% band")
+                    alpha=0.18, label="10-90% band")
     ax.axhline(psi_strong, color=PALETTE["def"], linestyle="--", linewidth=1.0,
                label=rf"prediction $\Psi(\alpha) \approx {psi_strong:.2f}$")
 
@@ -391,7 +391,7 @@ def make_spike_fluctuations_figure() -> Path:
     against the predicted Gaussian limit N(0, sigma_alpha^2) from
     YZB Thm 11.11 / Feral-Peche Thm 1.6; Q-Q plot against N(0, 1).
 
-    Bottom row (non-fundamental spike): histogram of the Johnstone-standardised
+    Bottom row (non-fundamental spike): histogram of the Johnstone-standardized
     statistic (lambda_max - mu_np) / sigma_np against the TW1 density; Q-Q
     plot against N(0, 1) showing the non-Gaussian shape.
     """
@@ -566,7 +566,7 @@ def make_fluctuation_phase_transition_figure() -> Path:
 
     # Empirical 10-90% band.
     ax.fill_between(alpha_grid, q10_z, q90_z, color=PALETTE["def"], alpha=0.25,
-                    label=r"10--90\% empirical band")
+                    label="10-90% empirical band")
 
     # Empirical mean curve (should be approximately zero by construction).
     ax.plot(alpha_grid, means_z, marker="o", markersize=3.0,
@@ -575,7 +575,7 @@ def make_fluctuation_phase_transition_figure() -> Path:
 
     # Theoretical 10-90% Gaussian band on the fundamental side.
     ax.plot(a_dense, band_hi, color=PALETTE["thm"], linewidth=1.8,
-            label=r"Predicted 10--90\% Gaussian band $\pm 1.28\,\sigma_\alpha$")
+            label=r"Predicted 10-90% Gaussian band $\pm 1.28\,\sigma_\alpha$")
     ax.plot(a_dense, band_lo, color=PALETTE["thm"], linewidth=1.8)
     ax.fill_between(a_dense, band_lo, band_hi, color=PALETTE["thm"], alpha=0.08)
 

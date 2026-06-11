@@ -294,7 +294,7 @@ def make_clustering_two_spikes_figure() -> Path:
     ax3.scatter(Uhat[half:, 0], Uhat[half:, 1], s=6, color=PALETTE["accent"],
                 alpha=0.5, label="class 2")
     ax3.scatter(*zip(c1, c2), marker="D", s=55, color=PALETTE["thm"], zorder=5,
-                label="predicted centres")
+                label="predicted centers")
     ax3.set_xlabel(r"$[\widehat{v}_1]_i$")
     ax3.set_ylabel(r"$[\widehat{v}_2]_i$")
     ax3.set_title("The embedding: one cloud per class")
@@ -388,7 +388,7 @@ def load_mnist():
 def pair_spike(X_full, labels, k1, k2, per_class, rng):
     """Top Gram eigenvector for the two-digit subproblem (k1 vs k2), with
     per_class samples of each digit. Mirrors the LCC pipeline: top right
-    singular vector of X/sqrt(p), centred, renormalized, sign-fixed by the
+    singular vector of X/sqrt(p), centered, renormalized, sign-fixed by the
     true labels. Returns (vhat, ytrue) with ytrue = +/- 1/sqrt(n)."""
     from scipy.sparse.linalg import svds
     cols1 = np.where(labels == k1)[0]
