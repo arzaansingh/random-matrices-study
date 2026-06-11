@@ -37,7 +37,8 @@
 \newcounter{gdrevcount}
 % Inline marker dropped at an incorporated comment. Preprint: green star +
 % running number, linked to the log, with a return anchor. Final: nothing.
-\newcommand{\gdmark}[1]{%
+% Robust so the marker survives inside moving arguments (figure captions).
+\DeclareRobustCommand{\gdmark}[1]{%
   \ifpreprint
     \refstepcounter{gdrevcount}%
     \label{gdrev:#1}%
@@ -45,12 +46,15 @@
       \hypertarget{gdtext:#1}{}\hyperlink{gdlog:#1}{$\star$\thegdrevcount}}}%
   \fi
 }
-% One Revision-Log row: #1 key (matches \gdmark), #2 location, #3 Didier's
-% words, #4 what we changed. Used inside an itemize in the log section.
-\newcommand{\gdlogitem}[4]{%
+% One Revision-Log entry: #1 key (matches \gdmark), #2 location, #3 the
+% comment, #4 what the text had and why it drew the comment, #5 the fix,
+% #6 the lesson carried forward. Used inside an itemize in the log section.
+\newcommand{\gdlogentry}[6]{%
   \item[\textcolor{thesisRev}{$\star$\,\ref{gdrev:#1}}]\hypertarget{gdlog:#1}{}%
-  \textbf{#2.}\enspace\emph{Didier:}~#3\enspace\emph{Incorporated:}~#4%
-  \enspace\hyperlink{gdtext:#1}{\textcolor{thesisLink}{$\hookrightarrow$ text}}}
+  \textbf{#2.}\enspace\emph{Comment:}~#3\\
+  \emph{What we had:}~#4\\
+  \emph{Fix:}~#5\\
+  \emph{Lesson:}~#6\enspace\hyperlink{gdtext:#1}{\textcolor{thesisLink}{$\hookrightarrow$ text}}}
 
 
 \begin{document}
@@ -111,71 +115,117 @@ comment was incorporated and links to the matching entry below; each entry links
 back to its place in the text.}
 
 \medskip
-\begin{itemize}[leftmargin=2.4em,itemsep=0.45em]
-\gdlogitem{meaning}{\S\ref{sec:scm}, opening}{``Meaning?'', on ``behaves like a classical sample average''.}{Spelled out that the SCM converges entry by entry to the true covariance by the law of large numbers, exactly as a scalar sample mean converges to its expectation.}
+\noindent\textbf{First round: comments on Section~\ref{sec:scm}.}
+\begin{itemize}[leftmargin=2.4em,itemsep=0.55em]
+\gdlogentry{meaning}{\S\ref{sec:scm}, opening}{``Meaning?'', on ``behaves like a classical sample average''.}{A metaphor carrying a mathematical claim, with no statement of the sense in which it holds.}{Spelled out that the SCM converges entry by entry to the true covariance by the law of large numbers, exactly as a scalar sample mean converges to its expectation.}{Never let a metaphor carry a claim; say in what precise sense the comparison holds.}
 
-\gdlogitem{hdr-name}{\S\ref{sec:scm}, opening}{Named the growing-dimension setting ``the so-called high-dimensional regime''.}{Adopted the phrase as a parenthetical on first mention.}
+\gdlogentry{hdr-name}{\S\ref{sec:scm}, opening}{Named the growing-dimension setting ``the so-called high-dimensional regime''.}{The setting was described but never given its standard name.}{Adopted the phrase as a parenthetical on first mention.}{Attach standard terminology early so the reader can connect the text to the literature.}
 
-\gdlogitem{scm-abbr}{Definition~\ref{def:scm}}{Introduce the abbreviation ``(SCM)'' and call $\Sigmahat_n$ a \emph{random} matrix.}{Both adopted; ``SCM'' is now used throughout.}
+\gdlogentry{scm-abbr}{Definition~\ref{def:scm}}{Introduce the abbreviation ``(SCM)'' and call \(\Sigmahat_n\) a \emph{random} matrix.}{The full phrase was repeated everywhere and the randomness of \(\Sigmahat_n\) was left implicit.}{Both adopted; ``SCM'' is used throughout and the definition says random matrix.}{Define abbreviations once, and say explicitly which objects are random.}
 
-\gdlogitem{each-entry}{after Definition~\ref{def:scm}}{Rephrase as flowing prose: ``Note that each entry of a SCM is a sample average. In fact,\,\dots''}{Replaced the run-in \texttt{paragraph} heading with his sentence.}
+\gdlogentry{each-entry}{after Definition~\ref{def:scm}}{Rephrase as flowing prose: ``Note that each entry of a SCM is a sample average. In fact,\,\dots''}{A run-in paragraph heading interrupting the development.}{Replaced the heading with his sentence.}{Inside a development, prose transitions beat heading fragments.}
 
-\gdlogitem{eqref}{equation~\eqref{eq:scm-entrywise}}{Cross-reference the entrywise formula explicitly.}{Added ``of~\eqref{eq:scm-entrywise}'' and removed a duplicate \texttt{label} on the equation that was breaking compilation.}
+\gdlogentry{eqref}{equation~\eqref{eq:scm-entrywise}}{Cross-reference the entrywise formula explicitly.}{``The entrywise formula'' with no equation number, plus a duplicate \texttt{label} that broke compilation.}{Added ``of~\eqref{eq:scm-entrywise}'' and removed the duplicate label.}{Reference displayed equations by number; labels must be unique.}
 
-\gdlogitem{matrix-form}{before equation~\eqref{eq:scm-matrix-form}}{``As it turns out, the entrywise formula\,\dots can be conveniently repackaged\,\dots''}{Replaced the ``Matrix form'' heading with his sentence.}
+\gdlogentry{matrix-form}{before equation~\eqref{eq:scm-matrix-form}}{``As it turns out, the entrywise formula\,\dots can be conveniently repackaged\,\dots''}{A bare ``Matrix form'' heading where a connecting thought belonged.}{Replaced the heading with his sentence.}{A derivation reads as a continuing story, not a list of headed blocks.}
 
-\gdlogitem{psd-leadin}{before Proposition~\ref{prop:scm-psd}}{``Relation~\eqref{eq:scm-matrix-form} is very useful in establishing the following proposition.''}{Replaced the ``Symmetry and PSD'' heading with his lead-in.}
+\gdlogentry{psd-leadin}{before Proposition~\ref{prop:scm-psd}}{``Relation~\eqref{eq:scm-matrix-form} is very useful in establishing the following proposition.''}{A ``Symmetry and PSD'' heading that did not say why the preceding identity mattered.}{Replaced the heading with his lead-in.}{Tell the reader why the previous display matters for what comes next.}
 
-\gdlogitem{eigvec-mayfail}{\S\ref{subsec:scm-lowdim}, before Example~\ref{ex:eigenvec-fail}}{Soften to ``may not converge\,\dots illustrated in the following counterexample''.}{Adopted; also fixed the ``counterexampl'' typo.}
+\gdlogentry{eigvec-mayfail}{\S\ref{subsec:scm-lowdim}, before Example~\ref{ex:eigenvec-fail}}{Soften to ``may not converge\,\dots illustrated in the following counterexample''.}{A flat claim that eigenvectors do not converge, stronger than what the example shows, plus a typo.}{Adopted the softer wording; fixed the typo.}{Claim exactly what the example proves: the existence of failure, not its universality.}
 
-\gdlogitem{streamline}{\S\ref{subsec:scm-highdim}, opening}{``I'm trying to streamline the text.''}{Restructured the subsection opening along the lines of his subsequent edits.}
+\gdlogentry{streamline}{\S\ref{subsec:scm-highdim}, opening}{``I'm trying to streamline the text.''}{A meandering opening that arrived at the regime definition late.}{Restructured the opening along the lines of his subsequent edits.}{Open a subsection with the destination, not the scenery.}
 
-\gdlogitem{hdr-def}{\S\ref{subsec:scm-highdim}}{Define the high-dimensional regime up front via $p/n \to y$.}{Moved the formal definition to the front of the subsection.}
+\gdlogentry{hdr-def}{\S\ref{subsec:scm-highdim}}{Define the high-dimensional regime up front via \(p/n \to y\).}{The regime was used before it was formally pinned down.}{Moved the formal definition to the front of the subsection.}{Define the regime before using its consequences.}
 
-\gdlogitem{breakdown}{\S\ref{subsec:scm-highdim}}{``In high dimensions, the picture\,\dots breaks down\,\dots they no longer converge to $\lambda_i(\Sigma)=1$.''}{Adopted the rewording.}
+\gdlogentry{breakdown}{\S\ref{subsec:scm-highdim}}{``In high dimensions, the picture\,\dots breaks down\,\dots they no longer converge to \(\lambda_i(\Sigma)=1\).''}{A vague ``the picture changes'' that did not name the statement that fails.}{Adopted his rewording.}{Name the precise statement that fails, not just that something changes.}
 
-\gdlogitem{bulk}{\S\ref{subsec:scm-highdim}}{Introduce the term ``the bulk'' for the range of eigenvalues.}{Defined \emph{bulk} on first use (comma, no dash).}
+\gdlogentry{bulk}{\S\ref{subsec:scm-highdim}}{Introduce the term ``the bulk'' for the range of eigenvalues.}{The word was used as if standard, without introduction.}{Defined \emph{bulk} at first use.}{Every term of art gets a definition at first appearance, however common in the field.}
 
-\gdlogitem{individual-eig}{\S\ref{subsec:scm-highdim}}{``You might want to consider the distribution of an individual eigenvalue, such as the top eigenvalue.''}{Added a sentence noting that $\lambda_{\max}(\Sigmahat_n)$ is the focus of the rest of the section, so individual eigenvalues do remain of interest.}
+\gdlogentry{individual-eig}{\S\ref{subsec:scm-highdim}}{``You might want to consider the distribution of an individual eigenvalue, such as the top eigenvalue.''}{The text implied individual eigenvalues stop being interesting once the bulk appears.}{Added that \(\lambda_{\max}(\Sigmahat_n)\) is the focus of the rest of the section.}{When shifting viewpoint, say what is retained, not only what is new.}
 
-\gdlogitem{mp-repeat}{before Theorem~\ref{thm:mp}}{``This is a repetition.''}{Deleted the repeated clause about a non-trivial limit when $\Sigma = I_p$.}
+\gdlogentry{mp-repeat}{before Theorem~\ref{thm:mp}}{``This is a repetition.''}{The non-trivial-limit clause stated twice in close succession.}{Deleted the repeat.}{Each fact appears once; repetition reads as padding.}
 
-\gdlogitem{mp-pdf-range}{Theorem~\ref{thm:mp}}{State the density only for $0 < y < 1$.}{Qualified the p.d.f.\ with ``When $0 < y < 1$\,\dots''.}
+\gdlogentry{mp-pdf-range}{Theorem~\ref{thm:mp}}{State the density only for \(0 < y < 1\).}{The MP density stated without its range qualification.}{Qualified the p.d.f.\ with ``When \(0 < y < 1\)\,\dots'' and stated the \(y > 1\) atom separately.}{A formula's hypotheses are part of the formula.}
 
-\gdlogitem{mp-redundant}{after Theorem~\ref{thm:mp}}{``\,`the form of the limit\,\dots is the same' \,'' is redundant.}{Removed the redundant clause.}
+\gdlogentry{mp-redundant}{after Theorem~\ref{thm:mp}}{``\,`the form of the limit\,\dots is the same'\,'' is redundant.}{A sentence re-asserting what the theorem statement had just said.}{Removed it.}{Trim every sentence that merely re-asserts its predecessor.}
 
-\gdlogitem{support-range}{features list}{Prepend ``For $0 < y < 1$'' to the support description.}{Adopted.}
+\gdlogentry{support-range}{features list}{Prepend ``For \(0 < y < 1\)'' to the support description.}{A bullet describing the support without the regime qualifier.}{Adopted.}{Quantify the regime in every standalone statement, bullets included.}
 
-\gdlogitem{nice}{features list}{``Nice.'' (on the square-root edge).}{No change required; positive feedback noted.}
+\gdlogentry{nice}{features list}{``Nice.'' (on the square-root edge).}{The square-root edge bullet, as written.}{No change required.}{The square-root edge is the load-bearing feature behind Tracy-Widom; keep it prominent.}
 
-\gdlogitem{exits}{before Theorem~\ref{thm:lambda-max-edge}}{``Exits?'', questioning ``the largest sample eigenvalue exits the bulk''.}{Reworded to ``converges to the upper edge of the bulk'', since at the null it settles at the boundary rather than leaving it.}
+\gdlogentry{exits}{before Theorem~\ref{thm:lambda-max-edge}}{``Exits?'', questioning ``the largest sample eigenvalue exits the bulk''.}{Escape language used at the null, where the top eigenvalue settles at the boundary rather than leaving it.}{Reworded to ``converges to the upper edge of the bulk''.}{Reserve escape language for genuine outliers; at the null nothing leaves the bulk.}
 
-\gdlogitem{topeig-leadin}{before Theorem~\ref{thm:lambda-max-edge}}{Add a sentence announcing the top-eigenvalue convergence theorem.}{Adopted.}
+\gdlogentry{topeig-leadin}{before Theorem~\ref{thm:lambda-max-edge}}{Add a sentence announcing the top-eigenvalue convergence theorem.}{The theorem appeared without an announcement of its role.}{Added the lead-in.}{Orient the reader to each theorem's purpose before stating it.}
 
-\gdlogitem{where-how}{after Theorem~\ref{thm:lambda-max-edge}}{Rewrite the ``where vs.\ how'' passage, adding ``Unlike in low dimensions\,\dots cannot be Gaussian.''}{Adopted; also fixed the ``notwithstanding,Theorem'' spacing.}
+\gdlogentry{where-how}{after Theorem~\ref{thm:lambda-max-edge}}{Rewrite the ``where vs.\ how'' passage, adding ``Unlike in low dimensions\,\dots cannot be Gaussian.''}{A clumsy contrast passage and a spacing typo.}{Adopted his rewrite; fixed the spacing.}{Contrast structures need parallel, explicit sentences.}
 
-\gdlogitem{tw1-leadin}{before Definition~\ref{def:tw1}}{Add a lead-in to the $\mathrm{TW}_1$ definition.}{Adopted.}
+\gdlogentry{tw1-leadin}{before Definition~\ref{def:tw1}}{Add a lead-in to the \(\mathrm{TW}_1\) definition.}{The Painlev\'e-based definition dropped in cold.}{Added the lead-in and the reassurance that the definition can be skipped.}{Orient, then formalize; flag skippable technicality as skippable.}
 
-\gdlogitem{universality}{after Definition~\ref{def:tw1}}{``I don't understand the previous sentence'' (``\,\dots universality is what gives the family its name'').}{Rewrote it: the recurrence of one law across unrelated models is an instance of \emph{universality} (the name itself is after Tracy and Widom).}
+\gdlogentry{universality}{after Definition~\ref{def:tw1}}{``I don't understand the previous sentence'' (``\,\dots universality is what gives the family its name'').}{A false etymology: the family is named after Tracy and Widom, not after universality.}{Rewrote: the recurrence of one law across unrelated models is an instance of \emph{universality}; the name honors its discoverers.}{Check name-origin and history claims; they are easy to invent and easy to refute.}
 
-\gdlogitem{exponent}{$p^{-2/3}$ heuristic}{``At this point, we have not said anything about exponents.''}{Replaced ``the exponent'' with the explicit ``$p^{-2/3}$ scaling''.}
+\gdlogentry{exponent}{\(p^{-2/3}\) heuristic}{``At this point, we have not said anything about exponents.''}{``The exponent'' referenced before any exponent had been introduced.}{Replaced with the explicit \(p^{-2/3}\) scaling.}{Definite articles need visible antecedents.}
 
-\gdlogitem{johnstone-attr}{before Theorem~\ref{thm:tw}}{Johnstone (and Johansson) gave the first \emph{proof} of TW limits for SCMs, not only the normalization sequences.}{Credited the first proof and added \citet{Johansson2000}.}
+\gdlogentry{johnstone-attr}{before Theorem~\ref{thm:tw}}{Johnstone (and Johansson) gave the first \emph{proof} of TW limits for SCMs, not only the normalization sequences.}{An attribution that understated the contribution to bookkeeping constants.}{Credited the first proof and added \citet{Johansson2000}.}{Attribution should state what was actually proved, at the right strength.}
+\end{itemize}
 
-%% --- Second round: June 2nd meeting ---
-\gdlogitem{heuristic-reorder}{after Theorem~\ref{thm:tw}}{Reordered the $p^{-2/3}$ heuristic to follow the TW theorem; ``Adjust this'' on the ``constants line up'' paragraph (the heuristic was now below, not above).}{Moved the heuristic after the theorem, merged the two redundant constants/centering paragraphs into one, and rewrote the heuristic in plain language.}
+\medskip
+\noindent\textbf{Second round: June 2nd meeting.}
+\begin{itemize}[leftmargin=2.4em,itemsep=0.55em]
+\gdlogentry{heuristic-reorder}{after Theorem~\ref{thm:tw}}{Reordered the \(p^{-2/3}\) heuristic to follow the TW theorem; ``Adjust this'' on the ``constants line up'' paragraph.}{The heuristic preceded the theorem it explains, and two paragraphs about the constants said the same thing.}{Moved the heuristic after the theorem, merged the duplicated paragraphs, rewrote in plain language.}{Heuristics land best immediately after the rigorous statement they illuminate.}
 
-\gdlogitem{johnstone-example}{\S\ref{subsec:johnstone}}{Turn Johnstone's model into a formal Example.}{Adopted as Example~\ref{ex:johnstone-special}; restored the ``we focus on the large case'' scoping that had been commented out.}
+\gdlogentry{johnstone-example}{\S\ref{subsec:johnstone}}{Turn Johnstone's model into a formal Example.}{The model lived in running prose, hard to reference.}{Adopted as Example~\ref{ex:johnstone-special}; restored the large-case scoping.}{Recurring special cases deserve numbered environments.}
 
-\gdlogitem{delete-threshold}{after Figure~\ref{fig:spiked-spectrum}}{``'The dividing threshold depends on $y$ in a precise way.' This is only explained below. I would delete this sentence.''}{Deleted the sentence.}
+\gdlogentry{delete-threshold}{after Figure~\ref{fig:spiked-spectrum}}{``\,`The dividing threshold depends on \(y\) in a precise way.' This is only explained below. I would delete this sentence.''}{A forward promise duplicating what the next pages deliver anyway.}{Deleted the sentence.}{Do not promise below what the text delivers below.}
 
-\gdlogitem{johnstone-focus}{before Definition~\ref{def:psi}}{``It seems like we are focusing on Johnstone's model\,\dots that was not clear from the narrative.''}{Added a sentence stating that from here we specialise to Johnstone's model ($\mat{V}_p = I$, $H = \delta_1$).}
+\gdlogentry{johnstone-focus}{before Definition~\ref{def:psi}}{``It seems like we are focusing on Johnstone's model\,\dots that was not clear from the narrative.''}{A silent specialization of the standing assumptions.}{Added the sentence announcing the switch to \(\mat{V}_p = I\), \(H = \delta_1\).}{Announce every change of standing assumptions.}
 
-\gdlogitem{proof-sketch}{Theorem~\ref{thm:bbp}}{Restructure the proof discussion of the phase-transition theorem.}{Set it as a ``Sketch of the proof'' with the historical attribution moved to a Remark.}
+\gdlogentry{proof-sketch}{Theorem~\ref{thm:bbp}}{Restructure the proof discussion of the phase-transition theorem.}{History and mathematics interleaved in one block.}{Set the mathematics as a ``Sketch of the proof'' and moved the attribution to a Remark.}{Separate the mathematics from its history.}
 
-\gdlogitem{critical-finite-n}{end of \S\ref{subsec:fluctuations}}{(Arzaan) Reword: the merge is a finite-sample effect; as $n,p$ grow the subcritical and supercritical densities converge to their own limits; closer to $\alpha_c$ needs larger $n,p$.}{Reworded the conclusion to the finite-$n$ resolution framing.}
+\gdlogentry{critical-finite-n}{end of \S\ref{subsec:fluctuations}}{(Raised in the meeting) The merge near the threshold is a finite-sample effect; for fixed \(\alpha\) off the threshold the limits differ.}{Wording that read as if the two regimes merge asymptotically.}{Reworded to the finite-\(n\) resolution framing: closer to \(\alpha_c\) needs larger \(n, p\) before the separation shows.}{Distinguish finite-\(n\) phenomena from limit statements.}
 
-\gdlogitem{delocalization}{\S\ref{subsec:eigenvector}}{(Arzaan) Add an alignment-vs-sample-size graph (fundamental and non-fundamental) and find a reference on eigenvector delocalization and its $N$-scaling.}{Added an alignment-vs-\(n\) panel to Figure~\ref{fig:eigenvector-overview}, a log-log delocalization figure (Figure~\ref{fig:eigenvector-samplesize}), and a discussion of delocalization in general terms citing \citet{BloemendalKnowlesYauYin2016} (the eigenvector behaves like a random direction, overlap of order \(1/N\)).}
+\gdlogentry{delocalization}{\S\ref{subsec:eigenvector}}{(Raised in the meeting) Add an alignment-vs-sample-size view and find a delocalization reference with the \(N\)-scaling.}{No delocalization discussion at all.}{Added the alignment-vs-\(n\) panel, the log-log figure (Figure~\ref{fig:eigenvector-samplesize}), and a general discussion citing \citet{BloemendalKnowlesYauYin2016}.}{An observation can be flagged and cited honestly without developing the machinery behind it.}
+\end{itemize}
+
+\medskip
+\noindent\textbf{Third round: June 10th comments on Sections~\ref{subsec:eigenvector} and~\ref{subsec:two-spikes}.}
+\begin{itemize}[leftmargin=2.4em,itemsep=0.55em]
+\gdlogentry{r3-recap}{\S\ref{subsec:eigenvector}, opening}{(Blue rewrite) ``To recap, Theorem~\ref{thm:bbp} establishes conditions under which a spike is visible\,\dots whereas Theorem~\ref{thm:fund-fluct} how its eigenvalue fluctuates. Nevertheless, neither result\,\dots''}{The subsection opened mid-thought, without locating the reader relative to the two theorems just proved.}{Adopted his recap verbatim as the opening.}{Open each subsection by recapping where the results so far leave the reader.}
+
+\gdlogentry{r3-notethat}{\S\ref{subsec:eigenvector}, after the alignment definition}{(Blue edit) Insert ``Note that'' before the squaring remark.}{A bare assertion that read like part of the definition rather than an aside.}{Adopted.}{Small signposts separate remarks from definitions.}
+
+\gdlogentry{r3-nonfund-thm}{\S\ref{subsec:eigenvector}, first simulation}{``Do we have a theorem for nonfundamental spikes? If \(\alpha = 1\) in Johnstone's model, the convergence to zero you detected can be explained, for sure.''}{The weak-spike alignment drifting to \(0\) was narrated from the figure alone, with no theorem attached.}{Tied the drift to the subcritical branch of~\eqref{eq:rho-overlap} and cited \citet{Paul2007}, where the vanishing alignment of a non-fundamental spike is proved.}{Every empirical pattern we narrate should be matched to the theorem that explains it, or honestly flagged as unexplained.}
+
+\gdlogentry{r3-fraction}{after Theorem~\ref{thm:eigvec-general}}{(Blue rewrite) ``a fraction \(d^2\) of the unit length of \(\widehat{\vect u}\) lands on the true spike directions, whereas\,\dots''}{A clunkier in-words reading of the theorem.}{Adopted.}{Read every formula back in words, and budget the words.}
+
+\gdlogentry{r3-simple-spike}{before equation~\eqref{eq:rho-overlap}}{(Blue rewrite) ``For a \emph{simple} spike (\(m = 1\)), the signal block is the single coordinate \(\vect e_1\). In this case,\,\dots''}{The specialization from the block statement to the scalar alignment happened without naming the \(m = 1\) step.}{Adopted.}{Spell out each specialization step before using its consequences.}
+
+\gdlogentry{r3-whatisit}{before equation~\eqref{eq:rho-overlap}}{``What is `it'?''}{``Calling it \(\rho(\alpha, y)\)'' with three candidate antecedents (the theorem's \(d^2\), the corollary's formula, the alignment).}{``Calling this common limit \(\rho(\alpha, y)\)''.}{Replace any pronoun with multiple candidate antecedents by a noun.}
+
+\gdlogentry{r3-cases}{equation~\eqref{eq:rho-overlap}}{``\dots it is more visually pleasant to display the two limits to the right of a left curly brace symbol\,\dots''}{The supercritical limit displayed and the subcritical limit tacked on after the display as ``and \(\convas 0\)''.}{Rewrote~\eqref{eq:rho-overlap} as a single \texttt{cases} display, matching the style of Theorem~\ref{thm:gram-spikes}.}{Parallel regimes of one quantity belong in one display; the brace is the visual form of ``same quantity, two regimes''.}
+
+\gdlogentry{r3-two-displays}{after equation~\eqref{eq:rho-overlap}}{``So, why are they displayed separately?''}{The identity \(\alpha \Psi'/\Psi = \rho\) occupied a third display, after~\eqref{eq:signal-block} and~\eqref{eq:rho-overlap} had each already displayed the quantity.}{Folded the identity into prose and stated explicitly that the two displays are the same formula written two ways.}{Each formula earns at most one display; algebraic re-expressions go in prose.}
+
+\gdlogentry{r3-transitions}{after equation~\eqref{eq:rho-overlap}}{``This?'' and ``What two phase transitions? I'm being picky so that the text can be improved.''}{``This ties the two phase transitions together'' with neither the subject nor the transitions named.}{Named both: the \emph{eigenvalue} transition of Theorem~\ref{thm:bbp} and the \emph{eigenvector} transition of~\eqref{eq:rho-overlap}, joined by the identity \(\rho = \alpha\Psi'/\Psi\) at the same crossing \(1 + \sqrt{y}\).}{Enumerate the members of every ``these'', ``both'', and ``the two''.}
+
+\gdlogentry{r3-mean-ofwhat}{before Figure~\ref{fig:eigenvector-violin}}{``Of what?'' (on ``The mean is only part of the story'').}{An elided noun: which mean was never said.}{``The mean squared alignment is only part of the story.''}{The antecedent discipline applies to elided nouns, not only pronouns.}
+
+\gdlogentry{r3-violin-rewrite}{before Figure~\ref{fig:eigenvector-violin}}{(Blue rewrite) ``the distribution of squared alignment as the spike grows. Below the threshold\,\dots broad and skewed upward just above it\,\dots''}{A thinner walkthrough that did not move through the regimes in the order the figure shows them.}{Adopted his below-threshold, just-above, eventually structure.}{Walk a distribution figure through its regimes in the order they appear on the axis.}
+
+\gdlogentry{r3-reliability}{before Figure~\ref{fig:eigenvector-violin}}{``I don't think we have been talking about the `reliability of recovery', so to speak. That sounds like a statistical pursuit.''}{``Recovery becomes reliable'', borrowing estimation-theory language the report never develops.}{``The trial-to-trial variability dying away'', which is what the violins literally show.}{Avoid borrowed technical-sounding phrases; describe what the simulation shows.}
+
+\gdlogentry{r3-violin-renorm}{Figure~\ref{fig:eigenvector-violin}, caption}{``This plot is interesting, but most likely we cannot get a clear sense of the asymptotic distribution based on plotting the squared alignment by itself. Typically, we need to renormalize the random variables in question.''}{A caption that invited reading the violins as approximations of a limiting distribution, when the squared alignment converges to a constant and its limit law is degenerate.}{The caption now says the violins show finite-\(n\) concentration, that an honest distributional limit requires centering and rescaling, and points to Theorem~\ref{thm:eigvec-clt}, which provides exactly that renormalized limit for eigenvector entries in the clustering model.}{A statistic converging to a constant has no informative limit law until centered and rescaled; figures must not suggest otherwise.}
+
+\gdlogentry{r3-means-caption}{Figure~\ref{fig:eigenvector-dimension}, caption}{``Means of what?''}{``Simulated means'' without the quantity or the averaging set.}{``Simulated mean squared alignments (each point averages the \(R\) replications)''.}{Captions are read in isolation: name every plotted quantity in full.}
+
+\gdlogentry{r3-signal}{end of the aspect-ratio discussion}{``What do we mean by `signal', in this case?''}{The punchline used ``signal'' informally at the moment it carried the most weight.}{Defined it inline: the spike \(\alpha\) itself, the excess population variance along the spiked direction.}{Define informal words at the moment they carry weight.}
+
+\gdlogentry{r3-deloc-ref}{delocalization paragraph}{``This is a[n] important statement -- do we have theory (a reference) to back it up? In the case of Johnstone's model with \(\alpha = 1\), we can prove it. Perhaps the paper by Bloemendal et al.?''}{Delocalization asserted from the simulation and the random-direction heuristic alone.}{Stated that it is a theorem and cited the sharp delocalization bounds of \citet{BloemendalKnowlesYauYin2016}, which make the \(1/p\) picture precise (with refinements near the threshold).}{Important statements get references even in passages kept deliberately informal.}
+
+\gdlogentry{r3-two-spike-model}{\S\ref{subsec:two-spikes}, opening}{(Blue rewrite) ``namely, suppose we can write \(\Sigma = \diag(\alpha_1, \alpha_2, 1, \dots, 1)\) with\,\dots''}{The two-spike model introduced in words only, with no displayed matrix.}{Adopted his display.}{When the model changes, show the new matrix.}
+
+\gdlogentry{r3-decoupled}{\S\ref{subsec:two-spikes}, distinct spikes}{``Why can we claim that they are independent?''}{``Two distinct spikes behave like two independent single spikes'': but \(\widehat{\vect u}_1 \perp \widehat{\vect u}_2\) exactly, by construction, so the pair is strongly constrained and literal independence is provably false.}{Replaced \emph{independent} by \emph{decoupled}, with the precise content (matched overlaps converge to their one-spike constants, crossed overlaps to zero, \citealp{BenaychGeorgesNadakuditi2011, Paul2007}) and an explicit caveat explaining why independence would be the wrong word.}{``Independent'' is a precise probabilistic word; use it only after checking it, and prefer a weaker true word to a stronger false one.}
+
+\gdlogentry{r3-plane}{Figure~\ref{fig:two-spikes-equal}, caption and text}{``If I understand you aright, how can the spike plane be recovered? \dots for a single spike, we don't have perfect asymptotic alignment\,\dots Hence, we don't `recover' the (one-dimensional) plane. For a multiplicity 2 spike, we seem to be claiming that we can recover the associated plane.''}{The caption and text said the spike plane is ``recovered''/``pinned down'', a stronger claim than the single-spike theory permits: the subspace alignment converges to the same \(\rho < 1\), not to \(1\).}{Replaced recovery language throughout: the plane is \emph{identifiable} to exactly the same partial degree \(\rho < 1\) as a single spike's direction, no better and no worse, while the directions inside the plane are not identifiable at all.}{Keep claims dimensionally consistent: whatever degree of recovery holds for one direction holds for the plane, and nothing stronger.}
 \end{itemize}
 \fi
 
