@@ -3,32 +3,27 @@
 
 \section{Conclusion and Outlook}\label{sec:conclusion}
 
-\todo{Content to fill in:
-(a) Summary table: the strong vs.\ weak spike contrast, three rows:
-    eigenvalue limit, eigenvector overlap, fluctuation scale.
+This report set out to understand what the eigenvalues and eigenvectors of a large random matrix can and cannot tell us, and to follow that understanding from first principles to a working data-analysis method. The path had four stages. Section~\ref{sec:foundations} assembled the probabilistic toolkit: distributions, characteristic functions, the law of large numbers and the central limit theorem, and the geometry of Gaussian vectors and covariance matrices. Section~\ref{sec:scm} studied the sample covariance matrix when there is nothing to find (\(\Sigma = I_p\)): in fixed dimension it behaves like a classical average, while in the high-dimensional regime \(p/n \to y\) its eigenvalues spread into the Marchenko-Pastur bulk and the largest one sits at the edge \(\lambda_+\) with Tracy-Widom fluctuations on the \(n^{-2/3}\) scale. Section~\ref{sec:spiked} added one signal at a time: a population spike \(\alpha\) produces a detectable outlier exactly when \(\alpha > 1 + \sqrt{y}\), the outlier then sits at \(\Psi(\alpha)\) with Gaussian fluctuations of explicit variance, the corresponding eigenvector recovers the true direction to the explicit degree \(\rho(\alpha, y)\), and equal spikes scramble their directions while distinct spikes keep them apart. The chapter closed by carrying this picture to spectral clustering: the Gram matrix of clustered data is itself a spiked model, its eigenvector entries fluctuate as Gaussians around shrunken class indicators, and the resulting accuracy formula predicts the clustering error on real handwritten digits to within half a percent.
 
-    | Spike strength | Eigenvalue limit  | Overlap with \(\vect e_1\) | Fluctuation |
-    |----------------|-------------------|----------------------------|-------------|
-    | Strong \(\alpha > 1 + \sqrt y\) | \(\Psi(\alpha)\) | \(\rho(\alpha, y) > 0\) | Gaussian, \(\sqrt n\) |
-    | Weak \(1 < \alpha \le 1 + \sqrt y\) | \((1 + \sqrt y)^2\) | 0 | Edge / Tracy-Widom, \(p^{-2/3}\) |
+The single most useful summary of the spiked picture is the contrast between a strong and a weak spike.
 
-(b) One-paragraph synthesis: the spike phase transition is the cleanest
-    quantitative example of when high-dimensional inference recovers
-    structure and when it does not. It explains, in a controlled toy
-    model, why methods like PCA and spectral clustering succeed only
-    when signal exceeds a threshold determined by the aspect ratio.
+\begin{center}
+\begin{tabular}{l l l l}
+\hline
+Spike & Eigenvalue limit & Fluctuations & Eigenvector overlap \\
+\hline
+\(\alpha > 1 + \sqrt{y}\) & \(\Psi(\alpha) > \lambda_+\) & Gaussian, scale \(n^{-1/2}\) & \(\rho(\alpha, y) > 0\) \\
+\(1 < \alpha \le 1 + \sqrt{y}\) & \(\lambda_+\) & Tracy-Widom, scale \(n^{-2/3}\) & \(0\) (delocalized) \\
+\hline
+\end{tabular}
+\end{center}
 
-(c) Outlook: open questions to flag.
-    - The critical case \(\alpha = 1 + \sqrt y\). The current literature
-      does not yet contain a clean limit theorem; cite open work.
-    - Exact variance \(\sigma_{\alpha, y}^2\) in the strong-spike CLT.
-    - Beyond Johnstone's case: general spiked models with non-flat bulk
-      (cite \citet{BaikSilverstein2006, BenaychGeorgesNadakuditi2011}).
-    - Rigorous spectral clustering derivations beyond the toy model;
-      cite \citet{CouilletBenaych2016}.
+\medskip
 
-(d) Closing sentence: the goal of this thesis was to develop the
-    foundational picture from one end of the dimension spectrum to the
-    other; the open questions above point to where the field is going.}
+Beneath the individual theorems, one pattern repeated at every stage, and recognising it is perhaps the main lesson of the report. Each question came in three layers: a \emph{location} layer (a law of large numbers: where does the eigenvalue or the alignment settle), a \emph{fluctuation} layer (a central limit theorem: after centring and rescaling, what distribution remains), and an \emph{information} layer (what the answer means for recovering structure). The Marchenko-Pastur law, the spike-location map \(\Psi\), and the alignment constants \(\rho\) and \(\zeta\) live on the first layer; the Tracy-Widom law, the spike CLT of Theorem~\ref{thm:fund-fluct}, and the entrywise eigenvector CLT of Theorem~\ref{thm:eigvec-clt} live on the second; the phase-transition thresholds \(1 + \sqrt{y}\) and \(\sqrt{y}\), the compensation between signal strength and aspect ratio, and the clustering accuracy formula live on the third. The progression of this report, from histograms of eigenvalues to the error rate of an algorithm, is exactly the progression down these layers.
+
+Several directions continue past the edge of this report. At the critical point itself, \(\alpha = 1 + \sqrt{y}\), the limit law is neither Gaussian nor Tracy-Widom but the interpolating family of \citet{BaikBenArousPeche2005}; Section~\ref{subsec:fluctuations} illustrated the finite-\(n\) crossover but did not derive the critical law. Our clustering analysis used the identity kernel; practical spectral clustering applies nonlinear kernels and degree normalisation \citep{vonLuxburg2007}, whose high-dimensional behaviour requires the matrix Taylor expansion of \citet{CouilletBenaych2016} and changes the effective signal-to-noise ratios, which is precisely how the hard digit pairs of Section~\ref{subsec:mnist} can be separated after all. The Gaussian and iid assumptions can be relaxed substantially: universality results extend the bulk and edge laws to general entry distributions, concentration-of-measure frameworks extend them to realistic structured data \citep{CouilletLiao2022}, and the fine structure of eigenvector delocalization is a subject of its own \citep{BloemendalKnowlesYauYin2016}. And the spiked model itself generalises, replacing the flat noise baseline with an arbitrary population bulk \citep{BaikSilverstein2006, YaoZhengBai2015}.
+
+The aim throughout has been to keep every object explicit: every limit a computable formula, every formula tested against a simulation, every simulation reproducible from the accompanying notebooks. A reader who started with only probability and linear algebra has, by this point, watched a single algebraic threshold organise the spectrum of noise, the detectability of signal, the geometry of eigenvectors, and the accuracy of an unsupervised algorithm on real data. That is the promise of random matrix theory for modern statistics: not merely asymptotic reassurance, but exact, checkable predictions about the tools we actually use.
 
 \clearpage
