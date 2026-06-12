@@ -162,7 +162,7 @@ The first piece is the kernel of a normal density with mean \(\mu + \sigma^2 t\)
 \]
 \end{example}
 
-These three examples illustrate the technique. The multiplicative property turns the difficult problem of finding the distribution of a sum (a \emph{convolution}) into easy multiplication: if \(X_1, \ldots, X_n\) are iid (\emph{independent and identically distributed}) Bernoulli\((p)\), their sum has MGF \((1 - p + p e^t)^n\), which is the MGF of Binomial\((n, p)\), so by the uniqueness theorem below the sum \emph{is} Binomial\((n, p)\); independent Poissons of rates \(\lambda_1, \lambda_2\) sum to a Poisson of rate \(\lambda_1 + \lambda_2\); independent normals sum to a normal with summed mean and summed variance.
+These three examples illustrate the technique. The multiplicative property turns the difficult problem of finding the distribution of a sum (a \emph{convolution}) into easy multiplication: if \(X_1, \ldots, X_n\) are iid (\emph{independent and identically distributed}) Bernoulli\((p)\), their sum has MGF \((1 - p + p e^t)^n\), which is the MGF of Binomial\((n, p)\), the distribution of the number of successes in \(n\) independent Bernoulli\((p)\) trials, so by the uniqueness theorem below the sum \emph{is} Binomial\((n, p)\); independent Poissons of rates \(\lambda_1, \lambda_2\) sum to a Poisson of rate \(\lambda_1 + \lambda_2\); independent normals sum to a normal with summed mean and summed variance.
 
 Beyond computing moments, the MGF determines the distribution uniquely.
 
@@ -263,7 +263,7 @@ Figure~\ref{fig:cf-comparison} contrasts the two cases. Although the Cauchy and 
 
 Two algebraic properties make CFs computationally convenient. By independence, \(\varphi_{X+Y}(t) = \varphi_X(t)\, \varphi_Y(t)\); by direct substitution, \(\varphi_{aX + b}(t) = e^{itb}\, \varphi_X(at)\). Like the MGF, the CF determines the distribution uniquely, and an inversion formula recovers the CDF from \(\varphi_X\) \citep[][\S 26]{Billingsley1995}.
 
-The deepest property of characteristic functions is the bridge they provide between pointwise convergence of \(\varphi_{X_n}\) and convergence in distribution of \(X_n\).
+The deepest property of characteristic functions is the bridge they provide between pointwise convergence of \(\varphi_{X_n}\) and convergence in distribution of \(X_n\) (a notion made precise in Definition~\ref{def:modes} of the next subsection; informally, the distribution of \(X_n\) approaches that of \(X\)).
 
 \begin{theorem}[L\'evy continuity theorem]\label{thm:levy-continuity}
 Let \(X_n\) and \(X\) be random variables with characteristic functions \(\varphi_{X_n}\) and \(\varphi_X\).
@@ -529,7 +529,7 @@ Let \(X_1 \sim \mathrm{Exponential}(\lambda)\) and set \(X_2 = X_1\) almost sure
   &\;=\; \Prob(X_1 \le \min\{x_1, x_2\})
   \;=\; F_X(\min\{x_1, x_2\}).
 \end{align*}
-The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all of its probability sits on a single line, and a line has zero area in the plane (any honest density would have to be infinite on the line and zero off it). We will see shortly that it is the prototypical case of a covariance matrix that is positive semidefinite but \emph{not} positive definite.
+The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all of its probability sits on a single line, and a line has zero area in the plane (any honest density would have to be infinite on the line and zero off it). We will see shortly that it is the prototypical case of a covariance matrix that is \emph{positive semidefinite} (\(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every direction \(\vect{v}\)) but \emph{not} positive definite (the inequality is not strict in every direction).
 \end{example}
 
 \begin{example}[Bivariate normal density]\label{ex:bvn-density}
@@ -673,7 +673,7 @@ This is the CF of \(\Normal{\mat{A} \vect{\mu} + \vect{b},\, \mat{A} \Sigma \mat
 \end{proof}
 
 \begin{corollary}[Rotational invariance of the standard Gaussian vector]\label{cor:gaussian-rotation}
-If \(\vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\) and \(\mat{Q} \in \R^{p \times p}\) is orthogonal, then \(\mat{Q} \vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\): the standard Gaussian vector has no preferred directions.
+If \(\vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\) and \(\mat{Q} \in \R^{p \times p}\) is orthogonal (meaning \(\mat{Q}\transpose \mat{Q} = I\); such matrices are studied in the next subsection), then \(\mat{Q} \vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\): the standard Gaussian vector has no preferred directions.
 \end{corollary}
 
 This is Proposition~\ref{prop:mvn-affine} with \(\mat{A} = \mat{Q}\) and \(\vect{b} = \vect{0}\), since \(\mat{Q} (\sigma^2 I_p) \mat{Q}\transpose = \sigma^2 I_p\). Sections~\ref{sec:scm} and~\ref{sec:spiked} lean on exactly this property, under the name \emph{rotational invariance}.
@@ -837,7 +837,7 @@ Figure~\ref{fig:quad-forms} visualizes the geometry of the three regimes.
 \end{figure}
 
 \paragraph{Vector and matrix norms.}
-A \emph{norm} on a real vector space \(V\) is a function \(\norm{\,\cdot\,}: V \to [0, \infty)\) satisfying, for all \(\vect{v}, \vect{w} \in V\) and scalars \(\alpha\):
+To say that a random matrix of averages is close to \(\Sigma\), and to push that closeness down to the eigenvalues, we need a notion of distance between matrices; that is exactly what norms provide. A \emph{norm} on a real vector space \(V\) is a function \(\norm{\,\cdot\,}: V \to [0, \infty)\) satisfying, for all \(\vect{v}, \vect{w} \in V\) and scalars \(\alpha\):
 \begin{enumerate}[label=\textnormal{(N\arabic*)},leftmargin=*]
   \item \(\norm{\vect{v}} = 0\) if and only if \(\vect{v} = \vect{0}\) (definiteness);
   \item \(\norm{\alpha \vect{v}} = \abs{\alpha}\, \norm{\vect{v}}\) (homogeneity);

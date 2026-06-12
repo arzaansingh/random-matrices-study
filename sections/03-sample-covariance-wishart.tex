@@ -11,10 +11,12 @@
 \section{Sample Covariance Matrices}\label{sec:scm}
 
 
-The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimensions, this empirical version behaves like a classical sample average: as the number of observations grows, it converges entry by entry to the true covariance, exactly as a scalar sample mean converges to its expectation.\gdmark{meaning} When the dimension grows with the sample size (the so-called \emph{high-dimensional regime}\gdmark{hdr-name}), its spectral behavior changes qualitatively, and both regimes are unpacked below. The probability and linear algebra background this section draws on (random vectors and covariance matrices, the limit theorems, the spectral theorem) is collected in Appendix~\ref{sec:foundations}; a reader new to those tools should start there.
+The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimensions, this empirical version behaves like a classical sample average: as the number of observations grows, it converges entry by entry to the true covariance, exactly as a scalar sample mean converges to its expectation.\gdmark{meaning} When the dimension grows with the sample size (the so-called \emph{high-dimensional regime}\gdmark{hdr-name}), its spectral behavior changes qualitatively. The section first fixes the definition and its geometric meaning, then unpacks the two regimes in turn. The probability and linear algebra background this section draws on (random vectors and covariance matrices, the limit theorems, the spectral theorem) is collected in Appendix~\ref{sec:foundations}; a reader new to those tools should start there.
 
 %====================================================================
 \subsection{Definition and Geometry of the Sample Covariance Matrix}\label{subsec:scm-foundations}
+
+We first fix the object of study.
 
 \begin{definition}[Sample covariance matrix (SCM)]\label{def:scm}
 Let \(\vect{X}_1, \ldots, \vect{X}_n\) be iid copies of a random vector \(\vect{X} \in \R^p\). In the \emph{mean-zero} case (\(\E[\vect{X}] = \vect{0}\) known), the \vocab{sample covariance matrix} is the \(p \times p\) random matrix\gdmark{scm-abbr}
@@ -203,7 +205,7 @@ with a normalizing constant \(C_{n,p}\) depending only on \(n\) and \(p\). Setti
 
 The Vandermonde factor vanishes on every hyperplane \(\lambda_i = \lambda_j\), so configurations with near-equal eigenvalues are systematically suppressed in every dimension. This is the algebraic mechanism behind eigenvalue repulsion: the gap visible in Figure~\ref{fig:wishart-2d} for \(p = 2\) generalizes to a product of \(\binom{p}{2}\) pairwise gaps in higher dimensions, each contributing its own zero on the corresponding diagonal. The same Vandermonde factor appears in the joint eigenvalue density of the Gaussian Orthogonal Ensemble defined below; only the prefactor and the exponential change \citep{AndersonGuionnetZeitouni2010}. Repulsion is a universal feature of the spectra of random symmetric matrices, not a quirk of the Wishart family.
 
-\paragraph{Fluctuations and the role of eigenvalue multiplicity.} Beyond consistency, we want to know what \(\sqrt{n}(\Sigmahat_n - \Sigma)\) looks like. The limit is a Gaussian symmetric matrix whose variance structure has a standard name: as the computation in Proposition~\ref{prop:matrix-clt-I2} below will show for \(\Sigma = I\), the limit has variance \(2\) on the diagonal and \(1\) off it, and these numbers appear so often in symmetric Gaussian matrix limits that they define a canonical ensemble.
+\paragraph{Fluctuations and the role of eigenvalue multiplicity.} The Wishart density gave the exact finite-\(n\) law and, with it, the repulsion phenomenon; for the large-\(n\) fluctuations we return to the limit theorems. Beyond consistency, we want to know what \(\sqrt{n}(\Sigmahat_n - \Sigma)\) looks like. The limit is a Gaussian symmetric matrix whose variance structure has a standard name: as the computation in Proposition~\ref{prop:matrix-clt-I2} below will show for \(\Sigma = I\), the limit has variance \(2\) on the diagonal and \(1\) off it, and these numbers appear so often in symmetric Gaussian matrix limits that they define a canonical ensemble.
 
 \begin{definition}[Gaussian Orthogonal Ensemble, \(2 \times 2\) case]\label{def:goe}
 A \(2 \times 2\) random matrix
@@ -392,7 +394,7 @@ Three features of the MP law are worth recording.
   \item When \(y > 1\) the atom at zero has mass \(1 - 1/y\); the matrix \(\mat{X} \mat{X}\transpose\) has rank at most \(n < p\), so \(p - n\) of its eigenvalues are deterministically zero.
 \end{itemize}
 
-The largest sample eigenvalue converges to the upper edge of the bulk.\gdmark{exits} In the following theorem, we describe this convergence for the top eigenvalue of SCMs in the high-dimensional regime.\gdmark{topeig-leadin}
+The largest sample eigenvalue converges to the upper edge of the bulk.\gdmark{exits} It deserves its own theorem: the top eigenvalue is the first statistic principal components analysis reads, and it is the null baseline that Section~\ref{sec:spiked} will test for signal against. In the following theorem, we describe this convergence for the top eigenvalue of SCMs in the high-dimensional regime.\gdmark{topeig-leadin}
 \begin{theorem}[Convergence of the top eigenvalue \citep{Geman1980, YinBaiKrishnaiah1988}]\label{thm:lambda-max-edge}
 Under the hypotheses of Theorem~\ref{thm:mp},
 \[
