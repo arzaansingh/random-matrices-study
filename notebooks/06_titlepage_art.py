@@ -109,7 +109,7 @@ def make_cover() -> Path:
     # ---- panel 1 (top-left): zone reserved for the LaTeX-typeset matrix ----
 
     # ---- panel 2 (right): the waterfall, signal dialed up -------------------
-    ax = bare_axes([0.50, 0.435, 0.465, 0.32])
+    ax = bare_axes([0.47, 0.41, 0.50, 0.345])
     xg = np.linspace(0.01, 9.4, 700)
     edge_plus = (1 + np.sqrt(Y_ASPECT)) ** 2
     n_rows = len(rows)
@@ -146,8 +146,8 @@ def make_cover() -> Path:
     idx = np.arange(N_DIM)
     lvl1, lvl2 = np.abs(v1).max(), np.abs(v2).max()
     for rect, vec, lvl, lab in [
-        ([0.10, 0.315, 0.34, 0.085], v1, lvl1, r"$\widehat{v}_1$"),
-        ([0.10, 0.215, 0.34, 0.085], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.085, 0.34, 0.38, 0.10], v1, lvl1, r"$\widehat{v}_1$"),
+        ([0.085, 0.215, 0.38, 0.10], v2, lvl2, r"$\widehat{v}_2$"),
     ]:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
@@ -157,16 +157,16 @@ def make_cover() -> Path:
         ax.axhline(0, color=GRAY, lw=0.6)
         ax.set_xlim(-12, N_DIM + 12)
         ax.set_ylim(-1.3 * lvl, 1.3 * lvl)
-        fig.text(rect[0] - 0.022, rect[1] + rect[3] / 2, lab, color=SLATE,
-                 fontsize=11, ha="center", va="center")
+        fig.text(rect[0] - 0.024, rect[1] + rect[3] / 2, lab, color=SLATE,
+                 fontsize=12, ha="center", va="center")
 
     # ---- panel 4 (bottom-right): the embedding finale ------------------------
     from matplotlib.patches import Ellipse
-    ax = bare_axes([0.50, 0.015, 0.48, 0.37])
+    ax = bare_axes([0.46, 0.012, 0.52, 0.40])
     emb = np.c_[v1, v2] * np.sqrt(N_DIM)
     for k, col in enumerate(class_colors):
         pts = emb[k * PER:(k + 1) * PER]
-        ax.scatter(pts[:, 0], pts[:, 1], s=9.0, color=col, alpha=0.55,
+        ax.scatter(pts[:, 0], pts[:, 1], s=10.0, color=col, alpha=0.55,
                    linewidths=0)
         mu = pts.mean(0)
         C = np.cov(pts.T)
@@ -177,7 +177,7 @@ def make_cover() -> Path:
                              edgecolor=col, lw=1.35, alpha=0.95))
         ax.plot(*mu, marker="+", ms=7, mew=1.4, color=INK)
     ax.set_aspect("equal")
-    ax.margins(0.08)
+    ax.margins(0.06)
 
     # ---- the flow: three short, identical connectors in the gaps -----------
     # One quiet arrow between each pair of consecutive stations, all in the
@@ -191,9 +191,9 @@ def make_cover() -> Path:
     ax_flow.set_ylim(0, 1)
     sl = "#3A5A78"
     connectors = [
-        ((0.438, 0.680), (0.508, 0.655), -0.22),   # matrix -> waterfall
-        ((0.575, 0.388), (0.478, 0.352), -0.22),   # waterfall -> eigenvectors
-        ((0.428, 0.192), (0.522, 0.158), 0.22),    # eigenvectors -> embedding
+        ((0.438, 0.680), (0.503, 0.650), -0.22),   # matrix -> waterfall
+        ((0.555, 0.395), (0.482, 0.368), -0.20),   # waterfall -> eigenvectors
+        ((0.418, 0.198), (0.495, 0.170), 0.20),    # eigenvectors -> embedding
     ]
     for p0, p1, rad in connectors:
         ax_flow.add_patch(FancyArrowPatch(
