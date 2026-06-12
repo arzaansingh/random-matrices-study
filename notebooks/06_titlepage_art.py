@@ -155,14 +155,14 @@ def make_cover() -> Path:
         fig.text(xc, y, text, style="italic", fontsize=9.5, color=INK,
                  alpha=0.82, ha="center", va="center")
 
-    narrate(0.255, 0.700, "first, the sample covariance matrix of the data:")
-    narrate(0.255, 0.681, "three directions carry extra variance")
-    narrate(0.705, 0.700, "as the signal strengthens, three eigenvalues")
-    narrate(0.705, 0.681, "detach from the Marchenko-Pastur bulk")
-    narrate(0.225, 0.422, "their eigenvectors, one entry per point,")
-    narrate(0.225, 0.403, "light up on their classes")
-    narrate(0.675, 0.422, "each point, plotted by its two eigenvector entries:")
-    narrate(0.675, 0.403, "the spectral embedding, where the classes appear")
+    narrate(0.255, 0.700, "the data arrive looking like noise,")
+    narrate(0.255, 0.681, "but three numbers stand out")
+    narrate(0.705, 0.700, "turn the signal up: three peaks")
+    narrate(0.705, 0.681, "break away from the noise")
+    narrate(0.225, 0.422, "each peak carries a clue:")
+    narrate(0.225, 0.403, "it singles out one group")
+    narrate(0.675, 0.422, "put two clues together, point by point,")
+    narrate(0.675, 0.403, "and the groups sort themselves out")
 
     # ---- panel 1 content: the LaTeX-typeset matrix (titlepage.tex) ----------
 
