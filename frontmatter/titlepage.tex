@@ -1,10 +1,10 @@
 %% frontmatter/titlepage.tex
 %% Cover: header at the top (sage band, title, author), then the story:
 %% the SCM corner as real numbers -> the waterfall (spikes detach, comet
-%% track) -> two eigenvectors light up -> the embedding finale with halos,
-%% plus the real unsupervised accuracy of this exact data set as the
-%% closing number. Background artwork from notebooks/06_titlepage_art.py;
-%% type and the dotted flow line overlaid here via TikZ.
+%% track) -> two eigenvectors light up -> the embedding finale with halos.
+%% The crescendo flow line lives in the background artwork
+%% (notebooks/06_titlepage_art.py); here only the header and the numeric
+%% matrix are typeset.
 
 \thispagestyle{empty}
 
@@ -52,27 +52,6 @@
         \vdots & \vdots & \vdots & \vdots & \ddots
       \end{bmatrix}\)};
 
-  % ----- the payoff: real unsupervised accuracy on this exact data set
-  \node[anchor=center] at ([xshift=-2.15in, yshift=1.22in]current page.south)
-    {\fontsize{42}{46}\selectfont\bfseries\textcolor{coverSlate}{94.6\%}};
-
-  \node[anchor=center] at ([xshift=-2.15in, yshift=0.78in]current page.south)
-    {\footnotesize\textcolor{coverGray}{851 of the 900 points recovered by \(k\)-means,}};
-
-  \node[anchor=center] at ([xshift=-2.15in, yshift=0.57in]current page.south)
-    {\footnotesize\textcolor{coverGray}{with no labels used}};
-
-  % ----- the flow line: one smooth dotted path from the matrix to the clouds
-  \draw[coverGray, line width=1.45pt, line cap=round,
-        dash pattern=on 0.1pt off 5.6pt,
-        -{Stealth[length=10pt, width=8pt]}]
-    ([xshift=3.42in, yshift=7.28in]current page.south west)
-    .. controls ([xshift=4.05in, yshift=6.70in]current page.south west)
-            and ([xshift=3.88in, yshift=5.50in]current page.south west)
-    .. ([xshift=3.78in, yshift=4.60in]current page.south west)
-    .. controls ([xshift=3.73in, yshift=4.15in]current page.south west)
-            and ([xshift=4.00in, yshift=3.15in]current page.south west)
-    .. ([xshift=4.88in, yshift=2.88in]current page.south west);
 \end{tikzpicture}
 
 \clearpage

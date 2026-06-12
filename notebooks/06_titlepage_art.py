@@ -109,14 +109,7 @@ def make_cover() -> Path:
     def caption(xc, y, s):
         fig.text(xc, y, s, style="italic", fontsize=9, color=GRAY, ha="center")
 
-    def badge(x, y, num):
-        fig.text(x, y, num, fontsize=10, color=INK, ha="center", va="center",
-                 fontweight="bold",
-                 bbox=dict(boxstyle="circle,pad=0.32", facecolor=SAGE,
-                           edgecolor=INK, linewidth=0.9))
-
     # ---- panel 1 (top-left): zone reserved for the LaTeX-typeset matrix ----
-    badge(0.055, 0.745, "1")
     caption(0.25, 0.598, "the sample covariance matrix")
 
     # ---- panel 2 (right): the waterfall, signal dialed up -------------------
@@ -150,7 +143,6 @@ def make_cover() -> Path:
             lw=1.3, alpha=0.9, zorder=2 * n_rows + 5)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
-    badge(0.443, 0.742, "2")
     caption(0.712, 0.392, "turning the signal up: the spikes detach")
 
     # ---- panel 3 (mid-left): the top TWO eigenvectors -----------------------
@@ -170,8 +162,7 @@ def make_cover() -> Path:
         ax.set_ylim(-1.3 * lvl, 1.3 * lvl)
         fig.text(rect[0] - 0.022, rect[1] + rect[3] / 2, lab, color=SLATE,
                  fontsize=11, ha="center", va="center")
-    badge(0.058, 0.412, "3")
-    caption(0.25, 0.182, "the top two eigenvectors light up on their classes")
+    caption(0.19, 0.184, "the top two eigenvectors light up on their classes")
 
     # ---- panel 4 (bottom-right): the embedding finale ------------------------
     from matplotlib.patches import Ellipse
@@ -191,11 +182,67 @@ def make_cover() -> Path:
         ax.plot(*mu, marker="+", ms=7, mew=1.4, color=INK)
     ax.set_aspect("equal")
     ax.margins(0.16)
-    badge(0.548, 0.315, "4")
     caption(0.745, 0.030, "the embedding: the classes appear")
 
-    # (the dotted flow line, header, matrix, and the 94.6% payoff are typeset
-    #  by frontmatter/titlepage.tex)
+    # ---- the flow: a crescendo of dots from the matrix to the classes ------
+    # Drawn on a full-page axes BELOW every panel, so the waterfall's opaque
+    # ridges occlude it: the line dives behind the figure and re-emerges
+    # through the gaps. Dot size grows from a whisper at the matrix to full
+    # voice as it settles into the clouds; color blends warm gray to slate.
+    waypoints = np.array([
+        (0.400, 0.655),   # leave the matrix, small
+        (0.505, 0.605),   # enter the waterfall's lower body
+        (0.615, 0.545),   # through the spikes
+        (0.560, 0.455),   # dive out below the ridges
+        (0.385, 0.370),   # cross the first eigenvector strip
+        (0.245, 0.300),   # between the strips
+        (0.330, 0.232),   # back through the second strip
+        (0.428, 0.160),   # dive clear right of the caption
+        (0.505, 0.142),   # approach the finale
+        (0.578, 0.162),   # settle at the halo's edge
+    ])
+    # Catmull-Rom spline through the waypoints
+    n_wp = len(waypoints)
+    tang = np.zeros_like(waypoints)
+    for i in range(n_wp):
+        tang[i] = 0.55 * (waypoints[min(i + 1, n_wp - 1)]
+                          - waypoints[max(i - 1, 0)]) / 2.0
+    dense = []
+    for i in range(n_wp - 1):
+        p0, p1 = waypoints[i], waypoints[i + 1]
+        c0, c1 = p0 + tang[i] / 3.0, p1 - tang[i + 1] / 3.0
+        t = np.linspace(0, 1, 80)[:, None]
+        seg = ((1 - t) ** 3 * p0 + 3 * (1 - t) ** 2 * t * c0
+               + 3 * (1 - t) * t ** 2 * c1 + t ** 3 * p1)
+        dense.append(seg)
+    dense = np.vstack(dense)
+    # arc-length resampling so the dots are evenly spaced
+    d = np.r_[0, np.cumsum(np.hypot(*np.diff(dense, axis=0).T))]
+    n_dots = 56
+    u = np.linspace(0, d[-1], n_dots)
+    dots = np.c_[np.interp(u, d, dense[:, 0]), np.interp(u, d, dense[:, 1])]
+    frac = np.linspace(0, 1, n_dots)
+    sizes = 3.0 + 78.0 * frac ** 1.7
+    g, sl = np.array([0x8B, 0x83, 0x78]) / 255, np.array([0x3A, 0x5A, 0x78]) / 255
+    colors = (1 - frac[:, None]) * g + frac[:, None] * sl
+    ax_flow = fig.add_axes([0, 0, 1, 1])
+    ax_flow.set_zorder(-5)
+    ax_flow.set_facecolor("none")
+    ax_flow.axis("off")
+    ax_flow.set_xlim(0, 1)
+    ax_flow.set_ylim(0, 1)
+    ax_flow.scatter(dots[:, 0], dots[:, 1], s=sizes, c=colors,
+                    alpha=0.9, linewidths=0)
+    # the arrowhead, full size, settling into the clouds
+    tip = dots[-1]
+    direction = dots[-1] - dots[-4]
+    direction = direction / np.hypot(*direction)
+    from matplotlib.patches import FancyArrowPatch
+    ax_flow.add_patch(FancyArrowPatch(
+        tip, tip + direction * 0.020, arrowstyle="-|>",
+        mutation_scale=26, color=sl, linewidth=2.2))
+
+    # (the header and the numeric matrix are typeset by frontmatter/titlepage.tex)
 
     out_pdf = FIGURES_DIR / "titlepage_background.pdf"
     fig.savefig(out_pdf, facecolor=CREAM, dpi=300)
