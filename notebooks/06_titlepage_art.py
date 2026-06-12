@@ -208,7 +208,6 @@ def make_cover() -> Path:
                  fontsize=11, ha="center", va="center")
 
     # ---- panel 4 content: the embedding, the splash -------------------------
-    from matplotlib.patches import Ellipse
     ax = bare_axes([0.445, 0.056, 0.455, 0.345])
     emb = np.c_[v1, v2] * np.sqrt(N_DIM)
     for k, col in enumerate(class_colors):
@@ -216,12 +215,6 @@ def make_cover() -> Path:
         ax.scatter(pts[:, 0], pts[:, 1], s=9.0, color=col, alpha=0.55,
                    linewidths=0)
         mu = pts.mean(0)
-        C = np.cov(pts.T)
-        evals, evecs = np.linalg.eigh(C)
-        ang = np.degrees(np.arctan2(evecs[1, -1], evecs[0, -1]))
-        ax.add_patch(Ellipse(mu, 4 * np.sqrt(evals[-1]), 4 * np.sqrt(evals[0]),
-                             angle=ang, fill=False, ls=(0, (5, 3)),
-                             edgecolor=col, lw=1.35, alpha=0.95))
         ax.plot(*mu, marker="+", ms=7, mew=1.4, color=INK)
     ax.set_aspect("equal")
     ax.margins(0.07)
