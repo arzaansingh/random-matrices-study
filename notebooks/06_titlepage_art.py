@@ -106,11 +106,7 @@ def make_cover() -> Path:
         ax.axis("off")
         return ax
 
-    def caption(xc, y, s):
-        fig.text(xc, y, s, style="italic", fontsize=9, color=GRAY, ha="center")
-
     # ---- panel 1 (top-left): zone reserved for the LaTeX-typeset matrix ----
-    caption(0.25, 0.598, "the sample covariance matrix")
 
     # ---- panel 2 (right): the waterfall, signal dialed up -------------------
     ax = bare_axes([0.50, 0.435, 0.465, 0.32])
@@ -143,14 +139,13 @@ def make_cover() -> Path:
             lw=0.9, alpha=0.45, zorder=2 * n_rows + 5)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
-    caption(0.732, 0.415, "turning the signal up: the spikes detach")
 
     # ---- panel 3 (mid-left): the top TWO eigenvectors -----------------------
     idx = np.arange(N_DIM)
     lvl1, lvl2 = np.abs(v1).max(), np.abs(v2).max()
     for rect, vec, lvl, lab in [
-        ([0.10, 0.275, 0.34, 0.085], v1, lvl1, r"$\widehat{v}_1$"),
-        ([0.10, 0.175, 0.34, 0.085], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.10, 0.315, 0.34, 0.085], v1, lvl1, r"$\widehat{v}_1$"),
+        ([0.10, 0.215, 0.34, 0.085], v2, lvl2, r"$\widehat{v}_2$"),
     ]:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
@@ -162,15 +157,14 @@ def make_cover() -> Path:
         ax.set_ylim(-1.3 * lvl, 1.3 * lvl)
         fig.text(rect[0] - 0.022, rect[1] + rect[3] / 2, lab, color=SLATE,
                  fontsize=11, ha="center", va="center")
-    caption(0.27, 0.150, "the top two eigenvectors light up on their classes")
 
     # ---- panel 4 (bottom-right): the embedding finale ------------------------
     from matplotlib.patches import Ellipse
-    ax = bare_axes([0.51, 0.025, 0.46, 0.345])
+    ax = bare_axes([0.50, 0.015, 0.48, 0.37])
     emb = np.c_[v1, v2] * np.sqrt(N_DIM)
     for k, col in enumerate(class_colors):
         pts = emb[k * PER:(k + 1) * PER]
-        ax.scatter(pts[:, 0], pts[:, 1], s=7.5, color=col, alpha=0.55,
+        ax.scatter(pts[:, 0], pts[:, 1], s=9.0, color=col, alpha=0.55,
                    linewidths=0)
         mu = pts.mean(0)
         C = np.cov(pts.T)
@@ -181,24 +175,30 @@ def make_cover() -> Path:
                              edgecolor=col, lw=1.35, alpha=0.95))
         ax.plot(*mu, marker="+", ms=7, mew=1.4, color=INK)
     ax.set_aspect("equal")
-    ax.margins(0.10)
-    fig.text(0.74, 0.014, "the embedding: the classes appear", style="italic",
-             fontsize=10, color=SLATE, ha="center")
+    ax.margins(0.08)
 
-    # ---- the flow: a gravity arc from the matrix to the classes ------------
-    # A single ballistic curve through the EMPTY corridor between the panels;
-    # it never covers a figure. Fine particles grow gently along the fall and
-    # a sparse dust tail trails them; the arc ends in a capture hook at the
-    # edge of the clouds.
+    # ---- the flow: one continuous line, always behind the figures ----------
+    # The route: from the matrix, over the waterfall's shoulder, down the
+    # spike diagonal (the ridges occlude it), a wide loop wrapping the
+    # eigenvector strips, then out along the bottom toward the clouds.
+    # Rendered as a single tapered line: thin warm gray at the start,
+    # swelling to slate at the destination.
     waypoints = np.array([
-        (0.408, 0.660),   # leave the matrix, small
-        (0.458, 0.628),   # drift right
-        (0.486, 0.560),   # gravity takes hold
-        (0.495, 0.470),   # falling down the corridor
-        (0.490, 0.405),   # past the strips, clear of the waterfall
-        (0.505, 0.375),   # the capture hook begins
-        (0.532, 0.358),   # bending toward the clouds
-        (0.560, 0.350),   # arriving above the blue halo
+        (0.435, 0.690),   # leave the matrix
+        (0.585, 0.740),   # rise over the waterfall's shoulder
+        (0.760, 0.748),   # crest above the ridges
+        (0.905, 0.718),   # turn at the summit spike
+        (0.840, 0.598),   # descend the spike diagonal, behind the ridges
+        (0.745, 0.488),
+        (0.640, 0.428),   # exit at the waterfall's foot
+        (0.470, 0.452),   # sweep left, a low shoulder
+        (0.255, 0.430),   # crossing toward the margin
+        (0.115, 0.345),   # down the left edge, wrapping the strips
+        (0.105, 0.235),
+        (0.150, 0.165),   # around the bottom corner
+        (0.330, 0.142),   # along the bottom, under the strips
+        (0.480, 0.150),
+        (0.545, 0.160),   # stop at the clouds' doorstep
     ])
     n_wp = len(waypoints)
     tang = np.zeros_like(waypoints)
@@ -209,42 +209,35 @@ def make_cover() -> Path:
     for i in range(n_wp - 1):
         p0, p1 = waypoints[i], waypoints[i + 1]
         c0, c1 = p0 + tang[i] / 3.0, p1 - tang[i + 1] / 3.0
-        t = np.linspace(0, 1, 80)[:, None]
+        t = np.linspace(0, 1, 60)[:, None]
         seg = ((1 - t) ** 3 * p0 + 3 * (1 - t) ** 2 * t * c0
                + 3 * (1 - t) * t ** 2 * c1 + t ** 3 * p1)
-        dense.append(seg)
-    dense = np.vstack(dense)
-    d = np.r_[0, np.cumsum(np.hypot(*np.diff(dense, axis=0).T))]
-    n_dots = 33
-    u = np.linspace(0, d[-1], n_dots)
-    dots = np.c_[np.interp(u, d, dense[:, 0]), np.interp(u, d, dense[:, 1])]
-    frac = np.linspace(0, 1, n_dots)
-    sizes = 2.0 + 26.0 * frac ** 1.6
+        dense.append(seg[:-1])
+    dense = np.vstack(dense + [waypoints[-1][None, :]])
+    from matplotlib.collections import LineCollection
+    pts = dense.reshape(-1, 1, 2)
+    segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+    m = len(segs)
+    frac = np.linspace(0, 1, m)
     g, sl = np.array([0x8B, 0x83, 0x78]) / 255, np.array([0x3A, 0x5A, 0x78]) / 255
     colors = (1 - frac[:, None]) * g + frac[:, None] * sl
+    widths = 1.1 + 2.3 * frac ** 1.4
     ax_flow = fig.add_axes([0, 0, 1, 1])
     ax_flow.set_zorder(-5)
     ax_flow.set_facecolor("none")
     ax_flow.axis("off")
     ax_flow.set_xlim(0, 1)
     ax_flow.set_ylim(0, 1)
-    ax_flow.scatter(dots[:, 0], dots[:, 1], s=sizes, c=colors,
-                    alpha=0.88, linewidths=0)
-    # the dust tail: faint companions just off the path
-    dust_rng = np.random.default_rng(11)
-    pick = dust_rng.choice(np.arange(4, n_dots - 2), size=16, replace=False)
-    jitter = dust_rng.normal(0, 0.0045, size=(16, 2))
-    ax_flow.scatter(dots[pick, 0] + jitter[:, 0], dots[pick, 1] + jitter[:, 1],
-                    s=1.6 + 2.5 * frac[pick], color=GRAY, alpha=0.35,
-                    linewidths=0)
-    # a slim head where the arc is captured by the clusters
-    tip = dots[-1]
-    direction = dots[-1] - dots[-3]
+    lc = LineCollection(segs, colors=colors, linewidths=widths,
+                        capstyle="round", alpha=0.85)
+    ax_flow.add_collection(lc)
+    tip = dense[-1]
+    direction = dense[-1] - dense[-6]
     direction = direction / np.hypot(*direction)
     from matplotlib.patches import FancyArrowPatch
     ax_flow.add_patch(FancyArrowPatch(
-        tip, tip + direction * 0.016, arrowstyle="-|>",
-        mutation_scale=17, color=sl, linewidth=1.6))
+        tip, tip + direction * 0.018, arrowstyle="-|>",
+        mutation_scale=20, color=sl, linewidth=2.0))
 
     # (the header and the numeric matrix are typeset by frontmatter/titlepage.tex)
 
