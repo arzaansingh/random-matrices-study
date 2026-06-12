@@ -113,7 +113,7 @@ def make_cover() -> Path:
     caption(0.25, 0.598, "the sample covariance matrix")
 
     # ---- panel 2 (right): the waterfall, signal dialed up -------------------
-    ax = bare_axes([0.45, 0.41, 0.525, 0.345])
+    ax = bare_axes([0.50, 0.435, 0.465, 0.32])
     xg = np.linspace(0.01, 9.4, 700)
     edge_plus = (1 + np.sqrt(Y_ASPECT)) ** 2
     n_rows = len(rows)
@@ -139,18 +139,18 @@ def make_cover() -> Path:
         ax.plot(xs, base + z, color=INK, lw=1.2, zorder=zo + 1)
     # the comet track through the detaching peaks
     track = np.array(sorted(track))
-    ax.plot(track[:, 0], track[:, 1], ls=(0, (1.5, 2.6)), color=BLUE,
-            lw=1.3, alpha=0.9, zorder=2 * n_rows + 5)
+    ax.plot(track[:, 0], track[:, 1], ls="-", color=BLUE,
+            lw=0.9, alpha=0.45, zorder=2 * n_rows + 5)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
-    caption(0.712, 0.392, "turning the signal up: the spikes detach")
+    caption(0.732, 0.415, "turning the signal up: the spikes detach")
 
     # ---- panel 3 (mid-left): the top TWO eigenvectors -----------------------
     idx = np.arange(N_DIM)
     lvl1, lvl2 = np.abs(v1).max(), np.abs(v2).max()
     for rect, vec, lvl, lab in [
-        ([0.065, 0.305, 0.375, 0.085], v1, lvl1, r"$\widehat{v}_1$"),
-        ([0.065, 0.205, 0.375, 0.085], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.10, 0.275, 0.34, 0.085], v1, lvl1, r"$\widehat{v}_1$"),
+        ([0.10, 0.175, 0.34, 0.085], v2, lvl2, r"$\widehat{v}_2$"),
     ]:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
@@ -162,15 +162,15 @@ def make_cover() -> Path:
         ax.set_ylim(-1.3 * lvl, 1.3 * lvl)
         fig.text(rect[0] - 0.022, rect[1] + rect[3] / 2, lab, color=SLATE,
                  fontsize=11, ha="center", va="center")
-    caption(0.19, 0.184, "the top two eigenvectors light up on their classes")
+    caption(0.27, 0.150, "the top two eigenvectors light up on their classes")
 
     # ---- panel 4 (bottom-right): the embedding finale ------------------------
     from matplotlib.patches import Ellipse
-    ax = bare_axes([0.555, 0.048, 0.385, 0.25])
+    ax = bare_axes([0.51, 0.025, 0.46, 0.345])
     emb = np.c_[v1, v2] * np.sqrt(N_DIM)
     for k, col in enumerate(class_colors):
         pts = emb[k * PER:(k + 1) * PER]
-        ax.scatter(pts[:, 0], pts[:, 1], s=5.5, color=col, alpha=0.45,
+        ax.scatter(pts[:, 0], pts[:, 1], s=7.5, color=col, alpha=0.55,
                    linewidths=0)
         mu = pts.mean(0)
         C = np.cov(pts.T)
@@ -178,30 +178,28 @@ def make_cover() -> Path:
         ang = np.degrees(np.arctan2(evecs[1, -1], evecs[0, -1]))
         ax.add_patch(Ellipse(mu, 4 * np.sqrt(evals[-1]), 4 * np.sqrt(evals[0]),
                              angle=ang, fill=False, ls=(0, (5, 3)),
-                             edgecolor=col, lw=1.15, alpha=0.9))
+                             edgecolor=col, lw=1.35, alpha=0.95))
         ax.plot(*mu, marker="+", ms=7, mew=1.4, color=INK)
     ax.set_aspect("equal")
-    ax.margins(0.16)
-    caption(0.745, 0.030, "the embedding: the classes appear")
+    ax.margins(0.10)
+    fig.text(0.74, 0.014, "the embedding: the classes appear", style="italic",
+             fontsize=10, color=SLATE, ha="center")
 
-    # ---- the flow: a crescendo of dots from the matrix to the classes ------
-    # Drawn on a full-page axes BELOW every panel, so the waterfall's opaque
-    # ridges occlude it: the line dives behind the figure and re-emerges
-    # through the gaps. Dot size grows from a whisper at the matrix to full
-    # voice as it settles into the clouds; color blends warm gray to slate.
+    # ---- the flow: a gravity arc from the matrix to the classes ------------
+    # A single ballistic curve through the EMPTY corridor between the panels;
+    # it never covers a figure. Fine particles grow gently along the fall and
+    # a sparse dust tail trails them; the arc ends in a capture hook at the
+    # edge of the clouds.
     waypoints = np.array([
-        (0.400, 0.655),   # leave the matrix, small
-        (0.505, 0.605),   # enter the waterfall's lower body
-        (0.615, 0.545),   # through the spikes
-        (0.560, 0.455),   # dive out below the ridges
-        (0.385, 0.370),   # cross the first eigenvector strip
-        (0.245, 0.300),   # between the strips
-        (0.330, 0.232),   # back through the second strip
-        (0.428, 0.160),   # dive clear right of the caption
-        (0.505, 0.142),   # approach the finale
-        (0.578, 0.162),   # settle at the halo's edge
+        (0.408, 0.660),   # leave the matrix, small
+        (0.458, 0.628),   # drift right
+        (0.486, 0.560),   # gravity takes hold
+        (0.495, 0.470),   # falling down the corridor
+        (0.490, 0.405),   # past the strips, clear of the waterfall
+        (0.505, 0.375),   # the capture hook begins
+        (0.532, 0.358),   # bending toward the clouds
+        (0.560, 0.350),   # arriving above the blue halo
     ])
-    # Catmull-Rom spline through the waypoints
     n_wp = len(waypoints)
     tang = np.zeros_like(waypoints)
     for i in range(n_wp):
@@ -216,13 +214,12 @@ def make_cover() -> Path:
                + 3 * (1 - t) * t ** 2 * c1 + t ** 3 * p1)
         dense.append(seg)
     dense = np.vstack(dense)
-    # arc-length resampling so the dots are evenly spaced
     d = np.r_[0, np.cumsum(np.hypot(*np.diff(dense, axis=0).T))]
-    n_dots = 56
+    n_dots = 33
     u = np.linspace(0, d[-1], n_dots)
     dots = np.c_[np.interp(u, d, dense[:, 0]), np.interp(u, d, dense[:, 1])]
     frac = np.linspace(0, 1, n_dots)
-    sizes = 3.0 + 78.0 * frac ** 1.7
+    sizes = 2.0 + 26.0 * frac ** 1.6
     g, sl = np.array([0x8B, 0x83, 0x78]) / 255, np.array([0x3A, 0x5A, 0x78]) / 255
     colors = (1 - frac[:, None]) * g + frac[:, None] * sl
     ax_flow = fig.add_axes([0, 0, 1, 1])
@@ -232,15 +229,22 @@ def make_cover() -> Path:
     ax_flow.set_xlim(0, 1)
     ax_flow.set_ylim(0, 1)
     ax_flow.scatter(dots[:, 0], dots[:, 1], s=sizes, c=colors,
-                    alpha=0.9, linewidths=0)
-    # the arrowhead, full size, settling into the clouds
+                    alpha=0.88, linewidths=0)
+    # the dust tail: faint companions just off the path
+    dust_rng = np.random.default_rng(11)
+    pick = dust_rng.choice(np.arange(4, n_dots - 2), size=16, replace=False)
+    jitter = dust_rng.normal(0, 0.0045, size=(16, 2))
+    ax_flow.scatter(dots[pick, 0] + jitter[:, 0], dots[pick, 1] + jitter[:, 1],
+                    s=1.6 + 2.5 * frac[pick], color=GRAY, alpha=0.35,
+                    linewidths=0)
+    # a slim head where the arc is captured by the clusters
     tip = dots[-1]
-    direction = dots[-1] - dots[-4]
+    direction = dots[-1] - dots[-3]
     direction = direction / np.hypot(*direction)
     from matplotlib.patches import FancyArrowPatch
     ax_flow.add_patch(FancyArrowPatch(
-        tip, tip + direction * 0.020, arrowstyle="-|>",
-        mutation_scale=26, color=sl, linewidth=2.2))
+        tip, tip + direction * 0.016, arrowstyle="-|>",
+        mutation_scale=17, color=sl, linewidth=1.6))
 
     # (the header and the numeric matrix are typeset by frontmatter/titlepage.tex)
 
