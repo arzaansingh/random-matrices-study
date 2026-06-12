@@ -116,29 +116,18 @@ def make_cover() -> Path:
     step, amp, xshift = 0.58, 1.42, 0.40
     dens_all = [kde(b, xg, 0.12) for b, _ in rows]
     zmax = max(d.max() for d in dens_all)
-    track = []
     for i in range(n_rows - 1, -1, -1):
         bulk_i, spikes_i = rows[i]
         base = i * step
         xs = xg + i * xshift
         z = dens_all[i] / zmax * amp
-        top_spike = max(spikes_i)
         for sp in spikes_i:
             if sp > edge_plus + 0.25:
                 h = 0.32 + 0.85 * min(1.0, (sp - edge_plus) / 5.0)
                 z = z + h * np.exp(-0.5 * ((xg - sp) / 0.085) ** 2)
-        if top_spike > edge_plus + 0.25:
-            j = np.argmin(np.abs(xg - top_spike))
-            track.append((top_spike + i * xshift, base + z[j]))
         zo = 2 * (n_rows - i)
         ax.fill_between(xs, base, base + z, color=CREAM, zorder=zo)
         ax.plot(xs, base + z, color=INK, lw=1.2, zorder=zo + 1)
-    # the comet track through the detaching peaks
-    track = np.array(sorted(track))
-    ax.plot(track[:, 0], track[:, 1], ls="-", color=BLUE,
-            lw=0.9, alpha=0.45, zorder=2 * n_rows + 5)
-    ax.plot(track[0, 0], track[0, 1], "o", ms=3.4, mfc=BLUE, mec="none",
-            alpha=0.75, zorder=2 * n_rows + 6)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
 
