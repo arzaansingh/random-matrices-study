@@ -137,7 +137,7 @@ def make_cover() -> Path:
         ax_cards.add_patch(Polygon(verts + np.array([0.0045, -0.0055]),
                                    closed=True, facecolor="#54504A",
                                    alpha=0.16, edgecolor="none", zorder=1))
-        ax_cards.add_patch(Polygon(verts, closed=True, facecolor="#FFFFFF",
+        ax_cards.add_patch(Polygon(verts, closed=True, facecolor="#F9F4E7",
                                    edgecolor=INK, linewidth=1.15, zorder=2))
 
     ax_cards = fig.add_axes([0, 0, 1, 1])
@@ -151,10 +151,23 @@ def make_cover() -> Path:
     torn_card(0.065, 0.045, 0.385, 0.445, ax_cards)   # 3: the eigenvectors
     torn_card(0.415, 0.045, 0.935, 0.445, ax_cards)   # 4: the splash panel
 
+    def narrate(xc, y, text):
+        fig.text(xc, y, text, style="italic", fontsize=9.5, color=INK,
+                 alpha=0.82, ha="center", va="center")
+
+    narrate(0.255, 0.700, "the data arrive: a covariance matrix,")
+    narrate(0.255, 0.681, "with signal hidden in the noise")
+    narrate(0.705, 0.700, "as the signal strengthens, three eigenvalues")
+    narrate(0.705, 0.681, "escape the noise bulk")
+    narrate(0.225, 0.422, "their eigenvectors light up,")
+    narrate(0.225, 0.403, "one class each")
+    narrate(0.675, 0.422, "and together they draw the embedding:")
+    narrate(0.675, 0.403, "the classes appear")
+
     # ---- panel 1 content: the LaTeX-typeset matrix (titlepage.tex) ----------
 
     # ---- panel 2 content: the waterfall, signal dialed up -------------------
-    ax = bare_axes([0.493, 0.488, 0.425, 0.222])
+    ax = bare_axes([0.493, 0.483, 0.425, 0.207])
     xg = np.linspace(0.01, 9.4, 700)
     edge_plus = (1 + np.sqrt(Y_ASPECT)) ** 2
     n_rows = len(rows)
@@ -171,7 +184,7 @@ def make_cover() -> Path:
                 h = 0.32 + 0.85 * min(1.0, (sp - edge_plus) / 5.0)
                 z = z + h * np.exp(-0.5 * ((xg - sp) / 0.085) ** 2)
         zo = 2 * (n_rows - i)
-        ax.fill_between(xs, base, base + z, color="#FFFFFF", zorder=zo)
+        ax.fill_between(xs, base, base + z, color="#F9F4E7", zorder=zo)
         ax.plot(xs, base + z, color=INK, lw=1.1, zorder=zo + 1)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
@@ -180,8 +193,8 @@ def make_cover() -> Path:
     idx = np.arange(N_DIM)
     lvl1, lvl2 = np.abs(v1).max(), np.abs(v2).max()
     for rect, vec, lvl, lab in [
-        ([0.112, 0.255, 0.255, 0.14], v1, lvl1, r"$\widehat{v}_1$"),
-        ([0.112, 0.078, 0.255, 0.14], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.112, 0.245, 0.255, 0.135], v1, lvl1, r"$\widehat{v}_1$"),
+        ([0.112, 0.072, 0.255, 0.135], v2, lvl2, r"$\widehat{v}_2$"),
     ]:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
@@ -196,7 +209,7 @@ def make_cover() -> Path:
 
     # ---- panel 4 content: the embedding, the splash -------------------------
     from matplotlib.patches import Ellipse
-    ax = bare_axes([0.445, 0.062, 0.455, 0.36])
+    ax = bare_axes([0.445, 0.056, 0.455, 0.345])
     emb = np.c_[v1, v2] * np.sqrt(N_DIM)
     for k, col in enumerate(class_colors):
         pts = emb[k * PER:(k + 1) * PER]
