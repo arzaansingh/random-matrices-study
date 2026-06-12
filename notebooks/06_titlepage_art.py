@@ -77,7 +77,7 @@ def simulate_story(rng):
     scm = X @ X.T / N_DIM                     # panel 1: the SCM itself
 
     # panel 2: spectra of (t * signal + W) for the dial t in [0, 1]
-    dial = np.linspace(0.0, 1.0, 13)
+    dial = np.linspace(0.0, 1.0, 13) ** 0.75
     rows = []
     for t in dial:
         ev = np.linalg.eigvalsh((t * signal + W) @ (t * signal + W).T / N_DIM)
@@ -137,6 +137,8 @@ def make_cover() -> Path:
     track = np.array(sorted(track))
     ax.plot(track[:, 0], track[:, 1], ls="-", color=BLUE,
             lw=0.9, alpha=0.45, zorder=2 * n_rows + 5)
+    ax.plot(track[0, 0], track[0, 1], "o", ms=3.4, mfc=BLUE, mec="none",
+            alpha=0.75, zorder=2 * n_rows + 6)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
 
@@ -150,7 +152,7 @@ def make_cover() -> Path:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
             sl = slice(k * PER, (k + 1) * PER)
-            ax.scatter(idx[sl], vec[sl], s=2.8, color=col, alpha=0.55,
+            ax.scatter(idx[sl], vec[sl], s=3.4, color=col, alpha=0.55,
                        linewidths=0)
         ax.axhline(0, color=GRAY, lw=0.6)
         ax.set_xlim(-12, N_DIM + 12)
@@ -177,67 +179,27 @@ def make_cover() -> Path:
     ax.set_aspect("equal")
     ax.margins(0.08)
 
-    # ---- the flow: one continuous line, always behind the figures ----------
-    # The route: from the matrix, over the waterfall's shoulder, down the
-    # spike diagonal (the ridges occlude it), a wide loop wrapping the
-    # eigenvector strips, then out along the bottom toward the clouds.
-    # Rendered as a single tapered line: thin warm gray at the start,
-    # swelling to slate at the destination.
-    waypoints = np.array([
-        (0.435, 0.690),   # leave the matrix
-        (0.585, 0.740),   # rise over the waterfall's shoulder
-        (0.760, 0.748),   # crest above the ridges
-        (0.905, 0.718),   # turn at the summit spike
-        (0.840, 0.598),   # descend the spike diagonal, behind the ridges
-        (0.745, 0.488),
-        (0.640, 0.428),   # exit at the waterfall's foot
-        (0.470, 0.452),   # sweep left, a low shoulder
-        (0.255, 0.430),   # crossing toward the margin
-        (0.115, 0.345),   # down the left edge, wrapping the strips
-        (0.105, 0.235),
-        (0.150, 0.165),   # around the bottom corner
-        (0.330, 0.142),   # along the bottom, under the strips
-        (0.480, 0.150),
-        (0.545, 0.160),   # stop at the clouds' doorstep
-    ])
-    n_wp = len(waypoints)
-    tang = np.zeros_like(waypoints)
-    for i in range(n_wp):
-        tang[i] = 0.55 * (waypoints[min(i + 1, n_wp - 1)]
-                          - waypoints[max(i - 1, 0)]) / 2.0
-    dense = []
-    for i in range(n_wp - 1):
-        p0, p1 = waypoints[i], waypoints[i + 1]
-        c0, c1 = p0 + tang[i] / 3.0, p1 - tang[i + 1] / 3.0
-        t = np.linspace(0, 1, 60)[:, None]
-        seg = ((1 - t) ** 3 * p0 + 3 * (1 - t) ** 2 * t * c0
-               + 3 * (1 - t) * t ** 2 * c1 + t ** 3 * p1)
-        dense.append(seg[:-1])
-    dense = np.vstack(dense + [waypoints[-1][None, :]])
-    from matplotlib.collections import LineCollection
-    pts = dense.reshape(-1, 1, 2)
-    segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
-    m = len(segs)
-    frac = np.linspace(0, 1, m)
-    g, sl = np.array([0x8B, 0x83, 0x78]) / 255, np.array([0x3A, 0x5A, 0x78]) / 255
-    colors = (1 - frac[:, None]) * g + frac[:, None] * sl
-    widths = 1.1 + 2.3 * frac ** 1.4
+    # ---- the flow: three short, identical connectors in the gaps -----------
+    # One quiet arrow between each pair of consecutive stations, all in the
+    # same style and size, each living entirely in empty cream: the layout
+    # carries the story, the arrows only confirm the direction.
+    from matplotlib.patches import FancyArrowPatch
     ax_flow = fig.add_axes([0, 0, 1, 1])
-    ax_flow.set_zorder(-5)
     ax_flow.set_facecolor("none")
     ax_flow.axis("off")
     ax_flow.set_xlim(0, 1)
     ax_flow.set_ylim(0, 1)
-    lc = LineCollection(segs, colors=colors, linewidths=widths,
-                        capstyle="round", alpha=0.85)
-    ax_flow.add_collection(lc)
-    tip = dense[-1]
-    direction = dense[-1] - dense[-6]
-    direction = direction / np.hypot(*direction)
-    from matplotlib.patches import FancyArrowPatch
-    ax_flow.add_patch(FancyArrowPatch(
-        tip, tip + direction * 0.018, arrowstyle="-|>",
-        mutation_scale=20, color=sl, linewidth=2.0))
+    sl = "#3A5A78"
+    connectors = [
+        ((0.438, 0.680), (0.508, 0.655), -0.22),   # matrix -> waterfall
+        ((0.575, 0.388), (0.478, 0.352), -0.22),   # waterfall -> eigenvectors
+        ((0.428, 0.192), (0.522, 0.158), 0.22),    # eigenvectors -> embedding
+    ]
+    for p0, p1, rad in connectors:
+        ax_flow.add_patch(FancyArrowPatch(
+            p0, p1, connectionstyle=f"arc3,rad={rad}",
+            arrowstyle="-|>", mutation_scale=14,
+            linewidth=1.6, color=sl, alpha=0.9))
 
     # (the header and the numeric matrix are typeset by frontmatter/titlepage.tex)
 
