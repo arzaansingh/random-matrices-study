@@ -106,10 +106,55 @@ def make_cover() -> Path:
         ax.axis("off")
         return ax
 
-    # ---- panel 1 (top-left): zone reserved for the LaTeX-typeset matrix ----
+    # ---- the four-panel comic strip ----------------------------------------
+    # Four torn-paper panels with ink borders and soft shadows, read in comic
+    # order: the matrix, the waterfall, the eigenvectors, and the embedding
+    # as the oversized final splash panel. No arrows: the form carries the
+    # direction.
+    tear_rng = np.random.default_rng(77)
 
-    # ---- panel 2 (right): the waterfall, signal dialed up -------------------
-    ax = bare_axes([0.47, 0.41, 0.50, 0.345])
+    def torn_card(x0, y0, x1, y1, ax_cards):
+        """A torn-paper rectangle: jittered, lightly smoothed edges."""
+        def side(p, q, n=42):
+            t = np.linspace(0, 1, n)[:, None]
+            base = (1 - t) * np.array(p) + t * np.array(q)
+            normal = np.array([-(q[1] - p[1]), q[0] - p[0]], dtype=float)
+            normal /= np.hypot(*normal)
+            raw = tear_rng.normal(0, 1, n)
+            kern = np.ones(5) / 5
+            smooth = np.convolve(raw, kern, mode="same")
+            amp = 0.0035
+            jit = smooth * amp
+            jit[0] = jit[-1] = 0.0
+            return base + jit[:, None] * normal[None, :]
+        verts = np.vstack([
+            side((x0, y0), (x1, y0))[:-1],
+            side((x1, y0), (x1, y1))[:-1],
+            side((x1, y1), (x0, y1))[:-1],
+            side((x0, y1), (x0, y0)),
+        ])
+        from matplotlib.patches import Polygon
+        ax_cards.add_patch(Polygon(verts + np.array([0.0045, -0.0055]),
+                                   closed=True, facecolor="#54504A",
+                                   alpha=0.16, edgecolor="none", zorder=1))
+        ax_cards.add_patch(Polygon(verts, closed=True, facecolor="#FFFFFF",
+                                   edgecolor=INK, linewidth=1.15, zorder=2))
+
+    ax_cards = fig.add_axes([0, 0, 1, 1])
+    ax_cards.set_zorder(-3)
+    ax_cards.set_facecolor("none")
+    ax_cards.axis("off")
+    ax_cards.set_xlim(0, 1)
+    ax_cards.set_ylim(0, 1)
+    torn_card(0.065, 0.475, 0.445, 0.725, ax_cards)   # 1: the matrix
+    torn_card(0.475, 0.475, 0.935, 0.725, ax_cards)   # 2: the waterfall
+    torn_card(0.065, 0.045, 0.385, 0.445, ax_cards)   # 3: the eigenvectors
+    torn_card(0.415, 0.045, 0.935, 0.445, ax_cards)   # 4: the splash panel
+
+    # ---- panel 1 content: the LaTeX-typeset matrix (titlepage.tex) ----------
+
+    # ---- panel 2 content: the waterfall, signal dialed up -------------------
+    ax = bare_axes([0.493, 0.488, 0.425, 0.222])
     xg = np.linspace(0.01, 9.4, 700)
     edge_plus = (1 + np.sqrt(Y_ASPECT)) ** 2
     n_rows = len(rows)
@@ -126,36 +171,36 @@ def make_cover() -> Path:
                 h = 0.32 + 0.85 * min(1.0, (sp - edge_plus) / 5.0)
                 z = z + h * np.exp(-0.5 * ((xg - sp) / 0.085) ** 2)
         zo = 2 * (n_rows - i)
-        ax.fill_between(xs, base, base + z, color=CREAM, zorder=zo)
-        ax.plot(xs, base + z, color=INK, lw=1.2, zorder=zo + 1)
+        ax.fill_between(xs, base, base + z, color="#FFFFFF", zorder=zo)
+        ax.plot(xs, base + z, color=INK, lw=1.1, zorder=zo + 1)
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
 
-    # ---- panel 3 (mid-left): the top TWO eigenvectors -----------------------
+    # ---- panel 3 content: the top two eigenvectors --------------------------
     idx = np.arange(N_DIM)
     lvl1, lvl2 = np.abs(v1).max(), np.abs(v2).max()
     for rect, vec, lvl, lab in [
-        ([0.085, 0.34, 0.38, 0.10], v1, lvl1, r"$\widehat{v}_1$"),
-        ([0.085, 0.215, 0.38, 0.10], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.112, 0.255, 0.255, 0.14], v1, lvl1, r"$\widehat{v}_1$"),
+        ([0.112, 0.078, 0.255, 0.14], v2, lvl2, r"$\widehat{v}_2$"),
     ]:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
             sl = slice(k * PER, (k + 1) * PER)
-            ax.scatter(idx[sl], vec[sl], s=3.4, color=col, alpha=0.55,
+            ax.scatter(idx[sl], vec[sl], s=2.4, color=col, alpha=0.55,
                        linewidths=0)
         ax.axhline(0, color=GRAY, lw=0.6)
         ax.set_xlim(-12, N_DIM + 12)
         ax.set_ylim(-1.3 * lvl, 1.3 * lvl)
-        fig.text(rect[0] - 0.024, rect[1] + rect[3] / 2, lab, color=SLATE,
-                 fontsize=12, ha="center", va="center")
+        fig.text(rect[0] - 0.020, rect[1] + rect[3] / 2, lab, color=SLATE,
+                 fontsize=11, ha="center", va="center")
 
-    # ---- panel 4 (bottom-right): the embedding finale ------------------------
+    # ---- panel 4 content: the embedding, the splash -------------------------
     from matplotlib.patches import Ellipse
-    ax = bare_axes([0.46, 0.012, 0.52, 0.40])
+    ax = bare_axes([0.445, 0.062, 0.455, 0.36])
     emb = np.c_[v1, v2] * np.sqrt(N_DIM)
     for k, col in enumerate(class_colors):
         pts = emb[k * PER:(k + 1) * PER]
-        ax.scatter(pts[:, 0], pts[:, 1], s=10.0, color=col, alpha=0.55,
+        ax.scatter(pts[:, 0], pts[:, 1], s=9.0, color=col, alpha=0.55,
                    linewidths=0)
         mu = pts.mean(0)
         C = np.cov(pts.T)
@@ -166,29 +211,7 @@ def make_cover() -> Path:
                              edgecolor=col, lw=1.35, alpha=0.95))
         ax.plot(*mu, marker="+", ms=7, mew=1.4, color=INK)
     ax.set_aspect("equal")
-    ax.margins(0.06)
-
-    # ---- the flow: three short, identical connectors in the gaps -----------
-    # One quiet arrow between each pair of consecutive stations, all in the
-    # same style and size, each living entirely in empty cream: the layout
-    # carries the story, the arrows only confirm the direction.
-    from matplotlib.patches import FancyArrowPatch
-    ax_flow = fig.add_axes([0, 0, 1, 1])
-    ax_flow.set_facecolor("none")
-    ax_flow.axis("off")
-    ax_flow.set_xlim(0, 1)
-    ax_flow.set_ylim(0, 1)
-    sl = "#3A5A78"
-    connectors = [
-        ((0.438, 0.680), (0.503, 0.650), -0.22),   # matrix -> waterfall
-        ((0.555, 0.395), (0.482, 0.368), -0.20),   # waterfall -> eigenvectors
-        ((0.418, 0.198), (0.495, 0.170), 0.20),    # eigenvectors -> embedding
-    ]
-    for p0, p1, rad in connectors:
-        ax_flow.add_patch(FancyArrowPatch(
-            p0, p1, connectionstyle=f"arc3,rad={rad}",
-            arrowstyle="-|>", mutation_scale=14,
-            linewidth=1.6, color=sl, alpha=0.9))
+    ax.margins(0.07)
 
     # (the header and the numeric matrix are typeset by frontmatter/titlepage.tex)
 
