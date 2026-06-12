@@ -1,17 +1,17 @@
 %% sections/03-sample-covariance-wishart.tex
-%% Section 3: Sample Covariance Matrices (~15 pages)
+%% Section 2: Sample Covariance Matrices (~15 pages)
 %%
 %% Build philosophy (per project feedback):
 %%   - Joseph-thesis-style flow: simulation first, then theorem, then proof.
 %%   - Every concept (GOE, perturbation theory) introduced formally before use.
 %%   - Heavy use of figures for intuition.
 %%   - Multi-line proofs, concise but rigorous.
-%%   - Cross-reference Section 2 throughout; never assume outside knowledge.
+%%   - Cross-reference the foundations appendix throughout; never assume outside knowledge.
 
 \section{Sample Covariance Matrices}\label{sec:scm}
 
 
-The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimensions, this empirical version behaves like a classical sample average: as the number of observations grows, it converges entry by entry to the true covariance, exactly as a scalar sample mean converges to its expectation.\gdmark{meaning} When the dimension grows with the sample size (the so-called \emph{high-dimensional regime}\gdmark{hdr-name}), its spectral behavior changes qualitatively, and both regimes are unpacked below.
+The covariance matrix \(\Sigma\) describes the true variability of a random vector, but in data analysis it is unknown. Given observations \(\vect{X}_1, \ldots, \vect{X}_n\), the natural replacement is the empirical average of the outer products \(\vect{X}_i \vect{X}_i\transpose\). In fixed dimensions, this empirical version behaves like a classical sample average: as the number of observations grows, it converges entry by entry to the true covariance, exactly as a scalar sample mean converges to its expectation.\gdmark{meaning} When the dimension grows with the sample size (the so-called \emph{high-dimensional regime}\gdmark{hdr-name}), its spectral behavior changes qualitatively, and both regimes are unpacked below. The probability and linear algebra background this section draws on (random vectors and covariance matrices, the limit theorems, the spectral theorem) is collected in Appendix~\ref{sec:foundations}; a reader new to those tools should start there.
 
 %====================================================================
 \subsection{Definition and Geometry of the Sample Covariance Matrix}\label{subsec:scm-foundations}
@@ -91,7 +91,7 @@ Proposition~\ref{prop:scm-psd} therefore reads, in plain English, as the stateme
 %====================================================================
 \subsection{Low Dimensions: Consistency, Wishart, and Fluctuations}\label{subsec:scm-lowdim}
 
-In the low-dimensional regime the dimension \(p\) is fixed and the sample size \(n \to \infty\). This is the classical setting of multivariate statistics, in which the limit theorems of Section~\ref{sec:foundations} apply directly to the entries of \(\Sigmahat_n\). We unpack four nested questions: (i) does \(\Sigmahat_n\) converge to \(\Sigma\), (ii) what is the exact distribution of \(\Sigmahat_n\) for Gaussian data, (iii) what is the limiting distribution of the fluctuation \(\sqrt{n}(\Sigmahat_n - \Sigma)\), and (iv) what does that say about individual eigenvalues and eigenvectors of \(\Sigmahat_n\)?
+In the low-dimensional regime the dimension \(p\) is fixed and the sample size \(n \to \infty\). This is the classical setting of multivariate statistics, in which the limit theorems of Appendix~\ref{sec:foundations} apply directly to the entries of \(\Sigmahat_n\). We unpack four nested questions: (i) does \(\Sigmahat_n\) converge to \(\Sigma\), (ii) what is the exact distribution of \(\Sigmahat_n\) for Gaussian data, (iii) what is the limiting distribution of the fluctuation \(\sqrt{n}(\Sigmahat_n - \Sigma)\), and (iv) what does that say about individual eigenvalues and eigenvectors of \(\Sigmahat_n\)?
 
 \paragraph{Consistency of the matrix and its eigenvalues.} The first question has the cleanest answer. Each entry of \(\Sigmahat_n\) is a sample average of iid scalar products with mean \(\Sigma_{jk}\), so the strong law of large numbers (Theorem~\ref{thm:slln}) gives entrywise convergence at once. The intro figure (Figure~\ref{fig:intro-regimes}, left panel) already shows the spectral consequence: with \(p = 10\) and \(n = 1000\), the sample eigenvalues of \(\Sigmahat_n\) concentrate tightly around the population value \(1\).
 
@@ -118,7 +118,7 @@ The random variables \(\{X_{ij} X_{ik}\}_{i \ge 1}\) are iid with mean
 Doing this for each pair \((j, k)\) gives entrywise almost-sure convergence \(\Sigmahat_n \convas \Sigma\).
 \end{proof}
 
-Combined with the eigenvalue-convergence machinery developed in Section~\ref{subsec:linalg}, entrywise convergence forces convergence of the eigenvalues themselves.
+Combined with the eigenvalue-convergence machinery developed in Appendix~\ref{subsec:linalg}, entrywise convergence forces convergence of the eigenvalues themselves.
 
 \begin{corollary}[Sample eigenvalues converge to population eigenvalues]\label{cor:scm-eigen-convergence}
 Under the hypotheses of Theorem~\ref{thm:scm-consistency}, \(\lambda_i(\Sigmahat_n) \convas \lambda_i(\Sigma)\) for every \(i = 1, \ldots, p\).
@@ -230,7 +230,7 @@ The three independent entries of the symmetric matrix \(\sqrt{n}\,(\Sigmahat_n -
 \[
   \sqrt{n}\,((\Sigmahat_n)_{11} - 1), \quad \sqrt{n}\,((\Sigmahat_n)_{22} - 1), \quad \sqrt{n}\,(\Sigmahat_n)_{12},
 \]
-each of which is a sum of iid centered random variables, so the multivariate central limit theorem of Section~\ref{subsec:rvecs} applies. We compute the limiting variances and verify that the cross-covariances vanish.
+each of which is a sum of iid centered random variables, so the multivariate central limit theorem (Theorem~\ref{thm:multivariate-clt}) applies. We compute the limiting variances and verify that the cross-covariances vanish.
 
 For the diagonal entries, write \((\Sigmahat_n)_{jj} - 1 = n^{-1} \sum_i (X_{ij}^2 - 1)\). Each summand has mean zero and
 \[

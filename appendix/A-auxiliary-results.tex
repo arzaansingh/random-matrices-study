@@ -1,8 +1,8 @@
 %% appendix/A-auxiliary-results.tex
-%% Appendix A: Auxiliary Results
+%% Auxiliary Results (second appendix, after the foundations)
 %% Hosts classical results used in the main text but not proved inline.
 %% Characteristic functions, the Levy continuity theorem, and the CLT proof
-%% are NOT repeated here: they are developed in full in Section 2.
+%% are NOT repeated here: they are developed in full in the foundations appendix.
 
 \section{Auxiliary Results}\label{app:auxiliary}
 
@@ -42,7 +42,7 @@ Fix \(N\) and consider the event that \emph{none} of \(A_N, A_{N+1}, \dots, A_M\
 using the inequality \(1 - x \le e^{-x}\). As \(M \to \infty\) the exponent tends to \(-\infty\) because the series diverges, so the bound tends to \(0\). The event that no \(A_n\) with \(n \ge N\) \emph{ever} occurs is contained in each of these finite-\(M\) events, so its probability is \(0\). There are only countably many starting indices \(N\), so the union bound from the first proof applies to these failure events: with probability \(1\), for every \(N\) at least one event at or beyond \(N\) occurs, which is exactly the statement that infinitely many occur.
 \end{proof}
 
-Section~\ref{subsec:limit-theorems} uses Lemma~\ref{lem:bc2} with \(\Prob(A_n) = 1/n\): the harmonic series diverges, so the independent events of the counterexample keep occurring forever, which is what destroys almost-sure convergence there while leaving convergence in probability intact. A general treatment of both lemmas is given in \citet[\S 4]{Billingsley1995}.
+Appendix~\ref{subsec:limit-theorems} uses Lemma~\ref{lem:bc2} with \(\Prob(A_n) = 1/n\): the harmonic series diverges, so the independent events of the counterexample keep occurring forever, which is what destroys almost-sure convergence there while leaving convergence in probability intact. A general treatment of both lemmas is given in \citet[\S 4]{Billingsley1995}.
 
 \subsection{The Continuous Mapping Theorem for Vectors}\label{app:cmt-vectors}
 
@@ -56,7 +56,7 @@ See \citet[\S\S 25 and 29]{Billingsley1995} for the proof. The point of the refi
 
 \subsection{Slutsky's Theorem}\label{app:slutsky}
 
-Slutsky's theorem is the workhorse that combines one sequence converging in distribution with another converging to a constant. It is promised in Section~\ref{subsec:limit-theorems} and used, mostly silently, whenever a limit statement survives the replacement of an unknown constant by a consistent estimate of it.
+Slutsky's theorem is the workhorse that combines one sequence converging in distribution with another converging to a constant. It is promised in Appendix~\ref{subsec:limit-theorems} and used, mostly silently, whenever a limit statement survives the replacement of an unknown constant by a consistent estimate of it.
 
 \begin{theorem}[Slutsky's theorem]\label{thm:slutsky}
 Let \(X_n \convd X\) and \(Y_n \convp c\) for a constant \(c\). Then

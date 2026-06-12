@@ -1,12 +1,12 @@
 %% sections/02-probability-foundations.tex
-%% Section 2: Probability Foundations (~10 pages)
+%% Appendix A (foundations): Probability and Linear Algebra (~10 pages)
 %%
 %% Build philosophy: match the depth of v5 LaTeX notes, build from absolute
 %% foundations, prove what can be proved cleanly, illustrate with figures.
 
 \section{Probability and Linear Algebra Foundations}\label{sec:foundations}
 
-The main objects of this report are eigenvalues and eigenvectors of random covariance matrices. To study them we need two complementary languages. \emph{Probability} explains how averages of random quantities stabilize and how they fluctuate around their limits. \emph{Linear algebra} explains how a symmetric matrix encodes variance through eigenvalues and eigenvectors. This section develops both, starting from the random variable and building toward the spectral theorem for symmetric covariance matrices.
+The main objects of this report are eigenvalues and eigenvectors of random covariance matrices. To study them we need two complementary languages. \emph{Probability} explains how averages of random quantities stabilize and how they fluctuate around their limits. \emph{Linear algebra} explains how a symmetric matrix encodes variance through eigenvalues and eigenvectors. This appendix develops both, starting from the random variable and building toward the spectral theorem for symmetric covariance matrices. It is written as a self-contained course: read it front to back before Section~\ref{sec:scm} if these tools are new, or treat it as a reference otherwise, since the main text cites the specific definition or theorem it needs at every step.
 
 %====================================================================
 \subsection{Random Variables and Distributions}\label{subsec:rvs}
@@ -41,7 +41,7 @@ Informally, \(f_X(t)\,dt\) is the probability of landing in a tiny interval of w
 Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all intervals \(A, B \subseteq \R\). (More generally one asks the identity to hold on all events; the version on intervals suffices for real-valued random variables.)
 
 \begin{example}[Distributions used throughout]\label{ex:common-distributions}
-The following appear repeatedly in this section (the normal, additionally, throughout the report):
+The following appear repeatedly in this appendix (the normal, additionally, throughout the report):
 \begin{itemize}[leftmargin=1.5em,itemsep=0.25em]
   \item \emph{Bernoulli}\((p)\): \(X \in \{0, 1\}\) with \(\Prob(X = 1) = p\).
   \item \emph{Poisson}\((\lambda)\): \(\Prob(X = k) = e^{-\lambda} \lambda^k / k!\) for \(k = 0, 1, 2, \ldots\).
@@ -326,13 +326,13 @@ The second Borel-Cantelli lemma (Appendix~\ref{app:auxiliary}) says that for ind
 So almost every realization of the sequence keeps producing the value \(1\) at arbitrarily late indices, which prevents it from settling at \(0\). Hence \(X_n \not\convas 0\).
 \end{example}
 
-A second standard fact will be useful in later sections: continuous functions preserve convergence.
+A second standard fact is used repeatedly in the main text: continuous functions preserve convergence.
 
 \begin{proposition}[Continuous mapping theorem]\label{prop:cmt}
 If \(X_n \convas X\) (respectively \(\convp\), \(\convd\)) and \(g: \R \to \R\) is continuous, then \(g(X_n) \convas g(X)\) (respectively \(\convp\), \(\convd\)).
 \end{proposition}
 
-A proof is in \citet[][\S~5.5]{Casella2002}. Appendix~\ref{app:auxiliary} (Theorem~\ref{thm:cmt-general}) records the more general vector form, which later sections apply to matrices, together with Slutsky's theorem, the companion result used silently whenever an estimated constant stands in for a true one.
+A proof is in \citet[][\S~5.5]{Casella2002}. Appendix~\ref{app:auxiliary} (Theorem~\ref{thm:cmt-general}) records the more general vector form, which the main text applies to matrices, together with Slutsky's theorem, the companion result used silently whenever an estimated constant stands in for a true one.
 
 %====================================================================
 \paragraph{Markov, Chebyshev, and the law of large numbers.}
@@ -482,7 +482,7 @@ Statistical observations rarely come as single numbers; they typically come as \
 \[
   \vect{X}_i \;=\; (X_{i1}, X_{i2}, \ldots, X_{ip})\transpose,
 \]
-where \(X_{ij}\) is, for instance, the \(j\)\textsuperscript{th} feature of the \(i\)\textsuperscript{th} observation. The vector analogues of Sections~\ref{subsec:rvs}--\ref{subsec:limit-theorems} are the joint distribution of \(\vect{X}\), the mean vector and covariance matrix that summarize its first two moments, the multivariate normal as the central model, and the multivariate central limit theorem.
+where \(X_{ij}\) is, for instance, the \(j\)\textsuperscript{th} feature of the \(i\)\textsuperscript{th} observation. The vector analogues of the preceding subsections (\ref{subsec:rvs}--\ref{subsec:limit-theorems}) are the joint distribution of \(\vect{X}\), the mean vector and covariance matrix that summarize its first two moments, the multivariate normal as the central model, and the multivariate central limit theorem.
 
 \paragraph{Random vectors and joint distributions.}
 
@@ -626,7 +626,7 @@ The identity
 \[
   \vect{v}\transpose \Sigma \vect{v} \;=\; \Var(\vect{v}\transpose \vect{X})
 \]
-is the \emph{bridge identity} of this section. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections, and vice versa.
+is the \emph{bridge identity} of this appendix. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections, and vice versa.
 
 \paragraph{The multivariate normal distribution.} The multivariate normal distribution is the vector analogue of the ordinary normal. It is the natural model for vector observations because it is closed under linear operations and is characterized completely by its mean vector and covariance matrix. The cleanest definition uses the characteristic function, which for a random vector is defined exactly as in the scalar case, \(\varphi_{\vect{X}}(\vect{t}) = \E[e^{i \vect{t}\transpose \vect{X}}]\) for \(\vect{t} \in \R^p\); like its scalar counterpart it always exists, determines the distribution uniquely, and supports a continuity theorem \citep[][\S~29]{Billingsley1995}.
 
@@ -644,7 +644,7 @@ When \(\Sigma\) is positive definite, \(\vect{X}\) admits the density
 
 A note on notation: in the scalar case (Example~\ref{ex:common-distributions}) the second argument of \(\Normal{\mu, \sigma^2}\) is a variance, while in the multivariate case the second argument of \(\Normal{\vect{\mu}, \Sigma}\) is a covariance \emph{matrix}. The two-argument macro \(\Normal{\,\cdot\,,\,\cdot\,}\) is the same; only the type of the second slot changes.
 
-Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible. A vector with this CF always exists: \(\vect{X} = \vect{\mu} + \Sigma^{1/2} \vect{Z}\), with \(\vect{Z}\) a vector of iid standard normals and \(\Sigma^{1/2}\) the symmetric square root of \(\Sigma\) (write \(\Sigma = \mat{Q} \mat{\Lambda} \mat{Q}\transpose\) by the spectral theorem of Section~\ref{subsec:linalg} and set \(\Sigma^{1/2} = \mat{Q} \mat{\Lambda}^{1/2} \mat{Q}\transpose\), which is symmetric, PSD, and squares to \(\Sigma\)), has exactly the CF~\eqref{eq:mvn-cf}, by the computation in the proof of Proposition~\ref{prop:mvn-affine} below. The definition also has a clean working content. For fixed \(\vect{t}\), the scalar projection \(\vect{t}\transpose \vect{X}\) has CF \(\varphi_{\vect{t}\transpose \vect{X}}(s) = \E[e^{i s\, \vect{t}\transpose \vect{X}}] = \varphi_{\vect{X}}(s \vect{t})\), and evaluating~\eqref{eq:mvn-cf} at \(s\vect{t}\) gives \(\exp\bigl(i s\, \vect{t}\transpose \vect{\mu} - \tfrac{1}{2} s^2\, \vect{t}\transpose \Sigma \vect{t}\bigr)\), the CF of a univariate \(\Normal{\vect{t}\transpose \vect{\mu},\, \vect{t}\transpose \Sigma \vect{t}}\) evaluated at \(s\). Scalar CF uniqueness then gives
+Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible. A vector with this CF always exists: \(\vect{X} = \vect{\mu} + \Sigma^{1/2} \vect{Z}\), with \(\vect{Z}\) a vector of iid standard normals and \(\Sigma^{1/2}\) the symmetric square root of \(\Sigma\) (write \(\Sigma = \mat{Q} \mat{\Lambda} \mat{Q}\transpose\) by the spectral theorem (Theorem~\ref{thm:spectral} below) and set \(\Sigma^{1/2} = \mat{Q} \mat{\Lambda}^{1/2} \mat{Q}\transpose\), which is symmetric, PSD, and squares to \(\Sigma\)), has exactly the CF~\eqref{eq:mvn-cf}, by the computation in the proof of Proposition~\ref{prop:mvn-affine} below. The definition also has a clean working content. For fixed \(\vect{t}\), the scalar projection \(\vect{t}\transpose \vect{X}\) has CF \(\varphi_{\vect{t}\transpose \vect{X}}(s) = \E[e^{i s\, \vect{t}\transpose \vect{X}}] = \varphi_{\vect{X}}(s \vect{t})\), and evaluating~\eqref{eq:mvn-cf} at \(s\vect{t}\) gives \(\exp\bigl(i s\, \vect{t}\transpose \vect{\mu} - \tfrac{1}{2} s^2\, \vect{t}\transpose \Sigma \vect{t}\bigr)\), the CF of a univariate \(\Normal{\vect{t}\transpose \vect{\mu},\, \vect{t}\transpose \Sigma \vect{t}}\) evaluated at \(s\). Scalar CF uniqueness then gives
 \begin{equation}
   \vect{t}\transpose \vect{X} \;\sim\; \Normal{\vect{t}\transpose \vect{\mu},\; \vect{t}\transpose \Sigma \vect{t}} \qquad \text{for every } \vect{t} \in \R^p.
   \label{eq:mvn-projection}
@@ -924,6 +924,6 @@ This is \(\lambda_i(\Sigma_n) \convp \lambda_i(\Sigma_0)\) for every \(i\).
 
 The deterministic chain \emph{entries \(\to\) characteristic-polynomial coefficients \(\to\) roots} is the entire logical content; the random versions follow by pushing continuity through the respective modes of convergence.
 
-The two pieces of this section now combine into a single statement about the sample covariance matrix. It is, on the one hand, a matrix of averages, controlled entrywise by the law of large numbers; and, on the other hand, a symmetric positive-semidefinite matrix, controlled geometrically by the spectral theorem and the Rayleigh quotient. The next section makes this statement precise and asks what changes when the dimension grows with the sample size.
+The two pieces of this appendix now combine into a single statement about the sample covariance matrix. It is, on the one hand, a matrix of averages, controlled entrywise by the law of large numbers; and, on the other hand, a symmetric positive-semidefinite matrix, controlled geometrically by the spectral theorem and the Rayleigh quotient. Section~\ref{sec:scm} makes this statement precise and asks what changes when the dimension grows with the sample size. A reader who has worked through to this point has every tool the main text uses.
 
 \clearpage

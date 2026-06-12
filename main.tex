@@ -82,7 +82,6 @@
 \setcounter{page}{1}
 
 \input{sections/01-introduction}
-\input{sections/02-probability-foundations}
 \input{sections/03-sample-covariance-wishart}
 \input{sections/04-spiked-covariance-bbp}
 \input{sections/05-conclusion}
@@ -93,6 +92,9 @@
 
 \appendix
 
+%% The foundations are deliberately the FIRST appendix: the introduction
+%% directs readers without the prerequisites to start here.
+\input{sections/02-probability-foundations}
 \input{appendix/A-auxiliary-results}
 \input{appendix/B-simulation-methodology}
 \input{appendix/C-code-listings}
