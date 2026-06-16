@@ -15,8 +15,8 @@ with one draw of the noise matrix W threading every panel:
                     dial t turns from 0 (the noise of panel 1) to 1 (the
                     data of panels 3 and 4); the outlier peaks are drawn at
                     their simulated locations with stylized height
-  3 (mid-left):     entries of the top eigenvector, which lights up on a
-                    class
+  3 (mid-left):     entries of the top three eigenvectors, each of which
+                    lights up on its own class
   4 (bottom-right): the spectral embedding by the top two eigenvectors
 
 A single dashed path flies 1 -> 2 -> 3 -> 4. Clear zones are reserved for
@@ -84,17 +84,19 @@ def simulate_story(rng):
         rows.append((ev[:-K], ev[-K:]))       # (bulk, top-3)
 
     _, _, Vt = np.linalg.svd(X / np.sqrt(P_DIM), full_matrices=False)
-    v1, v2 = Vt[0], Vt[1]
+    v1, v2, v3 = Vt[0], Vt[1], Vt[2]
     if v1[:PER].mean() < 0:
         v1 = -v1
     if v2[PER:2 * PER].mean() < 0:
         v2 = -v2
-    return scm, rows, v1, v2
+    if v3[2 * PER:3 * PER].mean() < 0:
+        v3 = -v3
+    return scm, rows, v1, v2, v3
 
 
 def make_cover() -> Path:
     rng = np.random.default_rng(SEED)
-    scm, rows, v1, v2 = simulate_story(rng)
+    scm, rows, v1, v2, v3 = simulate_story(rng)
     class_colors = [SLATE, BLUE, GRAY]
 
     fig = plt.figure(figsize=(8.5, 11))
@@ -189,12 +191,13 @@ def make_cover() -> Path:
     ax.set_xlim(-0.3, 9.4 + n_rows * xshift + 0.3)
     ax.set_ylim(-0.3, n_rows * step + 2.2)
 
-    # ---- panel 3 content: the top two eigenvectors --------------------------
+    # ---- panel 3 content: the top three eigenvectors ------------------------
     idx = np.arange(N_DIM)
-    lvl1, lvl2 = np.abs(v1).max(), np.abs(v2).max()
+    lvl1, lvl2, lvl3 = np.abs(v1).max(), np.abs(v2).max(), np.abs(v3).max()
     for rect, vec, lvl, lab in [
-        ([0.112, 0.245, 0.255, 0.135], v1, lvl1, r"$\widehat{v}_1$"),
-        ([0.112, 0.072, 0.255, 0.135], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.112, 0.290, 0.255, 0.088], v1, lvl1, r"$\widehat{v}_1$"),
+        ([0.112, 0.176, 0.255, 0.088], v2, lvl2, r"$\widehat{v}_2$"),
+        ([0.112, 0.062, 0.255, 0.088], v3, lvl3, r"$\widehat{v}_3$"),
     ]:
         ax = bare_axes(rect)
         for k, col in enumerate(class_colors):
