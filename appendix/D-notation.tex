@@ -35,7 +35,7 @@ Ensemble matrix \(\mat{E}\) versus the Gram matrix \(\mat{G}\)).
 \(\mu,\ \sigma^2,\ \sigma\) & Mean, variance, standard deviation & App.~A, \S2 \\
 \(\Normal{\mu, \sigma^2},\ \Normal{\vect{\mu}, \Sigma}\) & Normal; multivariate normal & App.~A \\
 \(M_X(t),\ \varphi_X(t)\) & Moment generating function; characteristic function & App.~A, \S2 \\
-\(\Phi\) & Standard normal CDF & \S3.6 \\
+\(\Phi\) & Standard normal CDF & \S4.1 \\
 \(\rho\) & Correlation coefficient of a bivariate normal & App.~A, \S4 \\
 \(\delta_1,\ H\) & Point mass at \(1\); limiting baseline distribution & \S3.1 \\
 \midrule
@@ -78,19 +78,19 @@ Ensemble matrix \(\mat{E}\) versus the Gram matrix \(\mat{G}\)).
 \(\rho(\alpha, y)\) & Limiting squared eigenvector alignment & \S3.4 \\
 \midrule
 
-\multicolumn{3}{@{}l}{\textit{Spectral clustering (Section 3.6--3.7)}} \\
+\multicolumn{3}{@{}l}{\textit{Spectral clustering (Section 4)}} \\
 \midrule
-\(K,\ k(i)\) & Number of classes; class of observation \(i\) & \S3.6 \\
-\(\vect{\mu}_k,\ \mat{M}\) & Mean of class \(k\); means matrix (\(p \times K\)) & \S3.6 \\
-\(\mat{W},\ \mat{P} = \mat{M}\mat{J}\transpose\) & Noise matrix; low-rank signal matrix & \S3.6 \\
-\(\mat{J}\) & Assignment matrix (\(\{0,1\}^{n \times K}\)) & \S3.6 \\
-\(n_k,\ \mat{D} = \diag(n_1,\dots,n_K)\) & Group sizes; size diagonal & \S3.6 \\
-\(\mat{L} = \mat{M}\mat{D}^{1/2},\ \mat{V} = \mat{J}\mat{D}^{-1/2}\) & Scaled means; normalized-indicator matrix & \S3.6 \\
-\(\vect{v}_k\) & Normalized indicator / population eigenvector & \S3.6 \\
-\(\mat{G} = \tfrac1p \mat{X}\transpose\mat{X}\) & Gram (similarity) matrix (\(n \times n\)) & \S3.6 \\
-\(\ell_k,\ \ell\) & Signal-to-noise ratio (eigenvalue of \(\tfrac1n\mat{L}\transpose\mat{L}\)) & \S3.6 \\
-\(\xi_k,\ \zeta_k\) & Limiting Gram outlier location; alignment & \S3.6 \\
-\(\widehat{\vect{v}}_k,\ \widehat{\zeta}\) & \(k\)-th Gram eigenvector; estimated alignment & \S3.6--3.7 \\
+\(K,\ k(i)\) & Number of classes; class of observation \(i\) & \S4.1 \\
+\(\vect{\mu}_k,\ \mat{M}\) & Mean of class \(k\); means matrix (\(p \times K\)) & \S4.1 \\
+\(\mat{W},\ \mat{P} = \mat{M}\mat{J}\transpose\) & Noise matrix; low-rank signal matrix & \S4.1 \\
+\(\mat{J}\) & Assignment matrix (\(\{0,1\}^{n \times K}\)) & \S4.1 \\
+\(n_k,\ \mat{D} = \diag(n_1,\dots,n_K)\) & Group sizes; size diagonal & \S4.1 \\
+\(\mat{L} = \mat{M}\mat{D}^{1/2},\ \mat{V} = \mat{J}\mat{D}^{-1/2}\) & Scaled means; normalized-indicator matrix & \S4.1 \\
+\(\vect{v}_k\) & Normalized indicator / population eigenvector & \S4.1 \\
+\(\mat{G} = \tfrac1p \mat{X}\transpose\mat{X}\) & Gram (similarity) matrix (\(n \times n\)) & \S4.1 \\
+\(\ell_k,\ \ell\) & Signal-to-noise ratio (eigenvalue of \(\tfrac1n\mat{L}\transpose\mat{L}\)) & \S4.1 \\
+\(\xi_k,\ \zeta_k\) & Limiting Gram outlier location; alignment & \S4.1 \\
+\(\widehat{\vect{v}}_k,\ \widehat{\zeta}\) & \(k\)-th Gram eigenvector; estimated alignment & \S4.1--4.2 \\
 \midrule
 
 \multicolumn{3}{@{}l}{\textit{Asymptotics and convergence}} \\
