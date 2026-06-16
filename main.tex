@@ -37,6 +37,16 @@
 
 \definecolor{thesisRev}{HTML}{2E7D32}  % preprint-only: "comment incorporated"
 
+%% Arzaan's own working comments. Use \arzaancomment{your note here} inline to
+%% flag something for revision. It renders as a tagged violet note [AS: ...],
+%% deliberately distinct from G. Didier's blue \GD edits and red \GDcomment
+%% notes, and (like the revision log) shows only in the preprint -- it vanishes
+%% automatically in the final version when \preprintfalse is set, so a stray
+%% comment can never ship. Grep \arzaancomment to find them section by section.
+\definecolor{arzaanColor}{HTML}{6A1B9A}  % violet: the author's own review notes
+\newcommand{\arzaancomment}[1]{%
+  \ifpreprint{\normalfont\bfseries\textcolor{arzaanColor}{[AS:\;#1]}}\fi}
+
 \newcounter{gdrevcount}
 % Inline marker dropped at an incorporated comment. Preprint: green star +
 % running number, linked to the log, with a return anchor. Final: nothing.
