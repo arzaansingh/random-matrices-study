@@ -231,6 +231,64 @@ back to its place in the text.}
 
 \gdlogentry{r3-plane}{Figure~\ref{fig:two-spikes-equal}, caption and text}{``If I understand you aright, how can the spike plane be recovered? \dots for a single spike, we don't have perfect asymptotic alignment\,\dots Hence, we don't `recover' the (one-dimensional) plane. For a multiplicity 2 spike, we seem to be claiming that we can recover the associated plane.''}{The caption and text said the spike plane is ``recovered''/``pinned down'', a stronger claim than the single-spike theory permits: the subspace alignment converges to the same \(\rho < 1\), not to \(1\).}{Replaced recovery language throughout: the plane is \emph{identifiable} to exactly the same partial degree \(\rho < 1\) as a single spike's direction, no better and no worse, while the directions inside the plane are not identifiable at all.}{Keep claims dimensionally consistent: whatever degree of recovery holds for one direction holds for the plane, and nothing stronger.}
 \end{itemize}
+
+\medskip
+\noindent\textbf{Fourth round: June 16th comments on Sections~\ref{subsec:two-spikes}--\ref{subsec:mnist}.} \emph{The recurring theme: the prose is correct but verbose, with circumlocution and some words in nonstandard senses; the model to imitate is parsimonious, direct writing.}
+\begin{itemize}[leftmargin=2.4em,itemsep=0.55em]
+\gdlogentry{r4-goals}{\S\ref{subsec:two-spikes}}{``This was already said.''}{``These are different goals'' restated, two sentences after the same two goals were introduced.}{Cut the restatement.}{Say each thing once.}
+
+\gdlogentry{r4-distinct-eigs}{\S\ref{subsec:two-spikes}, distinct spikes}{``The latter comment is redundant in view of the beginning of the sentence.''}{``the two outliers are separated\,\dots so the top two sample eigenvalues sit at clearly different heights'' said the same fact twice.}{Cut the trailing clause and tightened the figure sentence.}{Drop clauses that re-state the start of their own sentence.}
+
+\gdlogentry{r4-distinct-overlaps}{\S\ref{subsec:two-spikes}, distinct spikes}{``data doesn't `tell directions apart'\,'' and ``Matched overlaps?'' and ``This latter paragraph can be significantly streamlined.''}{Anthropomorphism (``the data tell the directions apart''), the undefined term ``matched overlaps'', and a long paragraph.}{``That separation makes the two directions individually identifiable''; \emph{matched} and \emph{crossed} now defined inline as \(i=j\) and \(i\ne j\); the decoupling paragraph cut to two sentences.}{Name a quantity before using it, and never let the data ``do'' anything.}
+
+\gdlogentry{r4-cf}{\S\ref{subsec:two-spikes}, equal spikes}{``It suffices to say `cf.\ Example~\ref{ex:eigenvec-fail}' -- we should avoid distracting readers with too much information.''}{A full re-narration of the spinning-eigenvector example.}{Replaced by ``(cf.\ Example~\ref{ex:eigenvec-fail})''.}{A cross-reference can replace a recap.}
+
+\gdlogentry{r4-subspace-align}{\S\ref{subsec:two-spikes}, equal spikes}{``What is the `recovered pair'?'' and ``What is being `scaled'?''}{``the recovered pair'' for the sample eigenvectors, and ``scaled to equal \(1\)'', a nonstandard use of ``scaled''.}{``the top two sample eigenvectors''; ``normalized to \(1\)''.}{Use the object's real name, and reserve ``scale'' for an actual change of scale.}
+
+\gdlogentry{r4-equal-table}{Figure~\ref{fig:two-spikes-equal}, caption and text}{``streamline the description of the results, both in the caption and in the main text.''}{The right-panel description and caption were long and overlapping.}{Compressed both to one sentence each.}{Caption and text should not narrate the same figure twice at length.}
+
+\gdlogentry{r4-clustering-intro}{\S\ref{subsec:clustering}, opening}{``This is too long an introduction to the Section'' (with a blue rewrite of the model).}{A long lead-in to the clustering model.}{Shortened the opener and adopted his model setup, keeping \(K\) (not \(\kappa\)) for consistency with the theorems and the rest of the section.}{Open a subsection in as few words as the setup allows; keep one symbol per concept.}
+
+\gdlogentry{r4-clustering-goal}{\S\ref{subsec:clustering}}{``this sentence is redundant'' (data alone vs no label) and ``some clustering algorithms do assume \(\kappa\) is known'' and ``Exactly?''}{``from the data alone, without ever being shown a label'' (one idea twice); an implicit claim that clustering never assumes \(K\); and ``solved by \emph{exactly} the spiked-model machinery''.}{One clause for the goal; added ``(some methods do assume \(K\); ours does not)''; dropped ``exactly''.}{Do not double a definition, over-generalize, or overstate.}
+
+\gdlogentry{r4-bookkeeping}{\S\ref{subsec:clustering}}{``A problem does not want to `find' something.''}{``the bookkeeping that the clustering problem wants to find''.}{``recovering \(\mat{J}\) is the goal of clustering''.}{A problem has a goal; it does not want.}
+
+\gdlogentry{r4-lowrank}{\S\ref{subsec:clustering}}{``I'm not sure about the latter statement about structure.''}{``the structure now sitting in the means rather than the variances'' (and a broken blue-edit clause).}{Stated it precisely: the same mathematical shape as the spiked model, a low-rank perturbation of a noise matrix, with the signal in the column means rather than a covariance.}{Map an analogy to its exact mathematical content.}
+
+\gdlogentry{r4-similarity}{\S\ref{subsec:clustering}}{``This sentence can be streamlined: `Spectral clustering works not with \(\mat{X}\) itself but with an \(n\times n\) similarity matrix\,\dots'\,''}{A wordier lead-in to the similarity matrix.}{Adopted his streamlined sentence.}{Prefer the shortest correct phrasing.}
+
+\gdlogentry{r4-reversal}{\S\ref{subsec:clustering}}{``I don't understand the latter sentence'' (``\(\mat{G}\) compares observations'').}{``\(\mat{G}\) is \(n \times n\) and compares observations''.}{``\(G_{ij}\) is the similarity between data points \(i\) and \(j\)''.}{Say what an entry is, not what the matrix ``compares''.}
+
+\gdlogentry{r4-kernels-cut}{\S\ref{subsec:clustering}}{``You already opted for a specific form of the kernel matrix -- there is no reason to speak about general kernel matrices at this point.''}{A digression on nonlinear kernels and degree normalization after the identity kernel was already fixed.}{Cut it here; the nonlinear-kernel point stays in the closing of \S\ref{subsec:mnist}, where it belongs.}{Introduce generality only where it is used.}
+
+\gdlogentry{r4-noise-part}{\S\ref{subsec:clustering}}{``M-P picture?'', ``there is no pre-defined `noise part'\,\dots cross terms'', and ``the MP law describes the \emph{limit}\,\dots companion matrix''.}{``the noise part of \(\mat{G}\)'' (no clean split: \(\mat{G}\) has cross terms), ``M-P picture'', and ``the bulk\,\dots is the MP bulk'' stated as an equality rather than a limit.}{Reframed via the no-signal case \(\mat{G} = (1/p)\mat{W}\transpose\mat{W}\), named the \emph{companion matrices}, and stated the convergence to the Marchenko-Pastur law as a limit of the empirical spectral distribution.}{Avoid implying a clean signal/noise split of a quadratic form; state limit laws as limits and use the standard term.}
+
+\gdlogentry{r4-signal-streamline}{\S\ref{subsec:clustering}}{``The preceding paragraph feels long -- it needs to be streamlined.''}{The signal-part paragraph, with a gambling metaphor (``the bet\,\dots whether the bet pays'').}{Compressed it and removed the metaphor.}{Streamline, and drop metaphors that dress a question as a wager.}
+
+\gdlogentry{r4-mnist-exact}{\S\ref{subsec:mnist}, opening}{``exact?'' (on ``exact low-rank means'').}{``a model: Gaussian noise, exact low-rank means''.}{``a Gaussian model''.}{Drop adjectives that add no information.}
+
+\gdlogentry{r4-nongaussian}{\S\ref{subsec:mnist}, opening}{``\,`nothing is assumed' -- we make assumptions about models, not data. What should be said is that images are conspicuously non-Gaussian.''}{``Nothing else is assumed''.}{Replaced with the real point: images are conspicuously non-Gaussian, which makes them a genuine test of the universality the proof relies on.}{Say what makes the test meaningful, not that data are assumption-free.}
+
+\gdlogentry{r4-procedure}{\S\ref{subsec:mnist}}{``?'' on ``pipeline'' and ``validated''.}{``The pipeline is the one Figure\,\dots validated''.}{``The procedure is the one verified in Figure\,\dots''.}{Prefer plain words to lab jargon.}
+
+\gdlogentry{r4-evaluate}{\S\ref{subsec:mnist}}{``?'' on ``used only to \emph{evaluate}''.}{``The true labels are used only to evaluate''.}{``used only to \emph{score} the result, never to form it''.}{State both what a quantity is used for and what it is not.}
+
+\gdlogentry{r4-universality}{\S\ref{subsec:mnist}}{``This is very interesting -- it points to universality (Couillet discusses this; classification relies only on second-order statistics).''}{No mention of the universality this result illustrates.}{Added one sentence noting that random-matrix predictions calibrated on Gaussian models track real-data performance, citing \citet{CouilletLiao2022}.}{A striking result can be placed in its wider context in one cited sentence.}
+
+\gdlogentry{r4-fit}{Figure~\ref{fig:mnist-zero-one}, caption}{``I believe you mean `Real data vs best Gaussian fit'?''}{``Real data, Gaussian fluctuations'', ambiguous about whether the curve was fitted.}{``the curve is this prediction, not a fit'' (the Gaussian is predicted from \(\widehat{\zeta}\), not fitted).}{Say whether a curve is a prediction or a fit.}
+
+\gdlogentry{r4-pairs}{\S\ref{subsec:mnist}, forty-five pairs}{``What are `accuracy' and `prediction'?'' and ``?'' on ``uniform''.}{Undefined ``accuracy'' and ``prediction''; ``the agreement is uniform''.}{Defined accuracy as the fraction correctly sorted and prediction as the formula value; replaced ``uniform'' with ``agree closely across the board''.}{Define the quantities a figure compares, in words.}
+
+\gdlogentry{r4-negation}{\S\ref{subsec:mnist}, forty-five pairs}{``I would tend to avoid these `initial negations'\,'' and ``What is a hard pair?''}{``The theory does not merely fit\,\dots it explains''; ``a hard pair''.}{``The theory explains these numbers rather than merely fitting them''; ``a pair is hard precisely when its alignment \(\widehat{\zeta}\) is near zero''.}{Prefer the positive construction; define the informal label.}
+
+\gdlogentry{r4-pairs-caption}{Figure~\ref{fig:mnist-pairs}, caption}{``Meaning? (\,\dots not well expressed.)''}{``The two triangles agree to \(0.004\) on average''.}{``The mean absolute difference between the two triangles is \(0.004\)''.}{Say the statistic, not a paraphrase of it.}
+
+\gdlogentry{r4-embedded}{\S\ref{subsec:mnist}, ten digits}{``Embedded?'' and ``How so?'' (on \(k\)-means).}{``each image is embedded\,\dots the \(k\)-means algorithm groups the embedded points''.}{Spelled out the embedding (a point in nine dimensions from the top nine eigenvectors) and that \(k\)-means groups by proximity.}{Gloss a term of art and name the mechanism on first use.}
+
+\gdlogentry{r4-ninedim}{\S\ref{subsec:mnist}, ten digits}{``This last two-sentence explanation can be shrunk down to a single sentence.'' and ``?'' on ``no class contrast'' / ``the direction removing the mean deletes''.}{A two-sentence why-nine-eigenvectors explanation with two opaque phrases.}{One sentence: the indicators sum to the constant vector, removing the mean deletes that direction, leaving \(K-1=9\) dimensions of between-class contrast.}{One clear sentence beats two opaque ones.}
+
+\gdlogentry{r4-practical}{\S\ref{subsec:mnist}, close}{``What is a practical pipeline?''}{``practical pipelines push past this limit''.}{``richer methods push past this limit''.}{Avoid undefined jargon at the close.}
+\end{itemize}
 \fi
 
 \end{document}
