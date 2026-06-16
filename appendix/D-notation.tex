@@ -1,0 +1,105 @@
+%% appendix/D-notation.tex
+%% Notation table. Built from the whole-report notation inventory, with the
+%% deconflicted symbols (baseline block B_p, spike block Lambda_s, index set
+%% R_j, GOE matrix E, indicator matrix V). Each symbol has one canonical
+%% meaning across the report.
+
+\section{Notation}\label{app:notation}
+
+This table lists the notation used throughout, grouped by theme. Each symbol
+carries a single meaning across the report; where two objects might be
+confused, they are given distinct symbols (for instance, the spike block
+\(\Lambda_{\mathrm{s}}\) of the population covariance versus the eigenvalue
+diagonal \(\Lambda\) of the spectral theorem, and the Gaussian Orthogonal
+Ensemble matrix \(\mat{E}\) versus the Gram matrix \(\mat{G}\)).
+
+\renewcommand{\arraystretch}{1.3}
+
+\begin{longtable}{@{}p{0.20\textwidth} p{0.56\textwidth} p{0.18\textwidth}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Introduced} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Introduced} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+\multicolumn{3}{@{}l}{\textit{Probability and random variables}} \\
+\midrule
+\(X,\ \vect{X}\) & Random variable; random vector & App.~A, \S1 \\
+\(F_X,\ f_X,\ p_X\) & CDF, density, mass function of \(X\) & App.~A, \S1 \\
+\(\E[\cdot],\ \Var(\cdot),\ \Cov(\cdot,\cdot)\) & Expectation, variance, covariance & App.~A, \S2 \\
+\(\mu,\ \sigma^2,\ \sigma\) & Mean, variance, standard deviation & App.~A, \S2 \\
+\(\Normal{\mu, \sigma^2},\ \Normal{\vect{\mu}, \Sigma}\) & Normal; multivariate normal & App.~A \\
+\(M_X(t),\ \varphi_X(t)\) & Moment generating function; characteristic function & App.~A, \S2 \\
+\(\Phi\) & Standard normal CDF & \S3.6 \\
+\(\rho\) & Correlation coefficient of a bivariate normal & App.~A, \S4 \\
+\(\delta_1,\ H\) & Point mass at \(1\); limiting baseline distribution & \S3.1 \\
+\midrule
+
+\multicolumn{3}{@{}l}{\textit{Vectors, matrices, and linear algebra}} \\
+\midrule
+\(\R^p,\ \R^{p \times n}\) & Real \(p\)-vectors; real \(p \times n\) matrices & App.~A \\
+\((\cdot)\transpose,\ \inner{\cdot}{\cdot}\) & Transpose; inner (dot) product & App.~A \\
+\(\vect{e}_i,\ I_p\) & \(i\)-th standard basis vector; \(p \times p\) identity & App.~A \\
+\(\Sigma,\ \Sigma^{1/2}\) & Population covariance; its symmetric square root & App.~A, \S4 \\
+\(\mat{A} = \mat{Q}\Lambda\mat{Q}\transpose\) & Spectral decomposition of a symmetric matrix & App.~A, \S5 \\
+\(\Lambda = \diag(\lambda_1,\dots,\lambda_n)\) & Diagonal matrix of all eigenvalues (spectral theorem) & App.~A, \S5 \\
+\(\lambda,\ \lambda_i(\cdot),\ \lambda_{\max}(\cdot)\) & Eigenvalue; \(i\)-th and largest eigenvalue & App.~A, \S5 \\
+\(\norm{\cdot},\ \norm{\cdot}_F,\ \norm{\cdot}_{\mathrm{op}}\) & Vector norm; Frobenius and operator matrix norms & App.~A, \S5 \\
+\midrule
+
+\multicolumn{3}{@{}l}{\textit{Sample covariance and random matrix objects}} \\
+\midrule
+\(n,\ p,\ y = p/n\) & Sample size; dimension; aspect ratio & \S1, \S2.3 \\
+\(\vect{X}_i,\ \mat{X}\) & \(i\)-th observation; data matrix (\(p \times n\)) & \S2.1 \\
+\(\Sigmahat_n = \tfrac1n \mat{X}\mat{X}\transpose\) & Sample covariance matrix (SCM) & \S2.1 \\
+\(\Wishart{p}{n, \Sigma}\) & Wishart distribution & \S2.2 \\
+\(\mat{E} \sim \GOE_2\) & Gaussian Orthogonal Ensemble matrix & \S2.2 \\
+\(F_A\), ESD & Empirical spectral distribution of \(A\) & \S2.3 \\
+\(\MP_y,\ \lambda_\pm = (1 \pm \sqrt{y})^2\) & Marchenko-Pastur law; its bulk edges & \S2.3 \\
+\(\mathrm{TW}_1\) & Tracy-Widom Type 1 law & \S2.3 \\
+\(\mu_{np},\ \sigma_{np}\) & Johnstone edge centering and scaling & \S2.3 \\
+\midrule
+
+\multicolumn{3}{@{}l}{\textit{Spiked model (Section 3.1--3.5)}} \\
+\midrule
+\(m,\ \alpha_j,\ \alpha\) & Number of spikes; population spike strengths & \S3.1 \\
+\(\Lambda_{\mathrm{s}} = \diag(\alpha_1,\dots,\alpha_m)\) & Spike block of the population covariance & \S3.1 \\
+\(\mat{B}_p\) & Baseline (noise) block of the population covariance & \S3.1 \\
+\(\Psi(\alpha)\) & Spike-location map & \S3.1 \\
+\(\alpha_c = 1 + \sqrt{y}\) & Critical spike threshold & \S3.2--3.3 \\
+\(\mathcal{R}_j\) & Index set of sample eigenvalues for spike \(\alpha_j\) & \S3.2 \\
+\(\sigma_\alpha^2\) & Variance of the fundamental-spike fluctuation & \S3.3 \\
+\(\widehat{\vect{u}}_1,\ \widehat{\vect{u}}_i\) & Top and \(i\)-th unit sample eigenvector & \S2.2, \S3.4 \\
+\(\rho(\alpha, y)\) & Limiting squared eigenvector alignment & \S3.4 \\
+\midrule
+
+\multicolumn{3}{@{}l}{\textit{Spectral clustering (Section 3.6--3.7)}} \\
+\midrule
+\(K,\ k(i)\) & Number of classes; class of observation \(i\) & \S3.6 \\
+\(\vect{\mu}_k,\ \mat{M}\) & Mean of class \(k\); means matrix (\(p \times K\)) & \S3.6 \\
+\(\mat{W},\ \mat{P} = \mat{M}\mat{J}\transpose\) & Noise matrix; low-rank signal matrix & \S3.6 \\
+\(\mat{J}\) & Assignment matrix (\(\{0,1\}^{n \times K}\)) & \S3.6 \\
+\(n_k,\ \mat{D} = \diag(n_1,\dots,n_K)\) & Group sizes; size diagonal & \S3.6 \\
+\(\mat{L} = \mat{M}\mat{D}^{1/2},\ \mat{V} = \mat{J}\mat{D}^{-1/2}\) & Scaled means; normalized-indicator matrix & \S3.6 \\
+\(\vect{v}_k\) & Normalized indicator / population eigenvector & \S3.6 \\
+\(\mat{G} = \tfrac1p \mat{X}\transpose\mat{X}\) & Gram (similarity) matrix (\(n \times n\)) & \S3.6 \\
+\(\ell_k,\ \ell\) & Signal-to-noise ratio (eigenvalue of \(\tfrac1n\mat{L}\transpose\mat{L}\)) & \S3.6 \\
+\(\xi_k,\ \zeta_k\) & Limiting Gram outlier location; alignment & \S3.6 \\
+\(\widehat{\vect{v}}_k,\ \widehat{\zeta}\) & \(k\)-th Gram eigenvector; estimated alignment & \S3.6--3.7 \\
+\midrule
+
+\multicolumn{3}{@{}l}{\textit{Asymptotics and convergence}} \\
+\midrule
+\(\convas,\ \convp,\ \convd\) & Convergence a.s., in probability, in distribution & App.~A, \S3 \\
+\(O(\cdot),\ o(\cdot),\ O_p(\cdot),\ o_p(\cdot)\) & Deterministic and stochastic order symbols & App.~A; \S2.2 \\
+\(R\) & Number of Monte Carlo replications & throughout \\
+\end{longtable}
+
+\renewcommand{\arraystretch}{1.0}
+
+\clearpage

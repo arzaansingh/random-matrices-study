@@ -34,12 +34,12 @@ The \vocab{Johnstone spiked covariance} of dimension \(p \ge m + 1\) is given by
 
 The model~\eqref{eq:spiked-sigma} is the simplest case of the \emph{generalized spiked population model} of \citet[][\S~11.2]{YaoZhengBai2015}, in which the population covariance carries the block structure
 \begin{equation}\label{eq:generalized_spiked}
-  \Sigma \;=\; \begin{pmatrix} \Lambda & 0 \\ 0 & \mat{V}_p \end{pmatrix}.
+  \Sigma \;=\; \begin{pmatrix} \Lambda_{\mathrm{s}} & 0 \\ 0 & \mat{B}_p \end{pmatrix}.
 \end{equation}
-In~\eqref{eq:generalized_spiked}, the fixed-size block \(\Lambda = \diag(\alpha_1, \dots, \alpha_m)\) carries the spikes, while the \((p - m) \times (p - m)\) baseline block \(\mat{V}_p\) has empirical spectral distribution converging to a limit \(H\). An eigenvalue of \(\Lambda\) is a \emph{spike} when it lies outside the support of \(H\) \citep[][Def.~11.2]{YaoZhengBai2015}.
+In~\eqref{eq:generalized_spiked}, the fixed-size block \(\Lambda_{\mathrm{s}} = \diag(\alpha_1, \dots, \alpha_m)\) carries the spikes, while the \((p - m) \times (p - m)\) baseline block \(\mat{B}_p\) has empirical spectral distribution converging to a limit \(H\). An eigenvalue of \(\Lambda_{\mathrm{s}}\) is a \emph{spike} when it lies outside the support of \(H\) \citep[][Def.~11.2]{YaoZhengBai2015}.
 
 \begin{example}[Johnstone's model]\label{ex:johnstone-special}
-Johnstone's model \citep[\S~11.2.1]{YaoZhengBai2015} is the specialization \(\mat{V}_p = I_{p - m}\). Then \(H = \delta_1\), the point mass at \(1\) (every baseline eigenvalue equals \(1\)), and a ``spike'' reduces to \(\alpha_j \ne 1\); the spikes split into \vocab{large} \((\alpha_j > 1)\) and \emph{small} \((\alpha_j < 1)\) ones. We focus on the large case throughout; small spikes produce outliers below the bulk by a mirror-image argument that we do not pursue.\gdmark{johnstone-example}
+Johnstone's model \citep[\S~11.2.1]{YaoZhengBai2015} is the specialization \(\mat{B}_p = I_{p - m}\). Then \(H = \delta_1\), the point mass at \(1\) (every baseline eigenvalue equals \(1\)), and a ``spike'' reduces to \(\alpha_j \ne 1\); the spikes split into \vocab{large} \((\alpha_j > 1)\) and \emph{small} \((\alpha_j < 1)\) ones. We focus on the large case throughout; small spikes produce outliers below the bulk by a mirror-image argument that we do not pursue.\gdmark{johnstone-example}
 \end{example}
 
 The structural question is whether a large spike produces an outlier in the sample spectrum. Figure~\ref{fig:spiked-spectrum} shows the answer empirically: at \(y = 1/2\) and \(n = 1000\), a spike \(\alpha = 2.5\) lifts \(\lambda_{\max}(\Sigmahat_n)\) to \(\approx 3.42\), well above the MP edge \(\lambda_+ \approx 2.91\), while a spike \(\alpha = 1.4\) leaves \(\lambda_{\max}\) at \(\approx 2.90\), indistinguishable from the edge. Both spikes exceed \(1\), yet only one is detectable.\gdmark{delete-threshold}
@@ -51,7 +51,7 @@ The structural question is whether a large spike produces an outlier in the samp
   \label{fig:spiked-spectrum}
 \end{figure}
 
-From here on we work in Johnstone's model (Example~\ref{ex:johnstone-special}), so \(\mat{V}_p = I\) and \(H = \delta_1\). The threshold is then encoded in a single explicit function \(\Psi(\alpha)\), which predicts where the outlier produced by a spike of strength \(\alpha\) will sit. Its derivation passes through the \vocab{Stieltjes transform} of the limiting bulk, an integral transform of the limiting spectral distribution whose machinery we do not develop here, and is the \(H = \delta_1\) specialization of \citet[][Eq.~(11.15)]{YaoZhengBai2015}; we take it as given.\gdmark{johnstone-focus}
+From here on we work in Johnstone's model (Example~\ref{ex:johnstone-special}), so \(\mat{B}_p = I\) and \(H = \delta_1\). The threshold is then encoded in a single explicit function \(\Psi(\alpha)\), which predicts where the outlier produced by a spike of strength \(\alpha\) will sit. Its derivation passes through the \vocab{Stieltjes transform} of the limiting bulk, an integral transform of the limiting spectral distribution whose machinery we do not develop here, and is the \(H = \delta_1\) specialization of \citet[][Eq.~(11.15)]{YaoZhengBai2015}; we take it as given.\gdmark{johnstone-focus}
 
 \begin{definition}[Spike-location map]\label{def:psi}
 For \(\alpha > 1\) and aspect ratio \(y \in (0, 1)\),
@@ -102,15 +102,15 @@ The two cases correspond exactly to the two panels of Figure~\ref{fig:spiked-spe
 With \(\Psi\) in hand, the phase transition has a clean statement.
 
 \begin{theorem}[Spike phase transition, large case]\label{thm:bbp}
-In the setting of Section~\ref{subsec:johnstone}, fix a large population spike \(\alpha_j > 1\) of multiplicity \(m_j\), and let \(J_j\) index the \(m_j\) sample eigenvalues at the same ranks that \(\alpha_j\) occupies in the ordered population spectrum. As \(p, n \to \infty\) with \(p/n \to y \in (0, 1)\):
+In the setting of Section~\ref{subsec:johnstone}, fix a large population spike \(\alpha_j > 1\) of multiplicity \(m_j\), and let \(\mathcal{R}_j\) index the \(m_j\) sample eigenvalues at the same ranks that \(\alpha_j\) occupies in the ordered population spectrum. As \(p, n \to \infty\) with \(p/n \to y \in (0, 1)\):
 \begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
   \item if \(\alpha_j > 1 + \sqrt{y}\) (fundamental),
   \[
-    \lambda_i(\Sigmahat_n) \;\convas\; \Psi(\alpha_j) \;=\; \alpha_j \;+\; \frac{y \alpha_j}{\alpha_j - 1}, \qquad i \in J_j;
+    \lambda_i(\Sigmahat_n) \;\convas\; \Psi(\alpha_j) \;=\; \alpha_j \;+\; \frac{y \alpha_j}{\alpha_j - 1}, \qquad i \in \mathcal{R}_j;
   \]
   \item if \(1 < \alpha_j \le 1 + \sqrt{y}\) (non-fundamental),
   \[
-    \lambda_i(\Sigmahat_n) \;\convas\; \lambda_+ \;=\; (1 + \sqrt{y})^2, \qquad i \in J_j.
+    \lambda_i(\Sigmahat_n) \;\convas\; \lambda_+ \;=\; (1 + \sqrt{y})^2, \qquad i \in \mathcal{R}_j.
   \]
 \end{enumerate}
 \end{theorem}

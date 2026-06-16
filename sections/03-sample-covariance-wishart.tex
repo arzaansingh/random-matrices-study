@@ -210,16 +210,16 @@ The Vandermonde factor vanishes on every hyperplane \(\lambda_i = \lambda_j\), s
 \begin{definition}[Gaussian Orthogonal Ensemble, \(2 \times 2\) case]\label{def:goe}
 A \(2 \times 2\) random matrix
 \[
-  \mat{G} \;=\; \begin{pmatrix} G_{11} & G_{12} \\ G_{12} & G_{22} \end{pmatrix}
+  \mat{E} \;=\; \begin{pmatrix} E_{11} & E_{12} \\ E_{12} & E_{22} \end{pmatrix}
 \]
 is said to belong to the \vocab{Gaussian Orthogonal Ensemble} (\(\GOE_2\)) if its three independent entries are Gaussian with
 \[
-  G_{11},\, G_{22} \;\sim\; \Normal{0,\, 2}, \qquad G_{12} \;\sim\; \Normal{0,\, 1},
+  E_{11},\, E_{22} \;\sim\; \Normal{0,\, 2}, \qquad E_{12} \;\sim\; \Normal{0,\, 1},
 \]
 and the three entries are mutually independent. More generally, a \(p \times p\) GOE matrix has independent Gaussian entries on and above the diagonal with diagonal variance \(2\) and off-diagonal variance \(1\).
 \end{definition}
 
-These variances are chosen exactly so that the matrix looks statistically the same in every orthonormal basis: for any orthogonal matrix \(\mat{O}\), the conjugate \(\mat{O} \mat{G} \mat{O}\transpose\) has the same distribution as \(\mat{G}\). This rotation-invariance is what the word ``orthogonal'' in the name refers to. The top eigenvalue of \(\GOE_2\) is a non-Gaussian random variable, with a density slightly right-skewed by the repulsion that mirrors~\eqref{eq:wishart-2d-density}: concretely, the \(2 \times 2\) eigenvalue formula~\eqref{eq:2x2-eigenvalues} gives \(\lambda_{\max}(\mat{G}) = \tfrac{G_{11} + G_{22}}{2} + \sqrt{\bigl(\tfrac{G_{11} - G_{22}}{2}\bigr)^2 + G_{12}^2}\), an ordinary Gaussian plus an independent, nonnegative, right-skewed square-root term.
+These variances are chosen exactly so that the matrix looks statistically the same in every orthonormal basis: for any orthogonal matrix \(\mat{O}\), the conjugate \(\mat{O} \mat{E} \mat{O}\transpose\) has the same distribution as \(\mat{E}\). This rotation-invariance is what the word ``orthogonal'' in the name refers to. The top eigenvalue of \(\GOE_2\) is a non-Gaussian random variable, with a density slightly right-skewed by the repulsion that mirrors~\eqref{eq:wishart-2d-density}: concretely, the \(2 \times 2\) eigenvalue formula~\eqref{eq:2x2-eigenvalues} gives \(\lambda_{\max}(\mat{E}) = \tfrac{E_{11} + E_{22}}{2} + \sqrt{\bigl(\tfrac{E_{11} - E_{22}}{2}\bigr)^2 + E_{12}^2}\), an ordinary Gaussian plus an independent, nonnegative, right-skewed square-root term.
 
 The multivariate CLT applied entry-by-entry to \(\sqrt{n}(\Sigmahat_n - \Sigma)\) yields the matrix-valued statement. In the \emph{null} case (\(\Sigma = I\), nothing to detect) the limit is exactly the GOE just defined.
 
@@ -285,11 +285,11 @@ This is exactly Lemma~\ref{lem:first-order-perturbation} with \(\vect{u}\transpo
 With Proposition~\ref{prop:matrix-clt-I2} and Lemma~\ref{lem:first-order-perturbation} in hand, the dichotomy between repeated and distinct population eigenvalues is straightforward.
 
 \smallskip
-\noindent\emph{Repeated case: \(\Sigma = I_2\).} Lemma~\ref{lem:first-order-perturbation} does \emph{not} apply, because both eigenvalues equal \(1\). Instead, the top-eigenvalue map \(\mat{A} \mapsto \lambda_{\max}(\mat{A})\) is a continuous function from symmetric matrices to \(\R\) (this is the eigenvalue-continuity statement of Proposition~\ref{prop:eigen-convergence}(1)). Two simple algebra facts come first: adding the identity to a matrix shifts every eigenvalue by \(1\), and multiplying by a positive scalar scales them, so \(\lambda_{\max}\bigl(\sqrt{n}(\Sigmahat_n - I_2)\bigr) = \sqrt{n}\,(\lambda_{\max}(\Sigmahat_n) - 1)\). Now the continuous mapping theorem in its vector form (Theorem~\ref{thm:cmt-general} of Appendix~\ref{app:auxiliary}), applied to Proposition~\ref{prop:matrix-clt-I2}, gives \(\lambda_{\max}\bigl(\sqrt{n}(\Sigmahat_n - I_2)\bigr) \convd \lambda_{\max}(\mat{G})\). Hence
+\noindent\emph{Repeated case: \(\Sigma = I_2\).} Lemma~\ref{lem:first-order-perturbation} does \emph{not} apply, because both eigenvalues equal \(1\). Instead, the top-eigenvalue map \(\mat{A} \mapsto \lambda_{\max}(\mat{A})\) is a continuous function from symmetric matrices to \(\R\) (this is the eigenvalue-continuity statement of Proposition~\ref{prop:eigen-convergence}(1)). Two simple algebra facts come first: adding the identity to a matrix shifts every eigenvalue by \(1\), and multiplying by a positive scalar scales them, so \(\lambda_{\max}\bigl(\sqrt{n}(\Sigmahat_n - I_2)\bigr) = \sqrt{n}\,(\lambda_{\max}(\Sigmahat_n) - 1)\). Now the continuous mapping theorem in its vector form (Theorem~\ref{thm:cmt-general} of Appendix~\ref{app:auxiliary}), applied to Proposition~\ref{prop:matrix-clt-I2}, gives \(\lambda_{\max}\bigl(\sqrt{n}(\Sigmahat_n - I_2)\bigr) \convd \lambda_{\max}(\mat{E})\). Hence
 \[
-  \sqrt{n}\,(\lambda_{\max}(\Sigmahat_n) - 1) \;\convd\; \lambda_{\max}(\mat{G}),
+  \sqrt{n}\,(\lambda_{\max}(\Sigmahat_n) - 1) \;\convd\; \lambda_{\max}(\mat{E}),
 \]
-where \(\mat{G} \sim \GOE_2\). The right side is the top eigenvalue of a \(\GOE_2\) matrix, which is \emph{not} Gaussian; it has the slightly right-skewed density shaped by repulsion.
+where \(\mat{E} \sim \GOE_2\). The right side is the top eigenvalue of a \(\GOE_2\) matrix, which is \emph{not} Gaussian; it has the slightly right-skewed density shaped by repulsion.
 
 \smallskip
 \noindent\emph{Distinct case: \(\Sigma = \diag(1, 2)\).} The population eigenvalues are simple. Lemma~\ref{lem:first-order-perturbation} applies with \(\vect{u} = \vect{e}_2\), giving

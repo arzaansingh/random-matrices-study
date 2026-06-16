@@ -28,3 +28,4 @@ __pycache__/
 # Keep main.pdf committed so reviewers can read without compiling.
 # Add specific PDFs to ignore here if needed.
 figures/titlepage_concepts/
+.review/
