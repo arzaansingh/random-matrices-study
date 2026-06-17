@@ -575,7 +575,7 @@ def make_mnist_ten_class_figure() -> Path:
     montage = np.ones((2 * 28 + 6, 5 * 28 + 24))
     for d in range(10):
         members = cols[pred_mapped == d]
-        mean_img = X_full[:, np.searchsorted(cols, members)].mean(axis=1)
+        mean_img = X_full[:, members].mean(axis=1)
         img = mean_img.reshape(28, 28)
         r, c = divmod(d, 5)
         r0 = r * (28 + 6)
