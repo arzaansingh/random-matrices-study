@@ -599,6 +599,65 @@ def make_mnist_ten_class_figure() -> Path:
     return path
 
 
+def make_within_class_figure() -> Path:
+    """Appendix (spikes within a single class): there is no fundamental spike
+    inside one digit, and exactly one appears once a genuine two-class
+    structure is injected by shifting the same digit left or right. Shows the
+    Gram eigenvalues on a linear scale with the leading eigengap, and the
+    two-dimensional embedding, for both cases."""
+    rng = np.random.default_rng(SEED + 6)
+    X_full, labels = load_mnist()
+
+    def gram_spectrum_embedding(X):
+        # Centered Gram G = (1/p) Xc^T Xc. Its nonzero eigenvalues are s^2 / p
+        # and its leading eigenvectors are the top right singular vectors of Xc,
+        # returned by svd in descending order (Appendix on numerical notes).
+        p = X.shape[0]
+        Xc = X - X.mean(axis=1, keepdims=True)
+        _, s, Vt = np.linalg.svd(Xc, full_matrices=False)
+        return (s ** 2) / p, Vt[:2].T
+
+    # (i) one digit, no labels.
+    zero_idx = np.where(labels == 0)[0]
+    eig0, emb0 = gram_spectrum_embedding(X_full[:, zero_idx])
+
+    # (ii) synthetic two classes: the same digit, flush left vs shifted right.
+    per, pad = 1500, 8
+    sel = rng.choice(zero_idx, size=2 * per, replace=False)
+    src = X_full[:, sel].T.reshape(2 * per, 28, 28)
+    canvas = np.zeros((2 * per, 28, 28 + pad))
+    canvas[:per, :, :28] = src[:per]              # flush left
+    canvas[per:, :, pad:pad + 28] = src[per:]     # shifted right
+    eigS, embS = gram_spectrum_embedding(canvas.reshape(2 * per, -1).T)
+    lab = np.array([0] * per + [1] * per)
+
+    gap0, gapS, K = eig0[0] / eig0[1], eigS[0] / eigS[1], 40
+    fig, ax = plt.subplots(2, 2, figsize=(11, 8))
+
+    ax[0, 0].plot(range(1, K + 1), eig0[:K], "o-", ms=4, color=PALETTE["def"])
+    ax[0, 0].set(xlabel="index", ylabel="eigenvalue of $G$",
+                 title=f"One digit (0): no isolated spike (top gap {gap0:.1f}$\\times$)")
+    ax[0, 1].scatter(emb0[:, 0], emb0[:, 1], s=5, alpha=0.30, color=PALETTE["def"])
+    ax[0, 1].set(xlabel="eigenvector 1", ylabel="eigenvector 2",
+                 title="One digit (0): embedding is a single cloud")
+
+    ax[1, 0].plot(range(1, K + 1), eigS[:K], "o-", ms=4, color=PALETTE["thm"])
+    ax[1, 0].set(xlabel="index", ylabel="eigenvalue of $G$",
+                 title=f"Shifted left/right: one spike (top gap {gapS:.1f}$\\times$)")
+    for c, col, name in ((0, PALETTE["def"], "left"), (1, PALETTE["link"], "right")):
+        m = lab == c
+        ax[1, 1].scatter(embS[m, 0], embS[m, 1], s=6, alpha=0.45, color=col, label=name)
+    ax[1, 1].legend(frameon=False)
+    ax[1, 1].set(xlabel="eigenvector 1", ylabel="eigenvector 2",
+                 title="Shifted left/right: embedding splits in two")
+
+    fig.tight_layout()
+    path = FIGURES_DIR / "within_class_study.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
 if __name__ == "__main__":
     print("Generating clustering figures...")
     for fn in (make_clustering_one_spike_figure,
@@ -610,7 +669,8 @@ if __name__ == "__main__":
         print("MNIST figures (downloads ~15 MB on first run)...")
         for fn in (make_mnist_zero_one_figure,
                    make_mnist_pairs_heatmap_figure,
-                   make_mnist_ten_class_figure):
+                   make_mnist_ten_class_figure,
+                   make_within_class_figure):
             path = fn()
             print(f"  Saved: {path.name}")
     print("Done.")
