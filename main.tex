@@ -303,6 +303,33 @@ back to its place in the text.}
 
 \gdlogentry{r4-practical}{\S\ref{subsec:mnist}, close}{``What is a practical pipeline?''}{``practical pipelines push past this limit''.}{``richer methods push past this limit''.}{Avoid undefined jargon at the close.}
 \end{itemize}
+
+\medskip
+\noindent\textbf{Fifth round: comments on the Introduction.} \emph{The introduction was reworked and then edited against the project style guide; these entries record G.\ Didier's comments on it and the fixes.}
+\begin{itemize}[leftmargin=2.4em,itemsep=0.55em]
+\gdlogentry{intro-blue}{\S\ref{sec:introduction}, opening}{Blue-pencil rewrite of the opening: the PCA framing, the SLLN justification, ``Nevertheless'' at the classical-to-modern pivot, and the definition of \emph{high-dimensional}.}{A wordier opening that asserted the high-dimensional failure without naming the law behind the classical guarantee.}{Accepted the rewrite; corrected ``do not old''~$\to$~``do not hold'' and ``As example''~$\to$~``An example'', removed a duplicated ``modern'', and qualified the eigenvector convergence, which holds only when the population eigenvalues are simple (\S\ref{sec:scm}).}{Accept the advisor's tightening, then carry it through: fix the errors it left, delete the repetition it introduced, and tighten any claim it leaves too strong.}
+
+\gdlogentry{intro-filler}{\S\ref{sec:introduction}, end of opening}{``This sentence does not add information: `The departure from the classical picture is sharp and can be quantified.'\,''}{An empty sentence asserting significance without conveying a fact.}{Removed the sentence and its stranded comment.}{Cut every sentence that claims importance without adding content.}
+
+\gdlogentry{intro-nosignal}{\S\ref{sec:introduction}, null-case paragraph}{``Here, one is mixing up two different issues: the geometry of spiked eigenvalues and the MP phenomenon.''}{The null-case paragraph slipped in ``no signal is available'', a spiked-model idea, while describing the Marchenko-Pastur spread.}{Made the paragraph purely about the Marchenko-Pastur phenomenon: the entries are accurate yet the eigenvalues spread to the asymptotic support. The spike and its threshold appear only in the next paragraph.}{Keep distinct phenomena in distinct paragraphs.}
+
+\gdlogentry{intro-truth}{\S\ref{sec:introduction}, null-case paragraph}{``\,`The truth'?'', on ``almost three times the truth''.}{``The truth'' named no quantity.}{Replaced with ``the population eigenvalue~\(1\)''; in the figure caption, changed ``concentrate at the population value~\(1\)'' to ``cluster tightly around'' to respect the finite-sample spread.}{Name the precise quantity; do not gesture at it.}
+
+\gdlogentry{intro-repeat}{\S\ref{sec:introduction}, null-case paragraph}{``You already made the previous statement.''}{The entries-accurate point was stated twice.}{Kept one closing contrast: ``The entries are accurate; their eigenvalues, taken together, are not.''}{State each fact once.}
+
+\gdlogentry{intro-variables}{\S\ref{sec:introduction}, clustering paragraph}{``The variables?'', on ``compares the variables''.}{``Compares the variables'' left the comparison vague.}{Spelled out both matrices: the sample covariance matrix is \(p \times p\), one entry per pair of the \(p\) variables; the similarity matrix is \(n \times n\), one entry per pair of the \(n\) data points.}{Replace an elided noun with its referent.}
+
+\gdlogentry{intro-shorten}{\S\ref{sec:introduction}, clustering paragraph}{``It's a good idea to write shorter sentences.''}{A long sentence chaining the eigenvector estimate, the spike analogy, and the threshold.}{Split it into three, and split the three section-roadmap sentences for the same reason; changed ``exactly as for a covariance spike'' to ``just as'', since the clustering threshold \(\sqrt{y}\) is not the covariance threshold \(1+\sqrt{y}\).}{Medium sentences, one idea each; do not let ``exactly'' assert a false equality.}
+
+\gdlogentry{intro-mnist}{\S\ref{sec:introduction}, clustering paragraph}{``Too many details for an introduction'', on the MNIST image count and the two accuracy percentages.}{The introduction carried the sample size and both percentages.}{Stated the result without numbers: the achieved accuracy closely matches the formula's prediction, with the figures deferred to \S\ref{subsec:mnist}.}{State the result concretely, but defer procedural numbers to the body.}
+
+\gdlogentry{intro-proved}{\S\ref{sec:introduction}, conventions paragraph}{``This is not really true. :)'', on ``each claim is proved''.}{``Each claim is proved'' overstated what the report does.}{Reworded to lead with the truth: most claims are cited or sketched, some are proved in full, and the hardest limit laws are stated and simulated.}{Claim only what is proved, cited, or simulated, and say which.}
+
+\gdlogentry{intro-longsentence}{\S\ref{sec:introduction}, ``How to read''}{``This last sentence is long.''}{A prerequisites sentence with a colon and two trailing clauses.}{Split it into short sentences, and split the adjacent ``one already comfortable'' sentence for the same reason.}{Split an overlong chain into balanced sentences.}
+\end{itemize}
+
+\smallskip
+\noindent\emph{Beyond the marked comments, the section was passed against the project style guide: ``this behavior''~$\to$~``this spreading of the sample eigenvalues''; the similarity-matrix entry and the term ``accuracy'' were defined at first use; the vague-agency phrase ``that grouping shows up'' was rewritten with each group as the subject; the accuracy formula was scoped to its limiting value; and ``true'' was reserved for an estimator-versus-estimand contrast.}
 \fi
 
 \end{document}
