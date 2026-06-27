@@ -6,21 +6,21 @@
 
 \section{Probability and Linear Algebra Foundations}\label{sec:foundations}
 
-The main objects of this report are eigenvalues and eigenvectors of random covariance matrices. To study them we need two complementary languages. \emph{Probability} explains how averages of random quantities stabilize and how they fluctuate around their limits. \emph{Linear algebra} explains how a symmetric matrix encodes variance through eigenvalues and eigenvectors. This appendix develops both, starting from the random variable and building toward the spectral theorem for symmetric covariance matrices. It is written as a self-contained course: read it front to back before Section~\ref{sec:scm} if these tools are new, or treat it as a reference otherwise, since the main text cites the specific definition or theorem it needs at every step.
+The main objects of this report are eigenvalues and eigenvectors of random covariance matrices. To study them we need two complementary languages. \emph{Probability} explains how averages of random quantities stabilize and how they fluctuate around their limits. \emph{Linear algebra} explains how a symmetric matrix encodes variance through eigenvalues and eigenvectors. This appendix develops both, starting from the random variable and building toward the spectral theorem for symmetric covariance matrices. It is written to be self-contained. Read it front to back before Section~\ref{sec:scm} if these tools are new, or treat it as a reference otherwise; the main text cites the specific definition or theorem it needs at every step.
 
 %====================================================================
 \subsection{Random Variables and Distributions}\label{subsec:rvs}
 
-Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is the collection of events we can assign probabilities to, and \(\Prob\) assigns each event a number in \([0, 1]\). We treat these as given and work directly with the objects built on top of them, namely real-valued functions of the outcome.
+Probability begins with a \vocab{probability space} \((\Omega, \mathcal{F}, \Prob)\), where \(\Omega\) is the set of possible outcomes, \(\mathcal{F}\) is the collection of events to which we assign probabilities, and \(\Prob\) assigns each event a number in \([0, 1]\). We treat these as given and work directly with the objects built on top of them, namely real-valued functions of the outcome.
 
 \begin{definition}[Random variable]\label{def:rv}
-A \emph{random variable} is a function \(X: \Omega \to \R\). Strictly, \(X\) is required to satisfy the technical condition \(\{\omega : X(\omega) \le x\} \in \mathcal{F}\) for every \(x \in \R\), so that \(\Prob(X \le x)\) is well defined; this is called \emph{measurability}, holds for every random variable we will encounter, and we will not verify it explicitly. The distribution of \(X\) is captured by the \vocab{cumulative distribution function} (CDF)
+A \emph{random variable} is a function \(X: \Omega \to \R\). Strictly, \(X\) is required to satisfy \(\{\omega : X(\omega) \le x\} \in \mathcal{F}\) for every \(x \in \R\), so that \(\Prob(X \le x)\) is well defined. This condition is called \emph{measurability}; it holds for every random variable we will encounter, so we will not verify it explicitly. The distribution of \(X\) is described by the \vocab{cumulative distribution function} (CDF)
 \[
   F_X(x) \;=\; \Prob(X \le x), \qquad x \in \R.
 \]
 \end{definition}
 
-A CDF is determined by three properties.
+Three properties characterize a CDF.
 
 \begin{proposition}[Characterization of CDFs]\label{prop:cdf-characterization}
 The CDF of any random variable satisfies:
@@ -32,16 +32,16 @@ The CDF of any random variable satisfies:
 Conversely, any \(F: \R \to [0,1]\) satisfying (F1)--(F3) is the CDF of some random variable \citep[][\S 1.5]{Casella2002}.
 \end{proposition}
 
-Random variables come in two main flavors. \emph{Discrete} random variables take values in a countable set \(\{x_1, x_2, \ldots\}\), and their distribution is described by the \vocab{probability mass function} (PMF) \(p_X(x_i) = \Prob(X = x_i)\). \emph{Continuous} random variables are described by a nonnegative \vocab{probability density function} (PDF) \(f_X\), whose integral gives the distribution:
+Random variables fall into two main types. \emph{Discrete} random variables take values in a countable set \(\{x_1, x_2, \ldots\}\), and their distribution is described by the \vocab{probability mass function} (PMF) \(p_X(x_i) = \Prob(X = x_i)\). \emph{Continuous} random variables are described by a nonnegative \vocab{probability density function} (PDF) \(f_X\), whose integral up to \(x\) gives the CDF:
 \[
   F_X(x) \;=\; \int_{-\infty}^x f_X(t)\, dt.
 \]
-Informally, \(f_X(t)\,dt\) is the probability of landing in a tiny interval of width \(dt\) around \(t\). (The precise name for this class is \emph{absolutely continuous}; we will not need the distinction.)
+For intuition, \(f_X(t)\,dt\) is approximately the probability that \(X\) lies in a small interval of width \(dt\) around \(t\). (The precise name for this class is \emph{absolutely continuous}; we will not need the distinction.)
 
-Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all intervals \(A, B \subseteq \R\). (More generally one asks the identity to hold on all events; the version on intervals suffices for real-valued random variables.)
+Two random variables \(X, Y\) are \emph{independent} if \(\Prob(X \in A,\, Y \in B) = \Prob(X \in A)\, \Prob(Y \in B)\) for all intervals \(A, B \subseteq \R\). (More generally we require the identity on all events; the version on intervals suffices for real-valued random variables.)
 
 \begin{example}[Distributions used throughout]\label{ex:common-distributions}
-The following appear repeatedly in this appendix (the normal, additionally, throughout the report):
+The following distributions appear repeatedly in this appendix, and the normal recurs throughout the report:
 \begin{itemize}[leftmargin=1.5em,itemsep=0.25em]
   \item \emph{Bernoulli}\((p)\): \(X \in \{0, 1\}\) with \(\Prob(X = 1) = p\).
   \item \emph{Poisson}\((\lambda)\): \(\Prob(X = k) = e^{-\lambda} \lambda^k / k!\) for \(k = 0, 1, 2, \ldots\).
@@ -55,21 +55,21 @@ Their shapes are shown in Figure~\ref{fig:distribution-shapes}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{figures/distribution_shapes.png}
-  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but very different tails: the Cauchy density decays only like \(1/x^2\), so values far from zero remain plausible. This tail behavior is what breaks the moment generating function and motivates the characteristic function below.}
+  \caption{Shapes of the five distributions used throughout the report. Bernoulli and Poisson are discrete, displayed as probability mass functions; Normal, Exponential, and Cauchy are continuous, displayed as densities. The Normal and the Cauchy share a similar central profile but have markedly different tails: the Cauchy density decays only like \(1/x^2\), so extreme values remain common. Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:distribution-shapes}
 \end{figure}
 
-The Cauchy distribution will be our running counterexample in the next subsection. By the \emph{tails} of a distribution we mean the probability it places far from its center; it has \vocab{heavy tails} when that probability decays slowly, so extreme values stay relatively likely. The Cauchy's tails are heavy enough that some standard tools break on it, which forces us toward sharper tools that still work.
+The Cauchy distribution will be our running counterexample. By the \emph{tails} of a distribution we mean the probability it places far from its center; a distribution has \vocab{heavy tails} when that probability decays slowly, so extreme values stay relatively likely. The Cauchy's tails are heavy enough that its moment generating function does not exist, which is why the next subsection turns to the characteristic function.
 
 %====================================================================
 \subsection{Moments and Transform Methods}\label{subsec:transforms}
 
-Moments quantify the shape of a distribution, and two ways to package the entire sequence of moments into a single function turn convergence-of-distributions questions into calculus. The first, the moment generating function, is the natural starting point. The second, the characteristic function, is the version that always exists and that powers proofs of limit theorems.
+To convert convergence-of-distributions questions into calculus, we package the moments of a distribution into a single transform: the moment generating function, the natural starting point, and the characteristic function, the version that always exists and underlies proofs of limit theorems.
 
 \paragraph{Moments and the moment generating function.}
 
 \begin{definition}[Moments and central moments]\label{def:moments}
-For an integer \(j \ge 1\) such that \(\E\abs{X}^j < \infty\), the \(j\)\textsuperscript{th} \emph{moment} of \(X\) is \(\E[X^j]\) and the \(j\)\textsuperscript{th} \emph{central moment} is \(\E[(X - \mu)^j]\), where \(\mu = \E[X]\). The second central moment is the \emph{variance}, \(\Var(X) = \E[(X - \mu)^2]\). The absolute-moment hypothesis ensures that \(X^j\) has a finite expectation, so \(\E[X^j]\) is well defined.
+For an integer \(j \ge 1\) such that \(\E\abs{X}^j < \infty\), the \(j\)\textsuperscript{th} \emph{moment} of \(X\) is \(\E[X^j]\) and the \(j\)\textsuperscript{th} \emph{central moment} is \(\E[(X - \mu)^j]\), where \(\mu = \E[X]\). The second central moment is the \emph{variance}, \(\Var(X) = \E[(X - \mu)^2]\). The hypothesis \(\E\abs{X}^j < \infty\) is exactly what makes \(\E[X^j]\) well defined.
 \end{definition}
 
 A generating function for the moments compresses all of this information into a single function.
@@ -82,7 +82,7 @@ The \vocab{moment generating function} (MGF) of \(X\) is
 provided the expectation is finite on an open neighborhood \((-h, h)\) of zero.
 \end{definition}
 
-The name is justified by the following.
+The next theorem justifies the name: differentiating the MGF at zero returns the moments.
 
 \begin{theorem}[MGFs generate moments]\label{thm:mgf-generates-moments}
 If \(M_X(t)\) is finite for \(t \in (-h, h)\), then \(M_X\) is infinitely differentiable at \(0\) and
@@ -92,7 +92,7 @@ If \(M_X(t)\) is finite for \(t \in (-h, h)\), then \(M_X\) is infinitely differ
 \end{theorem}
 
 \begin{proof}
-We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. When \(M_X\) is finite on an interval \((-h, h)\) around zero, the integrand \(e^{tx} f_X(x)\) and its \(t\)-derivative are controlled by a bound with finite integral on a slightly smaller interval, which is exactly the condition that lets us move the derivative inside the integral (differentiation under the integral sign; \citealp[][\S~2.4]{Casella2002}). Granting this,
+We treat the continuous case in detail; the discrete case is identical with sums in place of integrals. When \(M_X\) is finite on an interval \((-h, h)\) around zero, the integrand \(e^{tx} f_X(x)\) and its \(t\)-derivative are controlled by a bound with finite integral on a slightly smaller interval, which is a sufficient condition for moving the derivative inside the integral (differentiation under the integral sign; \citealp[][\S~2.4]{Casella2002}). Granting this,
 \[
   \frac{d}{dt} M_X(t)
   \;=\; \frac{d}{dt} \int_{-\infty}^\infty e^{tx} f_X(x)\, dx
@@ -108,7 +108,7 @@ Setting \(t = 0\) inside the expectation gives \(e^{0 \cdot X} = 1\), and hence
 \[
   M_X'(0) \;=\; \E\!\bigl[X\, e^{0 \cdot X}\bigr] \;=\; \E[X].
 \]
-Iterating the same step \(n\) times produces
+The same domination bound controls \(x^n e^{tx}\) on the smaller interval at every order, so the interchange is valid at each step; iterating \(n\) times produces
 \[
   M_X^{(n)}(t) \;=\; \E\!\bigl[X^n\, e^{tX}\bigr],
 \]
@@ -117,7 +117,7 @@ and evaluating at \(t = 0\) yields \(M_X^{(n)}(0) = \E[X^n]\), as claimed.
 In the discrete case, the same calculation applies to the series \(M_X(t) = \sum_x e^{tx} p_X(x)\); the same domination argument justifies term-by-term differentiation, and the rest of the argument is unchanged.
 \end{proof}
 
-A second property is the source of most computational power: the MGF of a sum of independent random variables is the product of their MGFs. Indeed, if \(X\) and \(Y\) are independent,
+A second property is the source of most of the MGF's computational use: the MGF of a sum of independent random variables is the product of their MGFs. Indeed, if \(X\) and \(Y\) are independent,
 \[
   M_{X+Y}(t) \;=\; \E[e^{t(X+Y)}] \;=\; \E[e^{tX}]\, \E[e^{tY}] \;=\; M_X(t)\, M_Y(t).
 \]
@@ -162,7 +162,7 @@ The first piece is the kernel of a normal density with mean \(\mu + \sigma^2 t\)
 \]
 \end{example}
 
-These three examples illustrate the technique. The multiplicative property turns the difficult problem of finding the distribution of a sum (a \emph{convolution}) into easy multiplication: if \(X_1, \ldots, X_n\) are iid (\emph{independent and identically distributed}) Bernoulli\((p)\), their sum has MGF \((1 - p + p e^t)^n\), which is the MGF of Binomial\((n, p)\), the distribution of the number of successes in \(n\) independent Bernoulli\((p)\) trials, so by the uniqueness theorem below the sum \emph{is} Binomial\((n, p)\); independent Poissons of rates \(\lambda_1, \lambda_2\) sum to a Poisson of rate \(\lambda_1 + \lambda_2\); independent normals sum to a normal with summed mean and summed variance.
+The multiplicative property turns the problem of finding the distribution of a sum (a \emph{convolution}) into multiplication. If \(X_1, \ldots, X_n\) are iid (\emph{independent and identically distributed}) Bernoulli\((p)\), their sum has MGF \((1 - p + p e^t)^n\), the MGF of Binomial\((n, p)\). By the uniqueness theorem (Theorem~\ref{thm:mgf-uniqueness}) the sum is therefore Binomial\((n, p)\), the number of successes in \(n\) independent trials. Independent Poissons of rates \(\lambda_1, \lambda_2\) sum to a Poisson of rate \(\lambda_1 + \lambda_2\), and independent normals sum to a normal with summed mean and summed variance.
 
 Beyond computing moments, the MGF determines the distribution uniquely.
 
@@ -170,7 +170,7 @@ Beyond computing moments, the MGF determines the distribution uniquely.
 Let \(X\) and \(Y\) be real-valued random variables.
 \begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
   \item If \(X\) and \(Y\) have the same distribution and \(M_X(t)\) is finite at \(t\), then \(M_X(t) = M_Y(t)\).
-  \item Conversely, if \(M_X(t) = M_Y(t)\) for all \(t\) in some open neighborhood \((-h, h)\) of zero, then \(X\) and \(Y\) have the same distribution.
+  \item Conversely, if \(M_X(t) = M_Y(t) < \infty\) for all \(t\) in some open neighborhood \((-h, h)\) of zero, then \(X\) and \(Y\) have the same distribution.
 \end{enumerate}
 \end{theorem}
 
@@ -186,19 +186,19 @@ If \(X\) and \(Y\) have the same distribution, then for any function \(g\) for w
 which is the claim.
 \end{proof}
 
-The converse direction (2) is the harder one: it says that the entire distribution of \(X\) is encoded in the MGF on any open interval around zero. The proof reduces to the uniqueness of the two-sided Laplace transform, since \(M_X(t)\) is exactly that transform of the distribution evaluated at \(s = -t\); see \citet[][Thm.~2.3.11]{Casella2002} for the statement and pointers to a full proof.
+The converse direction (2) is the substantive one: it says that the distribution of \(X\) is determined by the MGF on any open interval around zero. The proof reduces to the uniqueness of the two-sided Laplace transform, since \(M_X(t)\) is exactly that transform of the distribution evaluated at \(s = -t\); see \citet[][Thm.~2.3.11]{Casella2002} for the statement and pointers to a full proof.
 
-There is a catch. The MGF requires \(e^{tX}\) to have a finite expectation for \(t\) near zero, which can fail if \(X\) has heavy tails.
+The MGF has a limitation: it requires \(e^{tX}\) to have a finite expectation for \(t\) near zero, which can fail if \(X\) has heavy tails.
 
 \begin{example}[Cauchy: no MGF]\label{ex:cauchy-no-mgf}
-For the standard Cauchy density \(f(x) = 1 / (\pi (1 + x^2))\), the MGF integral
+For the standard Cauchy density \(f_X(x) = 1 / (\pi (1 + x^2))\), the MGF integral
 \[
   \int_{-\infty}^\infty \frac{e^{tx}}{\pi (1 + x^2)}\, dx
 \]
-diverges for every \(t \ne 0\), since the integrand grows like \(e^{tx}/x^2\) at the right tail (for \(t > 0\)) or at the left tail (for \(t < 0\)). The MGF therefore does not exist on any open neighborhood of zero. This is not a pathology; the Cauchy is a perfectly well-defined distribution, central in probability and physics.
+diverges for every \(t \ne 0\), since the integrand grows like \(e^{tx}/x^2\) at the right tail (for \(t > 0\)) or at the left tail (for \(t < 0\)). The MGF therefore does not exist on any open neighborhood of zero. The Cauchy is nonetheless a well-defined distribution, central in probability and physics.
 \end{example}
 
-The remedy is the characteristic function.
+The characteristic function removes this restriction.
 
 %====================================================================
 \paragraph{Characteristic functions.}
@@ -219,7 +219,7 @@ The CF is therefore well defined for every distribution. When \(X\) has a densit
 \[
   \varphi_X(t) \;=\; \int_{-\infty}^\infty e^{itx}\, f_X(x)\, dx.
 \]
-When the MGF exists, the formal substitution \(t \mapsto it\) suggests \(\varphi_X(t) = M_X(it)\); the substitution needs justification in general, but in concrete cases a direct computation confirms the answer it predicts.
+When the MGF exists, the formal replacement \(t \mapsto it\) suggests \(\varphi_X(t) = M_X(it)\). This step needs justification in general, but in the cases below a direct computation confirms the guess.
 
 \begin{example}[Standard normal CF]\label{ex:cf-normal}
 For \(X \sim \Normal{0, 1}\), the MGF computed in Example~\ref{ex:mgfs} is
@@ -252,18 +252,18 @@ Dividing by \(\pi\),
 The Cauchy CF is well defined and continuous, even though the Cauchy MGF is identically infinite for every \(t \ne 0\).
 \end{example}
 
-Figure~\ref{fig:cf-comparison} contrasts the two cases. Although the Cauchy and Normal densities look superficially similar near the origin, their tails are very different, and that difference is exactly what the characteristic function transports into a well-behaved object.
+Figure~\ref{fig:cf-comparison} contrasts the two cases. Although the Cauchy and Normal densities look similar near the origin, their tails differ sharply: the heavy Cauchy tail makes the MGF integral diverge, while the bounded integrand \(\abs{e^{itx}} = 1\) keeps the characteristic function finite.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{figures/cf_comparison.png}
-  \caption{Left: the standard Normal and standard Cauchy densities on the same axes. The Cauchy has a slightly lower peak and noticeably heavier tails; the area in the tails beyond \(\abs{x} = 3\) is several times larger for the Cauchy than for the Normal. Right: their characteristic functions, \(e^{-t^2/2}\) for the Normal and \(e^{-\abs{t}}\) for the Cauchy. Both are well-defined real functions on all of \(\R\) and decay to zero, even though the Cauchy's MGF is identically infinite for every \(t \ne 0\). This is the practical sense in which the CF rescues the heavy-tailed case.}
+  \caption{Left: the standard Normal and standard Cauchy densities on the same axes. The Cauchy has a slightly lower peak and noticeably heavier tails; the area in the tails beyond \(\abs{x} = 3\) is several times larger for the Cauchy than for the Normal. Right: their characteristic functions, \(e^{-t^2/2}\) for the Normal and \(e^{-\abs{t}}\) for the Cauchy. Both are real functions on all of \(\R\) that decay to zero, even though the Cauchy MGF is identically infinite for every \(t \ne 0\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:cf-comparison}
 \end{figure}
 
 Two algebraic properties make CFs computationally convenient. By independence, \(\varphi_{X+Y}(t) = \varphi_X(t)\, \varphi_Y(t)\); by direct substitution, \(\varphi_{aX + b}(t) = e^{itb}\, \varphi_X(at)\). Like the MGF, the CF determines the distribution uniquely, and an inversion formula recovers the CDF from \(\varphi_X\) \citep[][\S 26]{Billingsley1995}.
 
-The deepest property of characteristic functions is the bridge they provide between pointwise convergence of \(\varphi_{X_n}\) and convergence in distribution of \(X_n\) (a notion made precise in Definition~\ref{def:modes} of the next subsection; informally, the distribution of \(X_n\) approaches that of \(X\)).
+The central property of characteristic functions links pointwise convergence of \(\varphi_{X_n}\) to convergence in distribution of \(X_n\) (a notion made precise in Definition~\ref{def:modes} of the next subsection; informally, the distribution of \(X_n\) approaches that of \(X\)).
 
 \begin{theorem}[L\'evy continuity theorem]\label{thm:levy-continuity}
 Let \(X_n\) and \(X\) be random variables with characteristic functions \(\varphi_{X_n}\) and \(\varphi_X\).
@@ -273,12 +273,12 @@ Let \(X_n\) and \(X\) be random variables with characteristic functions \(\varph
 \end{enumerate}
 \end{theorem}
 
-A full proof is in \citet[][Thm.~26.3]{Billingsley1995}. This theorem reduces convergence in distribution to pointwise convergence of characteristic functions, a calculus question on a single complex-valued function. It is the engine behind the central limit theorem proved below.
+A full proof is in \citet[][Thm.~26.3]{Billingsley1995}. Thus the theorem reduces convergence in distribution to pointwise convergence of characteristic functions, a calculus question on a single complex-valued function, and it is the tool behind the central limit theorem proved below.
 
 %====================================================================
 \subsection{Convergence and Limit Theorems}\label{subsec:limit-theorems}
 
-Many statistical quantities are averages of independent observations. Two universality results describe their behavior: the law of large numbers says averages converge to their mean, and the central limit theorem says that after rescaling their random fluctuations are universally Gaussian. Before stating either we need a precise notion of convergence for random variables, because the two laws use different ones.
+Many statistical quantities are averages of independent observations. Two limit theorems describe how these averages settle: the law of large numbers says an average converges to the population mean, and the central limit theorem says that after rescaling its fluctuations become Gaussian. Before stating either we need a precise notion of convergence for random variables, because the two laws use different ones.
 
 \paragraph{Modes of convergence.}
 A sequence of random variables can converge to a limit in several inequivalent ways. The three modes used here, from strongest to weakest, are the following.
@@ -292,15 +292,17 @@ Let \(X_n, X\) be random variables on a common probability space.
 \end{itemize}
 \end{definition}
 
+These three modes are nested: the stronger ones imply the weaker, but not conversely.
+
 \begin{proposition}[Implication chain]\label{prop:convergence-implications}
 \(X_n \convas X \;\Longrightarrow\; X_n \convp X \;\Longrightarrow\; X_n \convd X\). The converses are false in general.
 \end{proposition}
 
 \begin{proof}[Sketch]
-For a.s.\ \(\Rightarrow\) in probability: fix \(\varepsilon > 0\) and consider the events \(B_n = \{\abs{X_m - X} > \varepsilon \text{ for some } m \ge n\}\). They shrink as \(n\) grows, and pointwise convergence with probability one means their intersection has probability zero, so \(\Prob(B_n) \to 0\); since \(\{\abs{X_n - X} > \varepsilon\} \subseteq B_n\), the probability of a deviation at time \(n\) tends to zero too. For in probability \(\Rightarrow\) in distribution: the conclusion is on CDFs at continuity points and follows by a standard \(\varepsilon\)-argument; see \citet[][Thm.~5.5.12]{Casella2002}.
+For a.s.\ \(\Rightarrow\) in probability: fix \(\varepsilon > 0\) and consider the events \(B_n = \{\abs{X_m - X} > \varepsilon \text{ for some } m \ge n\}\). The events \(B_n\) decrease, and their intersection \(\bigcap_n B_n\) is the event \(\{\abs{X_m - X} > \varepsilon \text{ infinitely often}\}\), which is null because \(X_n \to X\) almost surely. Continuity from above then gives \(\Prob(B_n) \to \Prob(\bigcap_n B_n) = 0\). Since \(\{\abs{X_n - X} > \varepsilon\} \subseteq B_n\), the deviation probability at index \(n\) tends to zero too. For in probability \(\Rightarrow\) in distribution: the conclusion is on CDFs at continuity points and follows by a standard \(\varepsilon\)-argument; see \citet[][Thm.~5.5.12]{Casella2002}.
 \end{proof}
 
-A canonical counterexample showing that probability does not imply almost-sure convergence:
+The first implication of Proposition~\ref{prop:convergence-implications} cannot be reversed: the next example exhibits a sequence that converges in probability but not almost surely.
 
 \begin{example}[\(\convp\) but not \(\convas\)]\label{ex:p-not-as}
 Define a sequence \(X_n \in \{0, 1\}\) by
@@ -323,7 +325,7 @@ The second Borel-Cantelli lemma (Appendix~\ref{app:auxiliary}) says that for ind
 \[
   \Prob\bigl(X_n = 1 \text{ for infinitely many } n\bigr) \;=\; 1.
 \]
-So almost every realization of the sequence keeps producing the value \(1\) at arbitrarily late indices, which prevents it from settling at \(0\). Hence \(X_n \not\convas 0\).
+So with probability one the sequence equals \(1\) at arbitrarily late indices, hence does not converge to \(0\). Therefore \(X_n \not\convas 0\).
 \end{example}
 
 A second standard fact is used repeatedly in the main text: continuous functions preserve convergence.
@@ -332,7 +334,7 @@ A second standard fact is used repeatedly in the main text: continuous functions
 If \(X_n \convas X\) (respectively \(\convp\), \(\convd\)) and \(g: \R \to \R\) is continuous, then \(g(X_n) \convas g(X)\) (respectively \(\convp\), \(\convd\)).
 \end{proposition}
 
-A proof is in \citet[][\S~5.5]{Casella2002}. Appendix~\ref{app:auxiliary} (Theorem~\ref{thm:cmt-general}) records the more general vector form, which the main text applies to matrices, together with Slutsky's theorem, the companion result used silently whenever an estimated constant stands in for a true one.
+A proof is in \citet[][\S~5.5]{Casella2002}. Appendix~\ref{app:auxiliary} (Theorem~\ref{thm:cmt-general}) records the more general vector form, which the main text applies to matrices, together with Slutsky's theorem, the companion result invoked when a sequence converging in distribution is combined with one converging in probability to a constant.
 
 %====================================================================
 \paragraph{Markov, Chebyshev, and the law of large numbers.}
@@ -399,9 +401,9 @@ Apply Chebyshev's inequality (Theorem~\ref{thm:chebyshev}) to \(\bar X_n\) with 
 This is the definition of \(\bar X_n \convp \mu\).
 \end{proof}
 
-The proof shows \emph{why} averaging reduces variance. Each individual observation has variance \(\sigma^2\), but the average has variance \(\sigma^2 / n\); as \(n\) grows the average becomes more tightly concentrated around \(\mu\). Averaging shrinks variance, period.
+The proof shows \emph{why} averaging reduces variance. Each individual observation has variance \(\sigma^2\), but the average has variance \(\sigma^2 / n\); as \(n\) grows the average becomes more tightly concentrated around \(\mu\).
 
-The weak law and the strong law agree on the punchline (\(\bar X_n \to \mu\)) but differ on the mode of convergence. The weak law guarantees that the probability of being far from the mean tends to zero; the strong law says something more pathwise, namely that with probability one the realized sequence \((\bar X_1(\omega), \bar X_2(\omega), \ldots)\) itself settles down to \(\mu\). The strong law also asks for less: only a finite mean, not a finite variance.
+The weak law and the strong law reach the same conclusion (\(\bar X_n \to \mu\)) but differ on the mode of convergence. The weak law guarantees that the probability of being far from the mean tends to zero; the strong law is a statement about whole realizations: for almost every \(\omega\) the sequence \((\bar X_1(\omega), \bar X_2(\omega), \ldots)\) itself converges to \(\mu\). The strong law also requires less: under the hypotheses used here it needs only \(\E[\abs{X_1}] < \infty\), whereas our Chebyshev proof of the weak law assumed a finite variance.
 
 \begin{theorem}[Kolmogorov's strong law of large numbers]\label{thm:slln}
 If \(X_1, X_2, \ldots\) are iid with \(\E[\abs{X_1}] < \infty\) and \(\E[X_1] = \mu\), then \(\bar X_n \convas \mu\).
@@ -416,7 +418,7 @@ A proof is given in \citet[][Thm.~22.1]{Billingsley1995}. Figure~\ref{fig:lln} v
   \label{fig:lln}
 \end{figure}
 
-The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens and \emph{what the fluctuations look like}. The scale \(\sqrt{n}\) is not arbitrary: since \(\Var(\bar X_n) = \sigma^2 / n\) by the WLLN computation, the typical size of the deviation \(\bar X_n - \mu\) is \(n^{-1/2}\). Multiplying by \(\sqrt{n}\) cancels this decay and keeps the random fluctuation visible at scale order one.
+The central limit theorem refines the law of large numbers by saying \emph{at what rate} the convergence happens and \emph{what the fluctuations look like}. The scale \(\sqrt{n}\) is not arbitrary: since \(\Var(\bar X_n) = \sigma^2 / n\) by the WLLN computation, the standard deviation of \(\bar X_n - \mu\) is \(\sigma\, n^{-1/2}\). Multiplying by \(\sqrt{n}\) cancels this decay, so that \(\sqrt{n}(\bar X_n - \mu)\) has standard deviation \(\sigma\), an \(O(1)\) scale with a nondegenerate limit.
 
 \begin{theorem}[Central limit theorem]\label{thm:clt}
 Let \(X_1, X_2, \ldots\) be iid with \(\E[X_1] = \mu\) and \(0 < \Var(X_1) = \sigma^2 < \infty\). Then
@@ -435,15 +437,15 @@ The proof has four steps: standardize, expand the characteristic function near z
 \]
 
 \smallskip
-\noindent\emph{Step 2 (expand the CF near zero).} Let \(\varphi(t) = \E[e^{it Y_1}]\). The Taylor expansion \(e^{iu} = 1 + iu - u^2/2 + o(u^2)\) as \(u \to 0\), applied with \(u = t Y_1\), gives
+\noindent\emph{Step 2 (expand the CF near zero).} Let \(\varphi(t) = \E[e^{it Y_1}]\). We do not expand pointwise in the random argument \(t Y_1\); instead we use the deterministic bound \(\abs{e^{iu} - (1 + iu - u^2/2)} \le \min(\abs{u}^3/6,\, u^2)\) (\citealp[][Sec.~26]{Billingsley1995}). Taking \(u = t Y_1\), then expectations, and using \(\E[Y_1] = 0\), \(\E[Y_1^2] = 1\) gives
 \[
-  e^{i t Y_1} \;=\; 1 \;+\; i t Y_1 \;-\; \tfrac{1}{2} t^2 Y_1^2 \;+\; o(t^2 Y_1^2).
+  \abs{\varphi(t) - (1 - \tfrac{1}{2} t^2)} \;\le\; \E\!\bigl[\min(\abs{t Y_1}^3/6,\, t^2 Y_1^2)\bigr].
 \]
-Taking expectations term by term and using \(\E[Y_1] = 0\) and \(\E[Y_1^2] = 1\) gives the expansion below. The step is legitimate precisely because the second moment \(\E[Y_1^2] = 1\) is finite: it bounds the remainder so that, after the expectation, the error is genuinely of order \(o(t^2)\) (the standard route is the explicit bound \(\abs{e^{iu} - (1 + iu - u^2/2)} \le \min(\abs{u}^3/6,\, u^2)\); \citealp[][Sec.~26]{Billingsley1995}). Thus
+The integrand is dominated by \(t^2 Y_1^2\), which is integrable since \(\E[Y_1^2] = 1\), and tends to zero pointwise as \(t \to 0\); dominated convergence makes the right side \(o(t^2)\). Thus
 \[
   \varphi(t) \;=\; 1 \;-\; \tfrac{1}{2} t^2 \;+\; o(t^2) \qquad (t \to 0).
 \]
-This expansion is the analytic engine of the CLT: near zero, the characteristic function of \emph{every} standardized finite-variance random variable agrees with the standard normal CF up to second order. The CLT then says that the second-order match propagates through the iid sum to give a matching limit, which is the deep reason the Gaussian distribution appears universally.
+Near zero, the characteristic function of \emph{every} standardized finite-variance random variable agrees with the standard normal CF to second order, and this shared expansion is what forces the Gaussian limit regardless of the summand law (\citealp[][Sec.~27]{Billingsley1995}). Steps 3 and 4 carry that second-order match through the iid sum.
 
 \smallskip
 \noindent\emph{Step 3 (factor by independence).} The \(Y_i\) are independent, so the characteristic function of \(Z_n\) factors into a product of \(n\) copies of \(\varphi(t/\sqrt{n})\):
@@ -458,7 +460,7 @@ Substituting the expansion from Step 2 with \(t/\sqrt{n}\) in place of \(t\),
 \]
 
 \smallskip
-\noindent\emph{Step 4 (take the limit and conclude).} The standard calculus identity \((1 + a_n/n)^n \to e^a\) when \(a_n \to a\), valid for complex \(a_n\) as well (\citealp[][Sec.~27]{Billingsley1995}), applied with \(a_n \to -t^2/2\), gives
+\noindent\emph{Step 4 (take the limit and conclude).} The standard calculus identity \((1 + c_n/n)^n \to e^c\) when \(c_n \to c\), valid for complex \(c_n\) as well (\citealp[][Sec.~27]{Billingsley1995}), applied with \(c_n = -t^2/2 + n\,o(1/n) \to -t^2/2\), gives
 \[
   \varphi_{Z_n}(t) \;\longrightarrow\; e^{-t^2/2} \qquad (n \to \infty).
 \]
@@ -493,7 +495,7 @@ A \emph{random vector} is a function \(\vect{X} = (X_1, \ldots, X_p)\transpose: 
 \]
 \end{definition}
 
-The joint CDF is a multivariate threshold probability: it asks for the probability that \emph{every} coordinate of \(\vect{X}\) falls below the corresponding coordinate of \(\vect{x}\). Unlike the individual marginal CDFs \(F_{X_i}\), the joint CDF carries dependence information: it records not only how each coordinate behaves on its own, but how the coordinates behave together. The joint CDF obeys the multivariate analogues of the properties (F1)--(F3) of Proposition~\ref{prop:cdf-characterization}, plus a marginalization property that is genuinely multivariate.
+The joint CDF is a multivariate threshold probability: it is the probability that \emph{every} coordinate of \(\vect{X}\) falls below the corresponding coordinate of \(\vect{x}\). Unlike the individual marginal CDFs \(F_{X_i}\), the joint CDF records the dependence among the coordinates, not only their separate one-dimensional distributions. The joint CDF obeys the multivariate analogues of the properties (F1)--(F3) of Proposition~\ref{prop:cdf-characterization}, together with a marginalization property, which has no one-dimensional analogue.
 
 \begin{proposition}[Properties of the joint CDF]\label{prop:joint-cdf}
 The joint CDF \(F_{\vect{X}}: \R^p \to [0, 1]\) satisfies:
@@ -511,7 +513,7 @@ The proofs mirror the scalar case; see \citet[][\S~4.1]{Casella2002}.
 The discrete and continuous cases admit joint PMFs and joint densities, defined exactly as in the scalar case.
 
 \paragraph{Three examples of joint distributions.}
-The next three examples illustrate the spectrum from full independence to maximal dependence to a smooth Gaussian dependence. They also show the difference between the \emph{support} of a random vector (where it lives) and its \emph{distribution} (how its mass is spread on its support).
+The next three examples run from full independence to maximal dependence to smooth Gaussian dependence. They also show the difference between the \emph{support} of a random vector (where it lives) and its \emph{distribution} (how its mass is spread on its support).
 
 \begin{example}[Independent exponentials]\label{ex:indep-expon}
 Let \(X_1, X_2\) be iid with \(X_i \sim \mathrm{Exponential}(\lambda)\). Each scalar CDF is \(F_X(x) = 1 - e^{-\lambda x}\) for \(x \ge 0\) (and \(0\) for \(x < 0\)). By independence,
@@ -529,7 +531,7 @@ Let \(X_1 \sim \mathrm{Exponential}(\lambda)\) and set \(X_2 = X_1\) almost sure
   &\;=\; \Prob(X_1 \le \min\{x_1, x_2\})
   \;=\; F_X(\min\{x_1, x_2\}).
 \end{align*}
-The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all of its probability sits on a single line, and a line has zero area in the plane (any honest density would have to be infinite on the line and zero off it). We will see shortly that it is the prototypical case of a covariance matrix that is \emph{positive semidefinite} (\(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every direction \(\vect{v}\)) but \emph{not} positive definite (the inequality is not strict in every direction).
+The two components have the same one-dimensional marginals as in Example~\ref{ex:indep-expon}, but the support of the pair collapses to a one-dimensional diagonal ray. This vector does \emph{not} admit a joint density on \(\R^2\), because all of its probability sits on a single line, and a line has zero area in the plane (a density would have to integrate to one over a set of zero area, which is impossible). This is the prototypical example of a covariance matrix that is positive semidefinite but not positive definite; Definition~\ref{def:mean-cov} introduces \(\Sigma\) and Proposition~\ref{prop:cov-psd} revisits this example to make the point precise.
 \end{example}
 
 \begin{example}[Bivariate normal density]\label{ex:bvn-density}
@@ -545,7 +547,7 @@ Substituting into the multivariate normal density (Definition~\ref{def:mvn} belo
 \[
   f_{X_1, X_2}(x_1, x_2) \;=\; \frac{1}{2 \pi \sigma_1 \sigma_2 \sqrt{1 - \rho^2}}\, \exp\!\left(\!-\frac{1}{2 (1 - \rho^2)}\!\left[\frac{x_1^2}{\sigma_1^2} \;-\; \frac{2 \rho x_1 x_2}{\sigma_1 \sigma_2} \;+\; \frac{x_2^2}{\sigma_2^2}\right]\right).
 \]
-When \(\rho = 0\) the cross term vanishes and the density factors as \(f_{X_1} f_{X_2}\), so \(X_1 \perp X_2\). When \(\rho \ne 0\) the cross term cannot be removed and the components are dependent.
+When \(\rho = 0\) the cross term vanishes and the density factors as \(f_{X_1} f_{X_2}\), so \(X_1 \perp X_2\); when \(\rho \ne 0\) the cross term remains and the components are dependent.
 \end{example}
 
 Figure~\ref{fig:supports} contrasts the three cases at a glance.
@@ -553,7 +555,7 @@ Figure~\ref{fig:supports} contrasts the three cases at a glance.
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{figures/joint_distribution_supports.png}
-  \caption{Three joint distributions on \(\R^2\) with the same one-dimensional marginals. \emph{Left:} two independent exponentials; the cloud fills the positive quadrant. \emph{Middle:} \(X_1 = X_2\) almost surely; the cloud collapses onto the diagonal line. \emph{Right:} a bivariate normal with correlation \(\rho = 0.7\); the cloud is an oblique elliptical scatter. Each panel shows \(2{,}000\) Monte Carlo samples. The middle case has no joint density on \(\R^2\).}
+  \caption{Three joint distributions on \(\R^2\) with the same one-dimensional marginals. \emph{Left:} two independent exponentials; the cloud fills the positive quadrant. \emph{Middle:} \(X_1 = X_2\) almost surely; the cloud collapses onto the diagonal line. \emph{Right:} a bivariate normal with correlation \(\rho = 0.7\); the cloud is an oblique elliptical scatter. Each panel shows \(2{,}000\) Monte Carlo samples. The middle case has no joint density on \(\R^2\). Generated by \texttt{notebooks/02\_random\_vectors\_and\_linalg.py}.}
   \label{fig:supports}
 \end{figure}
 
@@ -586,10 +588,10 @@ Suppose \(\vect{X} = (X_1, X_2)\transpose\) has covariance matrix
 \[
   \Sigma \;=\; \begin{pmatrix} 4 & 1.5 \\ 1.5 & 1 \end{pmatrix}.
 \]
-The diagonal reads off \(\Var(X_1) = 4\) and \(\Var(X_2) = 1\); the off-diagonal reads off \(\Cov(X_1, X_2) = 1.5\), so large values of \(X_1\) tend to occur together with large values of \(X_2\). For the direction \(\vect{v} = (1, -1)\transpose\), a direct computation gives \(\vect{v}\transpose \Sigma \vect{v} = 4 - 2(1.5) + 1 = 2\), which equals \(\Var(X_1 - X_2)\). The quadratic form on \(\Sigma\) at \(\vect{v}\) is the variance of the corresponding linear combination of coordinates, an identity we now state and prove in general.
+The diagonal gives \(\Var(X_1) = 4\) and \(\Var(X_2) = 1\); the off-diagonal gives \(\Cov(X_1, X_2) = 1.5 > 0\), so above-average values of \(X_1\) tend to coincide with above-average values of \(X_2\). For the direction \(\vect{v} = (1, -1)\transpose\), a direct computation gives \(\vect{v}\transpose \Sigma \vect{v} = 4 - 2(1.5) + 1 = 2\), which equals \(\Var(X_1 - X_2)\). The quadratic form on \(\Sigma\) at \(\vect{v}\) is the variance of the corresponding linear combination of coordinates, an identity we now state and prove in general.
 \end{example}
 
-Covariance matrices are not arbitrary symmetric matrices. They have a built-in positivity property because every linear combination of the coordinates has a nonnegative variance, and the quadratic form on \(\Sigma\) literally computes that variance. This is the central property of \(\Sigma\) that will be exploited again and again throughout the report.
+Covariance matrices are not arbitrary symmetric matrices: every linear combination of the coordinates has nonnegative variance, and the quadratic form \(\vect{v}\transpose \Sigma \vect{v}\) equals that variance. This positivity is the property of \(\Sigma\) that Sections~\ref{sec:scm} and~\ref{sec:spiked} rely on.
 
 \begin{proposition}[\(\Sigma\) is symmetric and PSD]\label{prop:cov-psd}
 For any random vector with finite second moments:
@@ -617,16 +619,16 @@ Since \(\vect{v}\transpose (\vect{X} - \vect{\mu})\) is a scalar, its square equ
 \]
 Since \(\Var(Y) \ge 0\) for every random variable \(Y\), we conclude \(\vect{v}\transpose \Sigma \vect{v} \ge 0\) for every \(\vect{v}\), which is PSD.
 
-For (3), \(\Sigma\) fails to be positive definite precisely when \(\vect{v}\transpose \Sigma \vect{v} = 0\) for some \(\vect{v} \ne \vect{0}\). By the identity above, this is \(\Var(\vect{v}\transpose \vect{X}) = 0\), which is the statement that \(\vect{v}\transpose \vect{X}\) is almost surely a constant (a variance-zero variable satisfies \(\Prob(\abs{Y - \E Y} \ge \varepsilon) = 0\) for every \(\varepsilon > 0\) by Chebyshev's inequality, so it never leaves its mean).
+For (3), \(\Sigma\) fails to be positive definite precisely when \(\vect{v}\transpose \Sigma \vect{v} = 0\) for some \(\vect{v} \ne \vect{0}\). By the identity above, this is \(\Var(\vect{v}\transpose \vect{X}) = 0\), which is the statement that \(\vect{v}\transpose \vect{X}\) is almost surely constant. A variance-zero variable \(Y\) satisfies \(\Prob(\abs{Y - \E Y} \ge \varepsilon) \le \Var(Y)/\varepsilon^2 = 0\) by Chebyshev's inequality, hence \(=0\) for every \(\varepsilon > 0\), so \(Y\) equals \(\E Y\) almost surely.
 \end{proof}
 
-Example~\ref{ex:max-dependent} is the prototypical failure of positive definiteness: with \(X_2 = X_1\) a.s., the vector \(\vect{v} = (1, -1)\transpose\) gives \(\vect{v}\transpose \vect{X} = X_1 - X_2 = 0\) a.s., so \(\vect{v}\transpose \Sigma \vect{v} = 0\). The covariance matrix is PSD but not PD.
+Example~\ref{ex:max-dependent} is the prototypical failure of positive definiteness: with \(X_2 = X_1\) a.s., the vector \(\vect{v} = (1, -1)\transpose\) gives \(\vect{v}\transpose \vect{X} = X_1 - X_2 = 0\) a.s., so \(\vect{v}\transpose \Sigma \vect{v} = 0\), exhibiting a covariance matrix that is PSD but not PD.
 
 The identity
 \[
   \vect{v}\transpose \Sigma \vect{v} \;=\; \Var(\vect{v}\transpose \vect{X})
 \]
-is the \emph{bridge identity} of this appendix. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections, and vice versa.
+is the \emph{bridge identity} of this appendix. The left side is linear algebra; the right side is probability. Read either way, it converts a question about directions in \(\R^p\) into a question about variances of one-dimensional projections.
 
 \paragraph{The multivariate normal distribution.} The multivariate normal distribution is the vector analogue of the ordinary normal. It is the natural model for vector observations because it is closed under linear operations and is characterized completely by its mean vector and covariance matrix. The cleanest definition uses the characteristic function, which for a random vector is defined exactly as in the scalar case, \(\varphi_{\vect{X}}(\vect{t}) = \E[e^{i \vect{t}\transpose \vect{X}}]\) for \(\vect{t} \in \R^p\); like its scalar counterpart it always exists, determines the distribution uniquely, and supports a continuity theorem \citep[][\S~29]{Billingsley1995}.
 
@@ -642,14 +644,14 @@ When \(\Sigma\) is positive definite, \(\vect{X}\) admits the density
 \]
 \end{definition}
 
-A note on notation: in the scalar case (Example~\ref{ex:common-distributions}) the second argument of \(\Normal{\mu, \sigma^2}\) is a variance, while in the multivariate case the second argument of \(\Normal{\vect{\mu}, \Sigma}\) is a covariance \emph{matrix}. The two-argument macro \(\Normal{\,\cdot\,,\,\cdot\,}\) is the same; only the type of the second slot changes.
+A note on notation: in the scalar case (Example~\ref{ex:common-distributions}) the second argument of \(\Normal{\mu, \sigma^2}\) is a variance, while in the multivariate case the second argument of \(\Normal{\vect{\mu}, \Sigma}\) is a covariance \emph{matrix}. The notation \(\Normal{\,\cdot\,,\,\cdot\,}\) is the same; only the meaning of the second argument changes: a scalar variance in the univariate case, a covariance matrix in the multivariate case.
 
-Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible. A vector with this CF always exists: \(\vect{X} = \vect{\mu} + \Sigma^{1/2} \vect{Z}\), with \(\vect{Z}\) a vector of iid standard normals and \(\Sigma^{1/2}\) the symmetric square root of \(\Sigma\) (write \(\Sigma = \mat{Q} \mat{\Lambda} \mat{Q}\transpose\) by the spectral theorem (Theorem~\ref{thm:spectral} below) and set \(\Sigma^{1/2} = \mat{Q} \mat{\Lambda}^{1/2} \mat{Q}\transpose\), which is symmetric, PSD, and squares to \(\Sigma\)), has exactly the CF~\eqref{eq:mvn-cf}, by the computation in the proof of Proposition~\ref{prop:mvn-affine} below. The definition also has a clean working content. For fixed \(\vect{t}\), the scalar projection \(\vect{t}\transpose \vect{X}\) has CF \(\varphi_{\vect{t}\transpose \vect{X}}(s) = \E[e^{i s\, \vect{t}\transpose \vect{X}}] = \varphi_{\vect{X}}(s \vect{t})\), and evaluating~\eqref{eq:mvn-cf} at \(s\vect{t}\) gives \(\exp\bigl(i s\, \vect{t}\transpose \vect{\mu} - \tfrac{1}{2} s^2\, \vect{t}\transpose \Sigma \vect{t}\bigr)\), the CF of a univariate \(\Normal{\vect{t}\transpose \vect{\mu},\, \vect{t}\transpose \Sigma \vect{t}}\) evaluated at \(s\). Scalar CF uniqueness then gives
+Equation~\eqref{eq:mvn-cf} is taken as the definition because it remains valid when \(\Sigma\) is singular (a case that arises exactly as in Example~\ref{ex:max-dependent}), whereas the density form requires \(\Sigma\) to be invertible. A vector with this CF always exists. Take \(\vect{X} = \vect{\mu} + \Sigma^{1/2} \vect{Z}\), where \(\vect{Z}\) is a vector of iid standard normals and \(\Sigma^{1/2}\) is the symmetric square root of \(\Sigma\): by the spectral theorem (Theorem~\ref{thm:spectral} below) write \(\Sigma = \mat{Q} \mat{\Lambda} \mat{Q}\transpose\) and set \(\Sigma^{1/2} = \mat{Q} \mat{\Lambda}^{1/2} \mat{Q}\transpose\), which is symmetric, PSD, and squares to \(\Sigma\). This \(\vect{X}\) has exactly the CF~\eqref{eq:mvn-cf}, by the computation in the proof of Proposition~\ref{prop:mvn-affine} below. The definition also has clean working content. For fixed \(\vect{t}\), the scalar projection \(\vect{t}\transpose \vect{X}\) has CF \(\varphi_{\vect{t}\transpose \vect{X}}(s) = \E[e^{i s\, \vect{t}\transpose \vect{X}}] = \varphi_{\vect{X}}(s \vect{t})\), and evaluating~\eqref{eq:mvn-cf} at \(s\vect{t}\) gives \(\exp\bigl(i s\, \vect{t}\transpose \vect{\mu} - \tfrac{1}{2} s^2\, \vect{t}\transpose \Sigma \vect{t}\bigr)\), the CF of a univariate \(\Normal{\vect{t}\transpose \vect{\mu},\, \vect{t}\transpose \Sigma \vect{t}}\) evaluated at \(s\). Scalar CF uniqueness then gives
 \begin{equation}
   \vect{t}\transpose \vect{X} \;\sim\; \Normal{\vect{t}\transpose \vect{\mu},\; \vect{t}\transpose \Sigma \vect{t}} \qquad \text{for every } \vect{t} \in \R^p.
   \label{eq:mvn-projection}
 \end{equation}
-That is, \emph{every} one-dimensional projection of a multivariate normal is univariate normal, with exactly the mean and variance the bridge identity predicts. This is the most useful working characterization of \(\Normal{\vect{\mu}, \Sigma}\), and it really is a characterization: running the same computation backwards shows that a vector all of whose projections are normal with these parameters has the CF~\eqref{eq:mvn-cf}.
+That is, \emph{every} one-dimensional projection of a multivariate normal is univariate normal, with mean \(\vect{t}\transpose\vect{\mu}\) (linearity of expectation) and variance \(\vect{t}\transpose\Sigma\vect{t}\) (the bridge identity). This is a working characterization of \(\Normal{\vect{\mu}, \Sigma}\): if every projection \(\vect{t}\transpose\vect{X}\) is normal with these parameters, then evaluating its scalar CF at \(s=1\) fixes \(\varphi_{\vect{X}}(\vect{t})\) for every \(\vect{t}\), hence the CF~\eqref{eq:mvn-cf} and the law.
 
 The multivariate normal is closed under affine transformations.
 
@@ -673,17 +675,17 @@ This is the CF of \(\Normal{\mat{A} \vect{\mu} + \vect{b},\, \mat{A} \Sigma \mat
 \end{proof}
 
 \begin{corollary}[Rotational invariance of the standard Gaussian vector]\label{cor:gaussian-rotation}
-If \(\vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\) and \(\mat{Q} \in \R^{p \times p}\) is orthogonal (meaning \(\mat{Q}\transpose \mat{Q} = I\); such matrices are studied in the next subsection), then \(\mat{Q} \vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\): the standard Gaussian vector has no preferred directions.
+If \(\vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\) and \(\mat{Q} \in \R^{p \times p}\) is orthogonal (meaning \(\mat{Q}\transpose \mat{Q} = I\); such matrices are studied in the next subsection), then \(\mat{Q} \vect{Z} \sim \Normal{\vect{0}, \sigma^2 I_p}\): its distribution is invariant under every orthogonal rotation.
 \end{corollary}
 
 This is Proposition~\ref{prop:mvn-affine} with \(\mat{A} = \mat{Q}\) and \(\vect{b} = \vect{0}\), since \(\mat{Q} (\sigma^2 I_p) \mat{Q}\transpose = \sigma^2 I_p\). Sections~\ref{sec:scm} and~\ref{sec:spiked} lean on exactly this property, under the name \emph{rotational invariance}.
 
-A second property is special to the Gaussian family. For a general distribution, zero covariance only means no linear association: \(\Cov(X_1, X_2) = 0\) does not imply that \(X_1\) and \(X_2\) are independent. For a multivariate normal vector with diagonal covariance, however, the coordinates \emph{are} independent, because the density factors into a product of marginal densities (and the characteristic function factors for the same reason in the singular case). Figure~\ref{fig:bvn} shows the corresponding bivariate density contours at three correlation values.
+A second property is special to the Gaussian family. For a general distribution, zero covariance means only the absence of linear association: \(\Cov(X_1, X_2) = 0\) does not imply that \(X_1\) and \(X_2\) are independent. For a multivariate normal vector with diagonal covariance, however, the coordinates \emph{are} independent, because the characteristic function \(\exp(i\vect{t}\transpose\vect{\mu}-\tfrac12\vect{t}\transpose\Sigma\vect{t})\) factors: diagonal \(\Sigma\) makes \(\vect{t}\transpose\Sigma\vect{t}\) a sum of per-coordinate terms, so \(\varphi_{\vect{X}}\) splits across coordinates (in the nonsingular case the density factors for the same reason). Figure~\ref{fig:bvn} shows the corresponding bivariate density contours at three correlation values.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/bivariate_normal.png}
-  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the two coordinates are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. The direction of elongation is the direction in which the random vector has largest variance, which the next subsection will identify as the leading eigenvector of \(\Sigma\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
+  \caption{Density contours of the centered bivariate normal with unit variances and correlation \(\rho \in \{0,\, 0.5,\, 0.9\}\). At \(\rho = 0\) the contours are circles and the two coordinates are independent; as \(\rho\) increases the contours elongate along the line \(x_2 = x_1\), reflecting positive linear association. The direction of elongation is the direction of largest variance of \(\vect{X}\), identified in the next subsection as the leading eigenvector of \(\Sigma\). Generated by \texttt{notebooks/01\_lln\_clt\_demos.py}.}
   \label{fig:bvn}
 \end{figure}
 
@@ -708,7 +710,7 @@ The scalar random variables \(\vect{t}\transpose \vect{X}_i\) are iid with mean 
 This is exactly the projection of \(\Normal{\vect{0}, \Sigma}\) onto \(\vect{t}\), by~\eqref{eq:mvn-projection}. Since this holds for every \(\vect{t}\), the Cram\'er-Wold device delivers the vector convergence.
 \end{proof}
 
-Vector averages therefore fluctuate on the same \(\sqrt{n}\) scale as scalar averages, but their limiting covariance records the dependence among coordinates.
+Thus vector averages fluctuate on the same \(\sqrt{n}\) scale as scalar averages, and the limiting covariance \(\Sigma\) records the dependence among the coordinates.
 
 %====================================================================
 \subsection{Linear Algebra of Symmetric Matrices}\label{subsec:linalg}
@@ -716,7 +718,7 @@ Vector averages therefore fluctuate on the same \(\sqrt{n}\) scale as scalar ave
 The identity \(\vect{v}\transpose \Sigma \vect{v} = \Var(\vect{v}\transpose \vect{X})\) of the previous subsection ties covariance matrices to directional variance. To analyze that variance \emph{geometrically}, we use the structure of symmetric matrices: the spectral theorem, the eigenvalue characterization of positive semidefiniteness, and the Rayleigh-quotient identification of maximal-variance directions. This subsection also records two technical results, the equivalence of norms in finite dimensions and the continuity of eigenvalues as functions of matrix entries, that will let us push matrix-level convergence to eigenvalue-level convergence. The mechanics of a first linear algebra course (matrix products, transposes, inverses, determinants) are taken as known; the one notion to have firmly in mind is the \vocab{eigenpair}: a scalar \(\lambda\) and a nonzero vector \(\vect{v}\) with \(A\vect{v} = \lambda\vect{v}\), in which case \(\lambda\) is an \emph{eigenvalue} of \(A\) and \(\vect{v}\) an \emph{eigenvector}.
 
 \paragraph{The spectral theorem.}
-A real \(n \times n\) matrix \(A\) is \emph{symmetric} if \(A = A\transpose\). Throughout this paragraph, \(A\) denotes a real symmetric matrix. Symmetry has two crucial consequences: all eigenvalues of \(A\) are real, and there exists an orthonormal basis of \(\R^n\) consisting of eigenvectors of \(A\).
+Written in a basis of its own eigenvectors, a symmetric matrix acts by pure scaling; the spectral theorem makes this precise. A real \(n \times n\) matrix \(A\) is \emph{symmetric} if \(A = A\transpose\), and we fix such an \(A\) for the rest of this paragraph. Symmetry has two consequences we use repeatedly: all eigenvalues of \(A\) are real, and there exists an orthonormal basis of \(\R^n\) consisting of eigenvectors of \(A\).
 
 \begin{theorem}[Spectral theorem for real symmetric matrices]\label{thm:spectral}
 If \(A \in \R^{n \times n}\) is symmetric, there exist an orthogonal matrix \(Q\) (meaning \(Q\transpose Q = I\)) and a diagonal matrix \(\Lambda = \diag(\lambda_1, \ldots, \lambda_n)\) such that
@@ -727,9 +729,10 @@ If \(A \in \R^{n \times n}\) is symmetric, there exist an orthogonal matrix \(Q\
 The diagonal entries of \(\Lambda\) are the eigenvalues of \(A\), and the columns \(\vect{q}_1, \ldots, \vect{q}_n\) of \(Q\) form an orthonormal basis of eigenvectors: \(A \vect{q}_i = \lambda_i \vect{q}_i\) and \(\vect{q}_i\transpose \vect{q}_j = \delta_{ij}\).
 \end{theorem}
 
-A complete proof requires careful linear algebra; see \citet[][\S 6.4]{Strang2016}. We will use the conclusion freely. The decomposition \(A = Q \Lambda Q\transpose\) has a clean geometric meaning: the action of \(A\) on a vector \(\vect{x} \in \R^n\) is (i) rotate \(\vect{x}\) into the eigenvector basis via \(Q\transpose\), (ii) scale the \(i\)\textsuperscript{th} coordinate by \(\lambda_i\) via \(\Lambda\), (iii) rotate back via \(Q\). Symmetric matrices stretch space along perpendicular directions, with stretch factors given by the eigenvalues.
+We take the theorem as given and use it freely; for a proof see \citet[][\S 6.4]{Strang2016}. The decomposition \(A = Q \Lambda Q\transpose\) has a clean geometric meaning: the action of \(A\) on a vector \(\vect{x} \in \R^n\) decomposes into three steps: (i) rotate \(\vect{x}\) into the eigenvector basis via \(Q\transpose\), (ii) scale the \(i\)\textsuperscript{th} coordinate by \(\lambda_i\) via \(\Lambda\), (iii) rotate back via \(Q\). Thus a symmetric matrix stretches space along mutually perpendicular directions, the eigenvectors, with stretch factors given by the eigenvalues.
 
 \paragraph{Quadratic forms diagonalize.}
+In the eigenvector basis the quadratic form \(\vect{x}\transpose A\,\vect{x}\) decouples into a weighted sum of squares, the weights being the eigenvalues, as the next corollary records.
 
 \begin{corollary}[Diagonalization of quadratic forms]\label{cor:quad-form}
 For any \(\vect{x} \in \R^n\), setting \(\vect{y} = Q\transpose \vect{x}\) gives
@@ -777,9 +780,9 @@ By PSD the left side is \(\ge 0\), so \(\lambda_k \ge 0\).
 where \(\vect{y} = Q\transpose \vect{x}\) and each \(\lambda_i y_i^2 \ge 0\) by hypothesis. Hence \(A\) is PSD.
 \end{proof}
 
-Combining Theorem~\ref{thm:pd-psd-eigen} with Proposition~\ref{prop:cov-psd}, every eigenvalue of a covariance matrix is nonnegative, and the eigenvalues are strictly positive if and only if no nontrivial linear combination of the coordinates is almost surely constant.
+Combining Theorem~\ref{thm:pd-psd-eigen} with Proposition~\ref{prop:cov-psd}, every eigenvalue of a covariance matrix is nonnegative; the eigenvalues are strictly positive if and only if no nontrivial linear combination of the coordinates is almost surely constant.
 
-The diagonalization in Corollary~\ref{cor:quad-form} also identifies which directions maximize and minimize the quadratic form. The result, the Rayleigh-quotient characterization, is what justifies saying that eigenvectors are the directions of greatest variance.
+The diagonalization in Corollary~\ref{cor:quad-form} also identifies which directions maximize and minimize the quadratic form. The next proposition, the Rayleigh-quotient characterization, determines those extremal directions and so justifies calling eigenvectors the directions of greatest variance.
 
 \begin{proposition}[Rayleigh quotient]\label{prop:rayleigh}
 Let \(A\) be a real symmetric \(p \times p\) matrix with eigenvalues \(\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_p\) and corresponding orthonormal eigenvectors \(\vect{q}_1, \ldots, \vect{q}_p\). Then
@@ -794,10 +797,10 @@ For any unit vector \(\vect{v}\), set \(\vect{y} = Q\transpose \vect{v}\). The o
 \[
   \vect{v}\transpose A \vect{v} \;=\; \sum_{i = 1}^p \lambda_i\, y_i^2,
 \]
-a convex combination of the eigenvalues \((\lambda_i)\) with weights \((y_i^2)\) summing to one. The maximum value of this combination is \(\lambda_1\), attained when all the weight is on the largest eigenvalue, i.e., \(\vect{y} = \vect{e}_1\) and hence \(\vect{v} = Q \vect{e}_1 = \vect{q}_1\). The minimum is \(\lambda_p\), attained at \(\vect{v} = \vect{q}_p\).
+a convex combination of the eigenvalues \((\lambda_i)\) with weights \((y_i^2)\) summing to one. Since \(\lambda_1\) is the largest eigenvalue, \(\sum_i \lambda_i y_i^2 \le \lambda_1 \sum_i y_i^2 = \lambda_1\), with equality iff all the weight sits on the top eigenspace; this maximum is attained at \(\vect{y} = \vect{e}_1\), hence \(\vect{v} = Q \vect{e}_1 = \vect{q}_1\). The minimum is \(\lambda_p\), attained at \(\vect{v} = \vect{q}_p\).
 \end{proof}
 
-Applied to a covariance matrix \(\Sigma\), Proposition~\ref{prop:rayleigh} says that the largest eigenvalue \(\lambda_1(\Sigma)\) is the maximum possible variance of a unit-norm linear combination of the coordinates, attained when that combination points along the top eigenvector. The eigenvectors of \(\Sigma\) are therefore the directions of greatest, second-greatest, and so on, variance of \(\vect{X}\), and the eigenvalues record the variance along each direction. This is the geometric meaning of the spectral decomposition of a covariance matrix.
+Applied to a covariance matrix \(\Sigma\), Proposition~\ref{prop:rayleigh} says that the largest eigenvalue \(\lambda_1(\Sigma)\) is the maximum possible variance of a unit-norm linear combination of the coordinates, attained when that combination points along the top eigenvector. The top eigenvector of \(\Sigma\) is therefore the direction of greatest variance of \(\vect{X}\), and the bottom eigenvector the direction of least variance; the intermediate directions are recovered by maximizing variance over the orthogonal complements of the directions already chosen (the Courant--Fischer characterization, which we do not prove here), and in each case the eigenvalue records the variance along its eigenvector.
 
 \paragraph{Worked examples in the \(2 \times 2\) case.}
 For a symmetric matrix \(A = \begin{pmatrix} a & b \\ b & d \end{pmatrix}\), the characteristic polynomial \(\det(A - \lambda I) = (a - \lambda)(d - \lambda) - b^2\) factors with eigenvalues
@@ -827,17 +830,17 @@ which is a sum of squares, manifestly \(> 0\) for \(\vect{x} \ne \vect{0}\).
 \noindent\emph{Indefinite case.} Let \(A_2 = \begin{pmatrix} 1 & -2 \\ -2 & 1 \end{pmatrix}\). Equation~\eqref{eq:2x2-eigenvalues} gives \(\lambda_{\pm} = 1 \pm 2\), so \(\lambda_+ = 3\) and \(\lambda_- = -1\). The opposite signs make \(A_2\) indefinite. Two directional certificates confirm this: \(\vect{v} = (1, 1)\transpose\) gives \(\vect{v}\transpose A_2 \vect{v} = -2 < 0\), and \(\vect{v} = (1, -1)\transpose\) gives \(\vect{v}\transpose A_2 \vect{v} = 6 > 0\).
 \end{example}
 
-Figure~\ref{fig:quad-forms} visualizes the geometry of the three regimes.
+Figure~\ref{fig:quad-forms} shows the level sets of the quadratic form in the positive-definite, positive-semidefinite, and indefinite cases.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{figures/quadratic_form_level_sets.png}
-  \caption{Level sets of \(\vect{x}\transpose A\, \vect{x}\) for three real symmetric \(2 \times 2\) matrices, illustrating Theorem~\ref{thm:pd-psd-eigen}. \emph{Left:} a positive-definite \(A\) with both eigenvalues positive; level sets are nested ellipses with axes aligned with the eigenvectors. \emph{Middle:} a positive-semidefinite \(A\) with one zero eigenvalue; level sets degenerate into parallel strips along the null eigenvector. \emph{Right:} an indefinite \(A\) with eigenvalues of opposite sign; level sets are hyperbolas and the quadratic form is positive in some directions and negative in others.}
+  \caption{Level sets of \(\vect{x}\transpose A\, \vect{x}\) for three real symmetric \(2 \times 2\) matrices, illustrating Theorem~\ref{thm:pd-psd-eigen}. \emph{Left:} a positive-definite \(A\) with both eigenvalues positive; level sets are nested ellipses with axes aligned with the eigenvectors. \emph{Middle:} a positive-semidefinite \(A\) with one zero eigenvalue; level sets degenerate into parallel strips along the null eigenvector. \emph{Right:} an indefinite \(A\) with eigenvalues of opposite sign; level sets are hyperbolas and the quadratic form is positive in some directions and negative in others. Generated by \texttt{notebooks/02\_random\_vectors\_and\_linalg.py}.}
   \label{fig:quad-forms}
 \end{figure}
 
 \paragraph{Vector and matrix norms.}
-To say that a random matrix of averages is close to \(\Sigma\), and to push that closeness down to the eigenvalues, we need a notion of distance between matrices; that is exactly what norms provide. A \emph{norm} on a real vector space \(V\) is a function \(\norm{\,\cdot\,}: V \to [0, \infty)\) satisfying, for all \(\vect{v}, \vect{w} \in V\) and scalars \(\alpha\):
+To say that a random matrix of averages is close to \(\Sigma\), and to push that closeness down to the eigenvalues, we need a notion of distance between matrices, which norms provide. A \emph{norm} on a real vector space \(V\) is a function \(\norm{\,\cdot\,}: V \to [0, \infty)\) satisfying, for all \(\vect{v}, \vect{w} \in V\) and scalars \(\alpha\):
 \begin{enumerate}[label=\textnormal{(N\arabic*)},leftmargin=*]
   \item \(\norm{\vect{v}} = 0\) if and only if \(\vect{v} = \vect{0}\) (definiteness);
   \item \(\norm{\alpha \vect{v}} = \abs{\alpha}\, \norm{\vect{v}}\) (homogeneity);
@@ -847,7 +850,7 @@ On \(\R^p\) the standard examples are
 \[
   \norm{\vect{v}}_2 \;=\; \Bigl(\sum_{i=1}^p v_i^2\Bigr)^{1/2}, \qquad \norm{\vect{v}}_1 \;=\; \sum_{i=1}^p \abs{v_i}, \qquad \norm{\vect{v}}_\infty \;=\; \max_i \abs{v_i};
 \]
-each satisfies (N1)--(N3) by direct verification (the triangle inequality for \(\norm{\,\cdot\,}_2\) is the Cauchy-Schwarz inequality applied to \(\norm{\vect{v} + \vect{w}}_2^2\)).
+each satisfies (N1)--(N3) by direct verification (the triangle inequality for \(\norm{\,\cdot\,}_2\) follows from the Cauchy-Schwarz inequality applied to \(\norm{\vect{v} + \vect{w}}_2^2\)).
 
 On \(\R^{p \times p}\) we use two matrix norms.
 
@@ -862,7 +865,9 @@ The Frobenius norm is the Euclidean norm of \(A\) viewed as a vector in \(\R^{p^
 \[
   A_n \to A \text{ entrywise} \quad \Longleftrightarrow \quad \norm{A_n - A}_F \to 0.
 \]
-The operator norm measures the largest factor by which \(A\) stretches a unit vector; for symmetric \(A\) it equals the largest absolute eigenvalue, \(\norm{A}_{\mathrm{op}} = \max_i \abs{\lambda_i}\) (in the eigenbasis, \(\norm{A \vect{v}}_2^2 = \sum_i \lambda_i^2 y_i^2 \le (\max_i \abs{\lambda_i})^2 \norm{\vect{y}}_2^2\), with equality on the corresponding eigenvector).
+The operator norm is the largest factor by which \(A\) scales a unit vector in Euclidean length; for symmetric \(A\) it equals the largest absolute eigenvalue, \(\norm{A}_{\mathrm{op}} = \max_i \abs{\lambda_i}\) (writing \(\vect{y} = Q\transpose\vect{v}\), orthogonality of \(Q\) gives \(\norm{\vect{y}}_2 = \norm{\vect{v}}_2\), so on the unit sphere \(\norm{A \vect{v}}_2^2 = \sum_i \lambda_i^2 y_i^2 \le (\max_i \abs{\lambda_i})^2 \norm{\vect{y}}_2^2 = (\max_i \abs{\lambda_i})^2\), with equality on the corresponding eigenvector).
+
+Because the convergence arguments below move between these norms freely, we record that in finite dimensions they are all equivalent.
 
 \begin{theorem}[Equivalence of norms in finite dimensions]\label{thm:norm-equiv}
 For any two norms \(\norm{\,\cdot\,}_a, \norm{\,\cdot\,}_b\) on a finite-dimensional real vector space, there exist constants \(c, C > 0\) such that
@@ -871,7 +876,7 @@ For any two norms \(\norm{\,\cdot\,}_a, \norm{\,\cdot\,}_b\) on a finite-dimensi
 \]
 \end{theorem}
 
-The proof is a compactness argument: the function \(\vect{v} \mapsto \norm{\vect{v}}_b / \norm{\vect{v}}_a\) is continuous and positive on the unit sphere \(\{\norm{\vect{v}}_a = 1\}\), which is compact in finite dimensions; its minimum \(c\) and maximum \(C\) are strictly positive, and the inequality extends to all \(\vect{v}\) by homogeneity. The practical consequence for our purposes is that for matrices in finite dimensions, every sense of convergence to zero (entrywise, Frobenius, operator) implies all of the others.
+The proof is a compactness argument: the function \(\vect{v} \mapsto \norm{\vect{v}}_b / \norm{\vect{v}}_a\) is continuous and positive on the unit sphere \(\{\norm{\vect{v}}_a = 1\}\), which is compact in finite dimensions; its minimum \(c\) and maximum \(C\) are strictly positive, and the inequality extends to all \(\vect{v}\) by homogeneity. The consequence we use is that for matrices in finite dimensions, every sense of convergence to zero (entrywise, Frobenius, operator) implies all of the others.
 
 \paragraph{Determinant and the characteristic polynomial.}
 The Leibniz formula expresses the determinant as a polynomial in the matrix entries:
@@ -891,10 +896,10 @@ The \emph{characteristic polynomial} of \(A\) is
 whose roots are exactly the eigenvalues of \(A\), counted with algebraic multiplicity. The coefficients of \(p_A\) are themselves polynomials in the entries of \(A\) (apply Leibniz to \(A - \lambda I\)), so they too are continuous functions of \(A\).
 
 \paragraph{Eigenvalue convergence.}
-The key ingredient is that when a sequence of matrices converges, their eigenvalues converge. The deterministic statement is a standard fact about polynomial roots; we push it through the modes of convergence developed above, following \citet[][Prop.~3.1]{Genzer2025}.
+To carry matrix-level convergence down to eigenvalue-level convergence, we record that when a sequence of matrices converges, so do their eigenvalues. The deterministic statement is a standard fact about polynomial roots; we push it through the modes of convergence developed above, following \citet[][Prop.~3.1]{Genzer2025}.
 
 \begin{proposition}[Eigenvalue convergence via characteristic polynomials]\label{prop:eigen-convergence}
-Let \(\{\Sigma_n\}_{n \ge 1}\) and \(\Sigma_0\) be \(p \times p\) symmetric matrices, random in parts (2) and (3) with \(\Sigma_0\) a fixed deterministic matrix, and write \(\lambda_i(\Sigma)\) for the \(i\)\textsuperscript{th} eigenvalue of \(\Sigma\) (with some fixed ordering convention).
+Let \(\{\Sigma_n\}_{n \ge 1}\) and \(\Sigma_0\) be \(p \times p\) symmetric matrices, random in parts (2) and (3) with \(\Sigma_0\) a fixed deterministic matrix, and write \(\lambda_1(\Sigma) \ge \cdots \ge \lambda_p(\Sigma)\) for the eigenvalues of \(\Sigma\) sorted in decreasing order (these are real because \(\Sigma\) is symmetric, so the ordering is well defined).
 \begin{enumerate}[label=\textnormal{(\arabic*)},leftmargin=*]
   \item \emph{Deterministic.} If \(\Sigma_n \to \Sigma_0\) entrywise, then \(\lambda_i(\Sigma_n) \to \lambda_i(\Sigma_0)\) for every \(i\).
   \item \emph{Almost sure.} If \(\Sigma_n \convas \Sigma_0\) in any matrix norm, then \(\lambda_i(\Sigma_n) \convas \lambda_i(\Sigma_0)\).
@@ -903,7 +908,7 @@ Let \(\{\Sigma_n\}_{n \ge 1}\) and \(\Sigma_0\) be \(p \times p\) symmetric matr
 \end{proposition}
 
 \begin{proof}
-\emph{Step 1 (deterministic).} Suppose \(\Sigma_n \to \Sigma_0\) entrywise. By the Leibniz formula~\eqref{eq:leibniz}, the coefficients of the characteristic polynomial \(p_{\Sigma_n}(\lambda) = \det(\Sigma_n - \lambda I)\) are polynomial functions of the entries of \(\Sigma_n\), so they converge to the coefficients of \(p_{\Sigma_0}\). A standard result from analysis states that the roots of a monic polynomial depend continuously on its coefficients (after a consistent ordering; see, e.g., \citealp{HornJohnson2013}); applied to the characteristic polynomials this gives \(\lambda_i(\Sigma_n) \to \lambda_i(\Sigma_0)\) for every \(i\).
+\emph{Step 1 (deterministic).} Suppose \(\Sigma_n \to \Sigma_0\) entrywise. By the Leibniz formula~\eqref{eq:leibniz}, the coefficients of the characteristic polynomial \(p_{\Sigma_n}(\lambda) = \det(\Sigma_n - \lambda I)\) are polynomial functions of the entries of \(\Sigma_n\), so they converge to the coefficients of \(p_{\Sigma_0}\). A standard result from analysis states that the roots of a monic polynomial depend continuously on its coefficients; here all roots are real (the matrices are symmetric), so sorting them in decreasing order gives a continuous, well-defined ordering \citep[see, e.g.,][]{HornJohnson2013}; applied to the characteristic polynomials this gives \(\lambda_i(\Sigma_n) \to \lambda_i(\Sigma_0)\) for every \(i\).
 
 \emph{Step 2 (almost sure).} Suppose \(\Sigma_n \convas \Sigma_0\) in some matrix norm \(\norm{\,\cdot\,}\). By Theorem~\ref{thm:norm-equiv}, this is equivalent to convergence in Frobenius norm, which in turn is entrywise convergence (with probability one). Concretely, there is an event \(\Omega_0\) with \(\Prob(\Omega_0) = 1\) such that for every \(\omega \in \Omega_0\), \(\Sigma_n(\omega) \to \Sigma_0\) entrywise. Step 1 applies to this deterministic sequence and yields \(\lambda_i(\Sigma_n(\omega)) \to \lambda_i(\Sigma_0)\) for every \(\omega \in \Omega_0\), which is the statement \(\lambda_i(\Sigma_n) \convas \lambda_i(\Sigma_0)\).
 
@@ -922,8 +927,8 @@ and taking probabilities,
 This is \(\lambda_i(\Sigma_n) \convp \lambda_i(\Sigma_0)\) for every \(i\).
 \end{proof}
 
-The deterministic chain \emph{entries \(\to\) characteristic-polynomial coefficients \(\to\) roots} is the entire logical content; the random versions follow by pushing continuity through the respective modes of convergence.
+In summary, the deterministic chain \emph{entries \(\to\) characteristic-polynomial coefficients \(\to\) roots} carries the whole argument; the random versions follow by pushing continuity through the respective modes of convergence.
 
-The two pieces of this appendix now combine into a single statement about the sample covariance matrix. It is, on the one hand, a matrix of averages, controlled entrywise by the law of large numbers; and, on the other hand, a symmetric positive-semidefinite matrix, controlled geometrically by the spectral theorem and the Rayleigh quotient. Section~\ref{sec:scm} makes this statement precise and asks what changes when the dimension grows with the sample size. A reader who has worked through to this point has every tool the main text uses.
+The two pieces of this appendix now combine into a single statement about the sample covariance matrix. It is, on the one hand, a matrix of averages, controlled entrywise by the law of large numbers; on the other hand, a symmetric positive-semidefinite matrix, controlled geometrically by the spectral theorem and the Rayleigh quotient. Section~\ref{sec:scm} makes this statement precise and asks what changes when the dimension grows with the sample size. A reader who has worked through to this point has every tool the main text uses.
 
 \clearpage
